@@ -10,11 +10,15 @@ Ini adalah bagian frontend untuk sistem reservasi lapangan olahraga menggunakan 
 Pertama, clone repository ke komputer lokal:
 ```bash
 git clone https://github.com/Alhamdanaaa/Frontend-GenZett.git
-cd frontend
+cd Frontend-GenZett
 ```
 
 ### **2. Install Dependencies**
 Pastikan kamu sudah berada di folder **frontend** dan install dependencies:
+
+```bash
+cd frontend
+```
 ```bash
 npm install
 ```
