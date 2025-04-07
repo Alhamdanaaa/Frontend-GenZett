@@ -25,6 +25,17 @@ export type Location = {
   updated_at: string;
 };
 
+// Tipe data untuk sport
+export type Sport = {
+  id: number;
+  name: string;
+  countLocation: number;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
@@ -52,7 +63,7 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'User',
+    title: 'Users',
     url: '#', // Placeholder as there is no direct link for the parent
     icon: 'userPen',
     isActive: true,
@@ -61,14 +72,12 @@ export const navItems: NavItem[] = [
       {
         title: 'Admin',
         url: '/dashboard/admin',
-        icon: 'userPen',
         shortcut: ['a', 'a']
       },
       {
         title: 'User',
-        shortcut: ['u', 'u'],
-        url: '/',
-        icon: 'login'
+        url: '/dashboard/user',
+        shortcut: ['u', 'u']
       }
     ]
   },
