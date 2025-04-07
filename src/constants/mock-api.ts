@@ -155,3 +155,159 @@ export const fakeProducts = {
 
 // Initialize sample products
 fakeProducts.initialize();
+
+
+// Tipe data untuk Location
+export type Location = {
+  id: number;
+  img: string;
+  name: string;
+  sports: string[];
+  countLap: number;
+  desc: string;
+  address: string;
+  created_at: string;
+  updated_at: string;
+};
+
+// Mock location data store
+export const fakeLocations = {
+  records: [] as Location[], // Menyimpan daftar objek lokasi
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleLocations: Location[] = [];
+    
+    // Daftar cabang olahraga yang mungkin
+    const sportsList = [
+      'Futsal', 
+      'Badminton', 
+      'Basketball', 
+      'Volleyball', 
+      'Tennis', 
+      'Sepak Bola', 
+      'Handball'
+    ];
+
+    function generateRandomLocationData(id: number): Location {
+      // Pilih beberapa cabang olahraga secara acak
+      const locationSports = faker.helpers.arrayElements(sportsList, { min: 1, max: 3 });
+      
+      return {
+        id,
+        img: `https://api.slingacademy.com/public/sample-photos/${id}.jpeg`,
+        name: `${faker.location.city()} Sport Center`,
+        sports: locationSports,
+        countLap: faker.number.int({ min: 2, max: 10 }),
+        desc: faker.lorem.paragraph(),
+        address: faker.location.streetAddress(),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 15 lokasi
+    for (let i = 1; i <= 15; i++) {
+      sampleLocations.push(generateRandomLocationData(i));
+    }
+
+    this.records = sampleLocations;
+  },
+
+  // Ambil semua lokasi dengan filter opsional
+  async getAll({
+    sports = [],
+    search
+  }: {
+    sports?: string[];
+    search?: string;
+  }) {
+    let locations = [...this.records];
+
+    // Filter berdasarkan cabang olahraga
+    if (sports.length > 0) {
+      locations = locations.filter((location) =>
+        location.sports.some(sport => sports.includes(sport))
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      locations = matchSorter(locations, search, {
+        keys: ['name', 'desc', 'sports']
+      });
+    }
+
+    return locations;
+  },
+
+  // Ambil lokasi dengan pagination
+  async getLocations({
+    page = 1,
+    limit = 10,
+    sports,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    sports?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const sportsArray = sports ? sports.split('.') : [];
+    const allLocations = await this.getAll({
+      sports: sportsArray,
+      search
+    });
+    const totalLocations = allLocations.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedLocations = allLocations.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data lokasi untuk keperluan testing',
+      total_locations: totalLocations,
+      offset,
+      limit,
+      locations: paginatedLocations
+    };
+  },
+
+  // Ambil lokasi berdasarkan ID
+  async getLocationById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari lokasi berdasarkan ID
+    const location = this.records.find((location) => location.id === id);
+
+    if (!location) {
+      return {
+        success: false,
+        message: `Lokasi dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Lokasi dengan ID ${id} ditemukan`,
+      location
+    };
+  }
+};
+
+// Inisialisasi lokasi contoh
+fakeLocations.initialize();

@@ -30,12 +30,16 @@ import {
   IconUserX,
   IconX,
   IconLayoutKanban,
-  IconBrandGithub
+  IconBrandGithub,
+  IconMapPin,
+  IconBallBasketball
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
 
 export const Icons = {
+  sport: IconBallBasketball,
+  location: IconMapPin,
   dashboard: IconLayoutDashboard,
   logo: IconCommand,
   login: IconLogin,
