@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
+import { Location, Sport } from '@/constants/data';
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -157,19 +158,6 @@ export const fakeProducts = {
 fakeProducts.initialize();
 
 
-// Tipe data untuk Location
-export type Location = {
-  id: number;
-  img: string;
-  name: string;
-  sports: string[];
-  countLap: number;
-  desc: string;
-  address: string;
-  created_at: string;
-  updated_at: string;
-};
-
 // Mock location data store
 export const fakeLocations = {
   records: [] as Location[], // Menyimpan daftar objek lokasi
@@ -311,3 +299,48 @@ export const fakeLocations = {
 
 // Inisialisasi lokasi contoh
 fakeLocations.initialize();
+
+// Data sport
+export const fakeSports = {
+  records: [] as Sport[],
+
+  initialize() {
+    const sportNames = [
+      { name: 'Futsal', description: 'Olahraga mirip sepak bola, dimainkan di dalam ruangan.' },
+      { name: 'Badminton', description: 'Olahraga raket yang dimainkan oleh dua atau empat orang.' },
+      { name: 'Basketball', description: 'Olahraga tim yang bertujuan memasukkan bola ke keranjang.' },
+      { name: 'Volleyball', description: 'Olahraga memukul bola melewati net dengan tangan.' },
+      { name: 'Tennis', description: 'Olahraga raket satu lawan satu atau ganda.' },
+      { name: 'Sepak Bola', description: 'Olahraga paling populer dengan 11 pemain tiap tim.' },
+      { name: 'Handball', description: 'Olahraga cepat dengan bola tangan.' }
+    ];
+
+    const sports: Sport[] = sportNames.map((item, index) => ({
+      id: index + 1,
+      name: item.name,
+      countLocation: faker.number.int({ min: 1, max: 10 }),
+      description: item.description,
+      created_at: faker.date.past().toISOString(),
+      updated_at: faker.date.recent().toISOString()
+    }));
+
+    this.records = sports;
+  },
+
+  async getSports() {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
+    return this.records;
+  },
+
+  async getSportById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
+    const sport = this.records.find((s) => s.id === id);
+    if (!sport) {
+      return { success: false, message: `Sport dengan ID ${id} tidak ditemukan` };
+    }
+    return { success: true, sport };
+  }
+};
+
+// Jangan lupa panggil initialize
+fakeSports.initialize();

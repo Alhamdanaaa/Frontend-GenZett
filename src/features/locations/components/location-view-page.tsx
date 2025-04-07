@@ -1,4 +1,5 @@
-import { fakeLocations, Location } from '@/constants/mock-api';
+import { fakeLocations } from '@/constants/mock-api';
+import { Location } from '@/constants/data';
 import { notFound } from 'next/navigation';
 import LocationForm from './location-form';
 
