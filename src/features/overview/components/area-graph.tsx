@@ -41,7 +41,7 @@ const chartConfig = {
   }
 } satisfies ChartConfig;
 
-export function AreaGraph() {
+export default function AreaGraph() {
   return (
     <Card className='@container/card'>
       <CardHeader>
