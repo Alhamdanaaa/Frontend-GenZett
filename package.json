@@ -1,11 +1,7 @@
 {
-  "name": "next-shadcn-dashboard-starter",
+  "name": "frontend-genzett",
   "version": "1.0.0",
   "private": true,
-  "author": {
-    "name": "Kiran",
-    "url": "https://github.com/Kiranism"
-  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

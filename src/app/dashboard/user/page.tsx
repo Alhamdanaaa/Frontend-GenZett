@@ -3,7 +3,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import SportListingPage from '@/features/sport/components/sport-listing';
+import UserListListingPage from '@/features/user-list/components/user-list-listing';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
 import { IconPlus } from '@tabler/icons-react';
@@ -12,7 +12,7 @@ import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Dashboard: Sports'
+  title: 'Dashboard: Users'
 };
 
 type pageProps = {
@@ -32,11 +32,11 @@ export default async function Page(props: pageProps) {
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <Heading
-            title='Sports'
-            description='Manage sports (Server side table functionalities.)'
+            title='Users'
+            description='Manage users (Server side table functionalities.)'
           />
           <Link
-            href='/dashboard/sport/new'
+            href='/dashboard/user/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Add New
@@ -49,7 +49,7 @@ export default async function Page(props: pageProps) {
             <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
           }
         >
-          <SportListingPage />
+          <UserListListingPage />
         </Suspense>
       </div>
     </PageContainer>

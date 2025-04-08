@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport, Field } from '@/constants/data';
+import { Location, Sport, Field, User } from '@/constants/data';
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -495,3 +495,147 @@ export const fakeFields = {
 
 // Inisialisasi lapangan contoh
 fakeFields.initialize();
+
+
+
+// Mock user data store
+export const fakeUsers = {
+  records: [] as User[], // Menyimpan daftar objek user
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleUsers: User[] = [];
+    
+    // Status member
+    const memberStatuses: User['memberStatus'][] = [
+      'Member', 
+      'Non-Member'
+    ];
+
+    function generateRandomUserData(userId: number): User {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      
+      return {
+        userId,
+        username: faker.internet.username({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
+        name: `${firstName} ${lastName}`,
+        email: faker.internet.email({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
+        phone: `+62 8${faker.string.numeric(9)}`,
+        memberStatus: faker.helpers.arrayElement(memberStatuses),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 users
+    for (let i = 1; i <= 50; i++) {
+      sampleUsers.push(generateRandomUserData(i));
+    }
+
+    this.records = sampleUsers;
+  },
+
+  // Ambil semua users dengan filter opsional
+  async getAll({
+    memberStatus = [],
+    search
+  }: {
+    memberStatus?: string[];
+    search?: string;
+  }) {
+    let users = [...this.records];
+
+    // Filter berdasarkan status member
+    if (memberStatus.length > 0) {
+      users = users.filter((user) =>
+        memberStatus.includes(user.memberStatus)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      users = matchSorter(users, search, {
+        keys: ['username', 'name', 'email', 'phone']
+      });
+    }
+
+    return users;
+  },
+
+  // Ambil users dengan pagination
+  async getUsers({
+    page = 1,
+    limit = 10,
+    memberStatus,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    memberStatus?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const memberStatusArray = memberStatus ? memberStatus.split('.') : [];
+    const allUsers = await this.getAll({
+      memberStatus: memberStatusArray,
+      search
+    });
+    const totalUsers = allUsers.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedUsers = allUsers.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data user untuk keperluan testing',
+      total_users: totalUsers,
+      offset,
+      limit,
+      users: paginatedUsers
+    };
+  },
+
+  // Ambil user berdasarkan ID
+  async getUserById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari user berdasarkan ID
+    const user = this.records.find((user) => user.userId === id);
+
+    if (!user) {
+      return {
+        success: false,
+        message: `User dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `User dengan ID ${id} ditemukan`,
+      user
+    };
+  }
+};
+
+// Inisialisasi users contoh
+fakeUsers.initialize();

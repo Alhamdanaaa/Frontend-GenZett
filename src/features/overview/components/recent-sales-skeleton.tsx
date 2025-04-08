@@ -1,7 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
-export function RecentSalesSkeleton() {
+export default function RecentSalesSkeleton() {
   return (
     <Card className='h-full'>
       <CardHeader>

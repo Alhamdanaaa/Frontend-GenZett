@@ -47,6 +47,17 @@ export type Field = {
   updated_at: string;
 };
 
+// Tipe data User
+export type User = {
+  userId: number;
+  username: string;
+  name: string;
+  email: string;
+  phone: string;
+  memberStatus: 'Member' | 'Non-Member';
+  created_at: string;
+  updated_at: string;
+};
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
