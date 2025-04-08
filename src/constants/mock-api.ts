@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport } from '@/constants/data';
+import { Location, Sport, Field } from '@/constants/data';
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -344,3 +344,154 @@ export const fakeSports = {
 
 // Jangan lupa panggil initialize
 fakeSports.initialize();
+
+
+// Mock field data store
+export const fakeFields = {
+  records: [] as Field[], // Menyimpan daftar objek lapangan
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleFields: Field[] = [];
+    
+    // Daftar cabang olahraga yang mungkin
+    const sportsList = [
+      'Futsal', 
+      'Badminton', 
+      'Basketball', 
+      'Volleyball', 
+      'Tennis', 
+      'Sepak Bola', 
+      'Handball'
+    ];
+
+    // Daftar lokasi
+    const locationsList = [
+      'GOR Utama',
+      'Sport Center Kota',
+      'Stadion Olahraga',
+      'Pusat Kebugaran',
+      'Arena Olahraga',
+      'Kompleks Olahraga',
+      'Lapangan Terpadu'
+    ];
+
+    function generateRandomFieldData(id: number): Field {
+      return {
+        id,
+        name: `Lapangan ${faker.helpers.arrayElement(sportsList)} ${id}`,
+        location: faker.helpers.arrayElement(locationsList),
+        sport: faker.helpers.arrayElement(sportsList),
+        jamMulai: '09:00',
+        jamTutup: '23:00',
+        description: faker.lorem.paragraph(),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 lapangan
+    for (let i = 1; i <= 50; i++) {
+      sampleFields.push(generateRandomFieldData(i));
+    }
+
+    this.records = sampleFields;
+  },
+
+  // Ambil semua lapangan dengan filter opsional
+  async getAll({
+    sport = [],
+    search
+  }: {
+    sport?: string[];
+    search?: string;
+  }) {
+    let fields = [...this.records];
+
+    // Filter berdasarkan cabang olahraga
+    if (sport.length > 0) {
+      fields = fields.filter((field) =>
+        sport.includes(field.sport)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      fields = matchSorter(fields, search, {
+        keys: ['name', 'location', 'sport', 'description']
+      });
+    }
+
+    return fields;
+  },
+
+  // Ambil lapangan dengan pagination
+  async getFields({
+    page = 1,
+    limit = 10,
+    sport,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    sport?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const sportArray = sport ? sport.split('.') : [];
+    const allFields = await this.getAll({
+      sport: sportArray,
+      search
+    });
+    const totalFields = allFields.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedFields = allFields.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data lapangan untuk keperluan testing',
+      total_fields: totalFields,
+      offset,
+      limit,
+      fields: paginatedFields
+    };
+  },
+
+  // Ambil lapangan berdasarkan ID
+  async getFieldById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari lapangan berdasarkan ID
+    const field = this.records.find((field) => field.id === id);
+
+    if (!field) {
+      return {
+        success: false,
+        message: `Lapangan dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Lapangan dengan ID ${id} ditemukan`,
+      field
+    };
+  }
+};
+
+// Inisialisasi lapangan contoh
+fakeFields.initialize();

@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Location } from '@/constants/data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { SPORTS_OPTIONS } from './location-tables/options';
 import * as z from 'zod';
 
 const MAX_FILE_SIZE = 5000000;
@@ -33,15 +34,15 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/webp'
 ];
 
-const SPORTS_OPTIONS = [
-  'Futsal',
-  'Badminton', 
-  'Basketball', 
-  'Volleyball', 
-  'Tennis', 
-  'Sepak Bola', 
-  'Handball'
-];
+// const SPORTS_OPTIONS = [
+//   'Futsal',
+//   'Badminton', 
+//   'Basketball', 
+//   'Volleyball', 
+//   'Tennis', 
+//   'Sepak Bola', 
+//   'Handball'
+// ];
 
 const formSchema = z.object({
   img: z
@@ -165,8 +166,8 @@ export default function LocationForm({
                       </FormControl>
                       <SelectContent>
                         {SPORTS_OPTIONS.map((sport) => (
-                          <SelectItem key={sport} value={sport}>
-                            {sport}
+                          <SelectItem key={sport.value} value={sport.value}>
+                            {sport.label}
                           </SelectItem>
                         ))}
                       </SelectContent>

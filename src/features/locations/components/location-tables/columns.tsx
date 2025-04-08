@@ -8,17 +8,6 @@ import Image from 'next/image';
 import { CellAction } from './cell-action';
 import { SPORTS_OPTIONS } from './options';
 
-// // Opsi untuk filter cabang olahraga
-// export const SPORTS_OPTIONS = [
-//   { label: 'Futsal', value: 'Futsal' },
-//   { label: 'Badminton', value: 'Badminton' },
-//   { label: 'Basketball', value: 'Basketball' },
-//   { label: 'Volleyball', value: 'Volleyball' },
-//   { label: 'Tennis', value: 'Tennis' },
-//   { label: 'Sepak Bola', value: 'Sepak Bola' },
-//   { label: 'Handball', value: 'Handball' }
-// ];
-
 export const columns: ColumnDef<Location>[] = [
   {
     accessorKey: 'img',
