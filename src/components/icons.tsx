@@ -32,12 +32,14 @@ import {
   IconLayoutKanban,
   IconBrandGithub,
   IconMapPin,
-  IconBallBasketball
+  IconBallBasketball,
+  IconSoccerField
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
 
 export const Icons = {
+  field: IconSoccerField,
   sport: IconBallBasketball,
   location: IconMapPin,
   dashboard: IconLayoutDashboard,

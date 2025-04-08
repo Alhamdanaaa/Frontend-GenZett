@@ -35,6 +35,18 @@ export type Sport = {
   updated_at: string;
 };
 
+export type Field = {
+  id: number;
+  name: string;
+  location: string;
+  sport: string;
+  jamMulai: string;
+  jamTutup: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
@@ -51,6 +63,14 @@ export const navItems: NavItem[] = [
     url: '/dashboard/location',
     icon: 'location',
     shortcut: ['l', 'l'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Field',
+    url: '/dashboard/field',
+    icon: 'field',
+    shortcut: ['f', 'f'],
     isActive: false,
     items: [] // No child items
   },
