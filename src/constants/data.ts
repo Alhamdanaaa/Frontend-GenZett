@@ -59,6 +59,18 @@ export type User = {
   updated_at: string;
 };
 
+// Tipe data Admin
+export type Admin = {
+  adminId: number;
+  name: string;
+  phone: string;
+  location: string;
+  accountStatus: 'Active' | 'Inactive' | 'Suspended';
+  created_at: string;
+  updated_at: string;
+};
+
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {

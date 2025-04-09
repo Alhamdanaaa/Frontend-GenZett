@@ -25,7 +25,9 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Nama Lengkap',
+    header: ({ column }: { column: Column<User, unknown> }) => (
+      <DataTableColumnHeader column={column} title='Nama' />
+    ),
     cell: ({ cell }) => {
       const name = cell.getValue<User['name']>();
       return <div>{name}</div>;

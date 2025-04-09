@@ -7,19 +7,18 @@ import { columns } from './field-tables/columns';
 type FieldListingPage = {};
 
 export default async function FieldListingPage({}: FieldListingPage) {
-  console.log('SPORTS:', searchParamsCache.get('sports'));
-console.log('ALL PARAMS:', searchParamsCache.all());
-
   // Penggunaan cache search params di Render Server Components
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
+  const locations = searchParamsCache.get('location');
   const sports = searchParamsCache.get('sports');
   
   const filters = {
     page,
     limit: pageLimit,
     ...(search && { search }),
+    ...(locations && { locations: locations }),
     ...(sports && { sports: sports })
   };
 
