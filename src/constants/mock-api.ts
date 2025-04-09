@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport, Field, User } from '@/constants/data';
+import { Location, Sport, Field, User, Admin } from '@/constants/data';
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -353,15 +353,15 @@ export const fakeFields = {
   // Inisialisasi dengan data contoh
   initialize() {
     const sampleFields: Field[] = [];
-    
+
     // Daftar cabang olahraga yang mungkin
     const sportsList = [
-      'Futsal', 
-      'Badminton', 
-      'Basketball', 
-      'Volleyball', 
-      'Tennis', 
-      'Sepak Bola', 
+      'Futsal',
+      'Badminton',
+      'Basketball',
+      'Volleyball',
+      'Tennis',
+      'Sepak Bola',
       'Handball'
     ];
 
@@ -402,18 +402,27 @@ export const fakeFields = {
 
   // Ambil semua lapangan dengan filter opsional
   async getAll({
-    sport = [],
+    locations = [],
+    sports = [],
     search
   }: {
-    sport?: string[];
+    locations?: string[];
+    sports?: string[];
     search?: string;
   }) {
     let fields = [...this.records];
 
-    // Filter berdasarkan cabang olahraga
-    if (sport.length > 0) {
+    // Filter berdasarkan location
+    if (locations.length > 0) {
       fields = fields.filter((field) =>
-        sport.includes(field.sport)
+        locations.includes(field.location)
+      );
+    }
+
+    // Filter berdasarkan cabang olahraga
+    if (sports.length > 0) {
+      fields = fields.filter((field) =>
+        sports.includes(field.sport)
       );
     }
 
@@ -431,21 +440,27 @@ export const fakeFields = {
   async getFields({
     page = 1,
     limit = 10,
-    sport,
+    locations,
+    sports,
     search
   }: {
     page?: number;
     limit?: number;
-    sport?: string;
+    locations?: string;
+    sports?: string;
     search?: string;
   }) {
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const sportArray = sport ? sport.split('.') : [];
+    const locationArray = locations ? locations.split('.') : [];
+    const sportArray = sports ? sports.split('.') : [];
+
     const allFields = await this.getAll({
-      sport: sportArray,
+      locations: locationArray,
+      sports: sportArray,
       search
     });
+
     const totalFields = allFields.length;
 
     // Logika pagination
@@ -492,6 +507,7 @@ export const fakeFields = {
     };
   }
 };
+
 
 // Inisialisasi lapangan contoh
 fakeFields.initialize();
@@ -639,3 +655,165 @@ export const fakeUsers = {
 
 // Inisialisasi users contoh
 fakeUsers.initialize();
+
+// Mock admin data store
+export const fakeAdmins = {
+  records: [] as Admin[], // Menyimpan daftar objek admin
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleAdmins: Admin[] = [];
+
+    // Daftar lokasi
+    const locationsList = [
+      'GOR Utama',
+      'Sport Center Kota',
+      'Stadion Olahraga',
+      'Pusat Kebugaran',
+      'Arena Olahraga',
+      'Kompleks Olahraga',
+      'Lapangan Terpadu'
+    ];
+
+    // Status akun
+    const accountStatuses: Admin['accountStatus'][] = [
+      'Active',
+      'Inactive',
+      'Suspended'
+    ];
+
+    function generateRandomAdminData(adminId: number): Admin {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+
+      return {
+        adminId,
+        name: `${firstName} ${lastName}`,
+        phone: `+62 8${faker.string.numeric(9)}`,
+        location: faker.helpers.arrayElement(locationsList),
+        accountStatus: faker.helpers.arrayElement(accountStatuses),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 admin
+    for (let i = 1; i <= 50; i++) {
+      sampleAdmins.push(generateRandomAdminData(i));
+    }
+
+    this.records = sampleAdmins;
+  },
+
+  // Ambil semua admin dengan filter opsional
+  async getAll({
+    accountStatus = [],
+    location = [],
+    search
+  }: {
+    accountStatus?: string[];
+    location?: string[];
+    search?: string;
+  }) {
+    let admins = [...this.records];
+
+    // Filter berdasarkan status akun
+    if (accountStatus.length > 0) {
+      admins = admins.filter((admin) =>
+        accountStatus.includes(admin.accountStatus)
+      );
+    }
+
+    // Filter berdasarkan location
+    if (location.length > 0) {
+      admins = admins.filter((admin) =>
+        location.includes(admin.location)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      admins = matchSorter(admins, search, {
+        keys: ['name', 'phone', 'location']
+      });
+    }
+
+    return admins;
+  },
+
+  // Ambil admin dengan pagination
+  async getAdmins({
+    page = 1,
+    limit = 10,
+    location,
+    accountStatus,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    location?: string;
+    accountStatus?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const locationArray = location ? location.split('.') : [];
+    const accountStatusArray = accountStatus ? accountStatus.split('.') : [];
+
+    const allAdmins = await this.getAll({
+      location: locationArray,
+      accountStatus: accountStatusArray,
+      search
+    });
+
+    const totalAdmins = allAdmins.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedAdmins = allAdmins.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data admin untuk keperluan testing',
+      total_admins: totalAdmins,
+      offset,
+      limit,
+      admins: paginatedAdmins
+    };
+  },
+
+  // Ambil admin berdasarkan ID
+  async getAdminById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari admin berdasarkan ID
+    const admin = this.records.find((admin) => admin.adminId === id);
+
+    if (!admin) {
+      return {
+        success: false,
+        message: `Admin dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Admin dengan ID ${id} ditemukan`,
+      admin
+    };
+  }
+};
+
+// Inisialisasi admin contoh
+fakeAdmins.initialize();
