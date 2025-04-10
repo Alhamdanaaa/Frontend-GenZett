@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function page() {
   return (
     <div>
-      <p>ini beranda ya</p>
+      <p>ini beranda ya :p</p>
     </div>
   )
 }
