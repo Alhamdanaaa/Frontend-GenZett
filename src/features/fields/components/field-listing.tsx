@@ -12,7 +12,7 @@ export default async function FieldListingPage({}: FieldListingPage) {
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
   const locations = searchParamsCache.get('location');
-  const sports = searchParamsCache.get('sports');
+  const sports = searchParamsCache.get('sport');
   
   const filters = {
     page,

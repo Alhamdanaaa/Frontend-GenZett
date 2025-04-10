@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import UserListViewPage from '@/features/user-list/components/user-list-view-page';
 
 export const metadata = {
-  title: 'Dashboard : Manajemen User'
+  title: 'Dashboard : Manajemen Lokasi'
 };
 
 type PageProps = { params: Promise<{ userId: string }> };

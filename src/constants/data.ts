@@ -71,6 +71,22 @@ export type Admin = {
 };
 
 
+// Tipe data Reservation
+export type Reservation = {
+  reservationId: number;
+  createTime: string;
+  name: string;
+  fieldTime: string;
+  date: string;
+  totalPayment: number;
+  remainingPayment: number;
+  paymentStatus: 'pending' | 'down payment' | 'complete' | 'fail';
+  status: 'upcoming' | 'ongoing' | 'completed';
+  created_at: string;
+  updated_at: string;
+};
+
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
@@ -124,43 +140,83 @@ export const navItems: NavItem[] = [
       }
     ]
   },
-  {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'billing',
-    isActive: true,
+  // {
+  //   title: 'Product',
+  //   url: '/dashboard/product',
+  //   icon: 'product',
+  //   shortcut: ['p', 'p'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
+  // {
+  //   title: 'Account',
+  //   url: '#', // Placeholder as there is no direct link for the parent
+  //   icon: 'billing',
+  //   isActive: true,
 
-    items: [
-      {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'userPen',
-        shortcut: ['m', 'm']
-      },
-      {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
-      }
-    ]
+  //   items: [
+  //     {
+  //       title: 'Profile',
+  //       url: '/dashboard/profile',
+  //       icon: 'userPen',
+  //       shortcut: ['m', 'm']
+  //     },
+  //     {
+  //       title: 'Login',
+  //       shortcut: ['l', 'l'],
+  //       url: '/',
+  //       icon: 'login'
+  //     }
+  //   ]
+  // },
+  // {
+  //   title: 'Kanban',
+  //   url: '/dashboard/kanban',
+  //   icon: 'kanban',
+  //   shortcut: ['k', 'k'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
+  {
+    title: 'Dashboard admin',
+    url: '/dashboard/overview',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['d', 'd'],
+    items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
+    title: 'Field Schedule',
+    url: '/dashboard/schedule',
+    icon: 'timeline',
+    shortcut: ['l', 'l'],
     isActive: false,
     items: [] // No child items
-  }
+  },
+  {
+    title: 'Member',
+    url: '/dashboard/member',
+    icon: 'user',
+    shortcut: ['m', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Fieldss',
+    url: '/dashboard/sport',
+    icon: 'field',
+    shortcut: ['s', 's'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Reservation',
+    url: '/dashboard/reservation',
+    icon: 'reservation',
+    shortcut: ['r', 'r'],
+    isActive: false,
+    items: [] // No child items
+  },
 ];
 
 export interface SaleUser {

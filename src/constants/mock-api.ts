@@ -4,8 +4,8 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport, Field, User, Admin } from '@/constants/data';
-
+import { Location, Sport, Field, User, Admin, Reservation } from '@/constants/data';
+faker.seed(123);
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -817,3 +817,211 @@ export const fakeAdmins = {
 
 // Inisialisasi admin contoh
 fakeAdmins.initialize();
+
+
+// Mock reservation data store
+export const fakeReservations = {
+  records: [] as Reservation[], // Menyimpan daftar objek reservasi
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleReservations: Reservation[] = [];
+    
+    // Daftar nama lapangan
+    const fieldNames = [
+      'Lapangan Futsal Utama',
+      'Lapangan Badminton A',
+      'Lapangan Basket Kota',
+      'Lapangan Voli Stadion',
+      'Lapangan Tennis Center',
+      'Lapangan Sepak Bola Mini',
+      'Lapangan Handball Profesional'
+    ];
+
+    // Status pembayaran dan reservasi
+    const paymentStatuses: Reservation['paymentStatus'][] = ['pending', 'down payment', 'complete', 'fail'];
+    const reservationStatuses: Reservation['status'][] = ['upcoming', 'ongoing', 'completed'];
+
+    function generateRandomReservationData(reservationId: number): Reservation {
+      // Generate waktu mulai dan selesai
+      const startHour = faker.number.int({ min: 9, max: 20 }); 
+      const startTime = new Date();
+      startTime.setHours(startHour, 0, 0, 0);
+      const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
+      // Format waktu menjadi string seperti "8.00", "12.00"
+      const formatTime = (date: Date) => {
+        return `${date.getHours()}.00`;
+      };
+
+      // Total dan sisa pembayaran
+      const totalPayment = faker.number.int({ min: 50000, max: 500000 });
+      const paymentStatus = faker.helpers.arrayElement(paymentStatuses);
+      
+      // Hitung sisa pembayaran berdasarkan status
+      let remainingPayment = 0;
+      switch (paymentStatus) {
+        case 'pending':
+          remainingPayment = totalPayment;
+          break;
+        case 'down payment':
+          remainingPayment = totalPayment * 0.5;
+          break;
+        case 'complete':
+          remainingPayment = 0;
+          break;
+        case 'fail':
+          remainingPayment = totalPayment;
+          break;
+      }
+
+      // Generate nama pemesan
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+
+      function formatDateTime(date: Date): string {
+        const pad = (num: number) => num.toString().padStart(2, '0');
+        
+        const year = date.getFullYear().toString().slice(-2);
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+        
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+      }
+      return {
+        reservationId,
+        
+        // Dalam mock data
+        createTime: formatDateTime(faker.date.recent()),
+        name: `${firstName} ${lastName}`,
+        fieldTime: `${faker.helpers.arrayElement(fieldNames)} (${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()})`,
+        date: startTime.toISOString().split('T')[0],
+        totalPayment,
+        remainingPayment: Math.round(remainingPayment),
+        paymentStatus,
+        status: faker.helpers.arrayElement(reservationStatuses),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 reservasi
+    for (let i = 1; i <= 50; i++) {
+      sampleReservations.push(generateRandomReservationData(i));
+    }
+
+    this.records = sampleReservations;
+  },
+
+  // Ambil semua reservasi dengan filter opsional
+  async getAll({
+    paymentStatus = [],
+    status = [],
+    search
+  }: {
+    paymentStatus?: string[];
+    status?: string[];
+    search?: string;
+  }) {
+    let reservations = [...this.records];
+
+    // Filter berdasarkan status pembayaran
+    if (paymentStatus.length > 0) {
+      reservations = reservations.filter((reservation) =>
+        paymentStatus.includes(reservation.paymentStatus)
+      );
+    }
+
+    // Filter berdasarkan status reservasi
+    if (status.length > 0) {
+      reservations = reservations.filter((reservation) =>
+        status.includes(reservation.status)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      reservations = matchSorter(reservations, search, {
+        keys: ['name', 'fieldTime', 'date']
+      });
+    }
+
+    return reservations;
+  },
+
+  // Ambil reservasi dengan pagination
+  async getReservations({
+    page = 1,
+    limit = 10,
+    paymentStatus,
+    status,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    paymentStatus?: string;
+    status?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const paymentStatusArray = paymentStatus ? paymentStatus.split('.') : [];
+    const statusArray = status ? status.split('.') : [];
+    const allReservations = await this.getAll({
+      paymentStatus: paymentStatusArray,
+      status: statusArray,
+      search
+    });
+    const totalReservations = allReservations.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedReservations = allReservations.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data reservasi untuk keperluan testing',
+      total_reservations: totalReservations,
+      offset,
+      limit,
+      reservations: paginatedReservations
+    };
+  },
+
+  // Ambil reservasi berdasarkan ID
+  async getReservationById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari reservasi berdasarkan ID
+    const reservation = this.records.find((reservation) => reservation.reservationId === id);
+
+    if (!reservation) {
+      return {
+        success: false,
+        message: `Reservasi dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Reservasi dengan ID ${id} ditemukan`,
+      reservation
+    };
+  }
+};
+
+// Inisialisasi reservasi contoh
+fakeReservations.initialize();
