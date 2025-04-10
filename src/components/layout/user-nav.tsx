@@ -42,7 +42,7 @@ export function UserNav() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
-              Profile
+              Profil akun
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

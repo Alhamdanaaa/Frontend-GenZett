@@ -35,7 +35,10 @@ export const columns: ColumnDef<Sport>[] = [
     accessorKey: 'description',
     header: ({ column }: { column: Column<Sport, unknown> }) => (
       <DataTableColumnHeader column={column} title='Deskripsi' />
-    )
+    ),
+    meta:{
+      label: 'Deskripsi'
+    }
   },
   {
     id: 'actions',

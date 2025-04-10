@@ -98,7 +98,7 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Location',
+    title: 'Lokasi Cabang',
     url: '/dashboard/location',
     icon: 'location',
     shortcut: ['l', 'l'],
@@ -106,7 +106,7 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Field',
+    title: 'Lapangan',
     url: '/dashboard/field',
     icon: 'field',
     shortcut: ['f', 'f'],
@@ -114,7 +114,7 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Sports',
+    title: 'Cabang Olahraga',
     url: '/dashboard/sport',
     icon: 'sport',
     shortcut: ['s', 's'],
@@ -122,7 +122,7 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Users',
+    title: 'Pengguna',
     url: '#', // Placeholder as there is no direct link for the parent
     icon: 'userPen',
     isActive: true,
@@ -186,7 +186,7 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Field Schedule',
+    title: 'Jadwal Lapangan',
     url: '/dashboard/schedule',
     icon: 'timeline',
     shortcut: ['l', 'l'],
@@ -194,7 +194,7 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Member',
+    title: 'Anggota Member',
     url: '/dashboard/member',
     icon: 'user',
     shortcut: ['m', 'm'],
@@ -202,15 +202,15 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Fieldss',
-    url: '/dashboard/sport',
+    title: 'Lapangan-admin',
+    url: '/dashboard/field',
     icon: 'field',
     shortcut: ['s', 's'],
     isActive: false,
     items: [] // No child items
   },
   {
-    title: 'Reservation',
+    title: 'Reservasi Lapangan',
     url: '/dashboard/reservation',
     icon: 'reservation',
     shortcut: ['r', 'r'],

@@ -16,7 +16,7 @@ export const columns: ColumnDef<Admin>[] = [
     ),
     cell: ({ cell }) => <div>{cell.getValue<Admin['name']>()}</div>,
     meta: {
-      label: 'Nama',
+      label: 'Nama Admin',
       placeholder: 'Cari admin...',
       variant: 'text',
       icon: Text
@@ -35,7 +35,7 @@ export const columns: ColumnDef<Admin>[] = [
     id: 'location',
     accessorKey: 'location',
     header: ({ column }: { column: Column<Admin, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Lokasi' />
+      <DataTableColumnHeader column={column} title='Lokasi Cabang' />
     ),
     cell: ({ cell }) => {
       const location = cell.getValue<Admin['location']>();
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Admin>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      label: 'Lokasi',
+      label: 'Lokasi Cabang',
       variant: 'multiSelect',
       options: LOCATION_OPTIONS
     }
@@ -56,12 +56,23 @@ export const columns: ColumnDef<Admin>[] = [
     ),
     cell: ({ cell }) => {
       const status = cell.getValue<Admin['accountStatus']>();
+      const label = status === 'Active'
+        ? 'Aktif'
+        : status === 'Inactive'
+        ? 'Tidak Aktif'
+        : status === 'Suspended'
+        ? 'Ditangguhkan'
+        : status;
       return (
         <Badge
           variant='outline'
-          className={`capitalize ${status === 'Active' ? 'bg-green-300 text-black' : ''} ${status === 'Inactive' ? 'bg-gray-300 text-black' : ''} ${status === 'Suspended' ? 'bg-red-300 text-black' : ''} `}
+          className={`capitalize 
+            ${status === 'Active' ? 'bg-green-300 text-black' : ''} 
+            ${status === 'Inactive' ? 'bg-gray-300 text-black' : ''} 
+            ${status === 'Suspended' ? 'bg-red-300 text-black' : ''} 
+          `}
         >
-          {status}
+          {label}
         </Badge>
       );
     },
