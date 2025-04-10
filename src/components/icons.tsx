@@ -33,12 +33,18 @@ import {
   IconBrandGithub,
   IconMapPin,
   IconBallBasketball,
-  IconSoccerField
+  IconSoccerField,
+  IconReservedLine,
+  IconBrandBooking,
+  IconTimeline,
+  IconTimelineEvent
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
 
 export const Icons = {
+  timeline: IconTimelineEvent,
+  reservation: IconBrandBooking,  
   field: IconSoccerField,
   sport: IconBallBasketball,
   location: IconMapPin,
