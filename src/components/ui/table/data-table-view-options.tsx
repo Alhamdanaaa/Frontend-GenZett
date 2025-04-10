@@ -50,15 +50,15 @@ export function DataTableViewOptions<TData>({
           className='ml-auto hidden h-8 lg:flex'
         >
           <Settings2 />
-          View
+          Tampilan
           <CaretSortIcon className='ml-auto opacity-50' />
         </Button>
       </PopoverTrigger>
       <PopoverContent align='end' className='w-44 p-0'>
         <Command>
-          <CommandInput placeholder='Search columns...' />
+          <CommandInput placeholder='Pilih kolom...' />
           <CommandList>
-            <CommandEmpty>No columns found.</CommandEmpty>
+            <CommandEmpty>Tidak ada kolom yang dipilih.</CommandEmpty>
             <CommandGroup>
               {columns.map((column) => (
                 <CommandItem
@@ -68,7 +68,9 @@ export function DataTableViewOptions<TData>({
                   }
                 >
                   <span className='truncate'>
-                    {column.columnDef.meta?.label ?? column.id}
+                  {typeof column.columnDef.header === 'string' 
+                    ? column.columnDef.header 
+                    : column.columnDef.meta?.label ?? column.id}
                   </span>
                   <CheckIcon
                     className={cn(

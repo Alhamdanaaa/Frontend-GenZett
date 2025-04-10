@@ -33,13 +33,13 @@ export default async function Page(props: pageProps) {
         <div className='flex items-start justify-between'>
           <Heading
             title='Users'
-            description='Manage users (Server side table functionalities.)'
+            description='Manage users'
           />
           <Link
             href='/dashboard/user/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
-            <IconPlus className='mr-2 h-4 w-4' /> Add New
+            <IconPlus className='mr-2 h-4 w-4' /> Tambah
           </Link>
         </div>
         <Separator />

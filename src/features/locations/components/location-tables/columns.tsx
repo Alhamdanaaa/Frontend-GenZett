@@ -12,6 +12,9 @@ export const columns: ColumnDef<Location>[] = [
   {
     accessorKey: 'img',
     header: 'GAMBAR',
+    meta:{
+      label: 'Gambar'
+    },
     cell: ({ row }) => {
       return (
         <div className='relative aspect-square w-16 h-16'>
@@ -33,7 +36,7 @@ export const columns: ColumnDef<Location>[] = [
     ),
     cell: ({ cell }) => <div>{cell.getValue<Location['name']>()}</div>,
     meta: {
-      label: 'Nama',
+      label: 'Nama Lokasi',
       placeholder: 'Cari lokasi...',
       variant: 'text',
       icon: Text
@@ -67,10 +70,15 @@ export const columns: ColumnDef<Location>[] = [
   },
   {
     accessorKey: 'countLap',
-    header: 'Jumlah Lapangan',
+    header: ({ column }: { column: Column<Location, unknown> }) => (
+      <DataTableColumnHeader column={column} title='Jumlah Lapangan' />
+    ),
     cell: ({ cell }) => {
       const count = cell.getValue<Location['countLap']>();
       return <div>{count} Lapangan</div>;
+    },
+    meta:{
+      label: 'Jumlah Lapangan'
     }
   },
   {
@@ -79,6 +87,9 @@ export const columns: ColumnDef<Location>[] = [
     cell: ({ cell }) => {
       const address = cell.getValue<Location['address']>();
       return <div className='max-w-[200px] truncate'>{address}</div>;
+    },
+    meta:{
+      label: 'Alamat'
     }
   },
   {

@@ -31,6 +31,9 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ cell }) => {
       const name = cell.getValue<User['name']>();
       return <div>{name}</div>;
+    },
+    meta:{
+      label: 'Nama'
     }
   },
   {
