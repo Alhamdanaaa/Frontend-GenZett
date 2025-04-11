@@ -28,7 +28,7 @@ export const columns: ColumnDef<Reservation>[] = [
     cell: ({ cell }) => <div>{cell.getValue<Reservation['name']>()}</div>,
     meta: {
       label: 'Nama',
-      placeholder: 'Cari nama pemesan...',
+      placeholder: 'Cari...',
       variant: 'text',
       icon: Text
     },

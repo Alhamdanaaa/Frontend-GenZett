@@ -37,7 +37,7 @@ export const columns: ColumnDef<Location>[] = [
     cell: ({ cell }) => <div>{cell.getValue<Location['name']>()}</div>,
     meta: {
       label: 'Nama Lokasi',
-      placeholder: 'Cari lokasi...',
+      placeholder: 'Cari...',
       variant: 'text',
       icon: Text
     },

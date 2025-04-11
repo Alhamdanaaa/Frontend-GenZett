@@ -86,6 +86,19 @@ export type Reservation = {
   updated_at: string;
 };
 
+// Tipe data Member
+export type Member = {
+  memberId: number;
+  username: string;
+  name: string;
+  email: string;
+  phone: string;
+  day: string;
+  validUntil: string;
+  fieldTime: string;
+  create_at: string;
+};
+
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [

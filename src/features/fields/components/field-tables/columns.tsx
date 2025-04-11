@@ -17,7 +17,7 @@ export const columns: ColumnDef<Field>[] = [
     cell: ({ cell }) => <div>{cell.getValue<Field['name']>()}</div>,
     meta: {
       label: 'Nama Lapangan',
-      placeholder: 'Cari lapangan...',
+      placeholder: 'Cari...',
       variant: 'text',
       icon: Text
     },
