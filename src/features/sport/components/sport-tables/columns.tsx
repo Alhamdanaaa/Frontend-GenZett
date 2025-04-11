@@ -16,7 +16,7 @@ export const columns: ColumnDef<Sport>[] = [
     filterFn: 'includesString',
     meta: {
       label: 'Name',
-      placeholder: 'Cari cabor...',
+      placeholder: 'Cari...',
       variant: 'text',
       icon: Text
     },
