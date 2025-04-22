@@ -9,11 +9,18 @@ import NextTopLoader from 'nextjs-toploader';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import './globals.css';
 import './theme.css';
+import { Poppins } from 'next/font/google';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
   dark: '#09090b'
 };
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
+});
 
 export const metadata: Metadata = {
   title: 'Next Shadcn',
@@ -53,7 +60,8 @@ export default async function RootLayout({
           'bg-background overflow-hidden overscroll-none font-sans antialiased',
           activeThemeValue ? `theme-${activeThemeValue}` : '',
           isScaled ? 'theme-scaled' : '',
-          fontVariables
+          // fontVariables
+          "font-poppins"
         )}
       >
         <NextTopLoader showSpinner={false} />
