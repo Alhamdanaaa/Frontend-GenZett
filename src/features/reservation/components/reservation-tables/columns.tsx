@@ -16,6 +16,9 @@ export const columns: ColumnDef<Reservation>[] = [
     cell: ({ cell }) => {
       const createTime = cell.getValue<Reservation['createTime']>();
       return <div>{createTime}</div>;
+    },
+    meta: {
+      label: 'Waktu Pesanan'
     }
   },
   {
@@ -25,7 +28,7 @@ export const columns: ColumnDef<Reservation>[] = [
     cell: ({ cell }) => <div>{cell.getValue<Reservation['name']>()}</div>,
     meta: {
       label: 'Nama',
-      placeholder: 'Cari nama pemesan...',
+      placeholder: 'Cari...',
       variant: 'text',
       icon: Text
     },
@@ -52,7 +55,7 @@ export const columns: ColumnDef<Reservation>[] = [
     header: 'Total Pembayaran',
     cell: ({ cell }) => {
       const totalPayment = cell.getValue<Reservation['totalPayment']>();
-      return <div>Rp {totalPayment.toLocaleString()}</div>;
+      return <div>Rp {totalPayment.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</div>;
     }
   },
   {
@@ -60,7 +63,7 @@ export const columns: ColumnDef<Reservation>[] = [
     header: 'Sisa Pembayaran',
     cell: ({ cell }) => {
       const remainingPayment = cell.getValue<Reservation['remainingPayment']>();
-      return <div>Rp {remainingPayment.toLocaleString()}</div>;
+      return <div>Rp {remainingPayment.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</div>;
     }
   },
   {
@@ -71,6 +74,15 @@ export const columns: ColumnDef<Reservation>[] = [
     ),
     cell: ({ cell }) => {
       const status = cell.getValue<Reservation['paymentStatus']>();
+      const label = status === 'pending'
+        ? 'Menunggu'
+        : status === 'down payment'
+        ? 'Uang Muka'
+        : status === 'complete'
+        ? 'Lunas'
+        : status === 'fail'
+        ? 'Gagal'
+        : status;
       return (
         <Badge 
           variant='outline' 
@@ -82,7 +94,7 @@ export const columns: ColumnDef<Reservation>[] = [
             ${status === 'fail' ? 'bg-red-300 text-black' : ''}
           `}
         >
-          {status}
+          {label}
         </Badge>
       );
     },
@@ -101,6 +113,15 @@ export const columns: ColumnDef<Reservation>[] = [
     ),
     cell: ({ cell }) => {
       const status = cell.getValue<Reservation['status']>();
+      
+      const label = status === 'upcoming'
+        ? 'Mendatang'
+        : status === 'ongoing'
+        ? 'Berlangsung'
+        : status === 'completed'
+        ? 'Selesai'
+        : status;
+    
       return (
         <Badge 
           variant='outline' 
@@ -111,7 +132,7 @@ export const columns: ColumnDef<Reservation>[] = [
             ${status === 'completed' ? 'bg-green-300 text-black' : ''}
           `}
         >
-          {status}
+          {label}
         </Badge>
       );
     },

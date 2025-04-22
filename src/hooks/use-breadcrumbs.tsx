@@ -18,6 +18,22 @@ const routeMapping: Record<string, BreadcrumbItem[]> = {
   '/dashboard/product': [
     { title: 'Dashboard', link: '/dashboard' },
     { title: 'Product', link: '/dashboard/product' }
+  ],
+  '/dashboard/sport': [
+    { title: 'Dashboard', link: '/dashboard' },
+    { title: 'Cabang Olahraga', link: '/dashboard/sport' }
+  ],
+  '/dashboard/location': [
+    { title: 'Dashboard', link: '/dashboard' },
+    { title: 'Lokasi Cabang', link: '/dashboard/location' }
+  ],
+  '/dashboard/field': [
+    { title: 'Dashboard', link: '/dashboard' },
+    { title: 'Lapangan', link: '/dashboard/field' }
+  ],
+  '/dashboard/reservation': [
+    { title: 'Dashboard', link: '/dashboard' },
+    { title: 'Reservasi', link: '/dashboard/reservation' }
   ]
   // Add more custom mappings as needed
 };

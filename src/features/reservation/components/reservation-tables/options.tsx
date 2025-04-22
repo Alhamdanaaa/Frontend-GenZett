@@ -1,16 +1,16 @@
 // Opsi status pembayaran
 export const PAYMENT_STATUS_OPTIONS = [
-  { label: 'Pending', value: 'pending' },
-  { label: 'Down Payment', value: 'down payment' },
-  { label: 'Complete', value: 'complete' },
-  { label: 'Fail', value: 'fail' }
+  { label: 'Menunggu', value: 'pending' },
+  { label: 'Uang Muka', value: 'down payment' },
+  { label: 'Lunas', value: 'complete' },
+  { label: 'Gagal', value: 'fail' }
 ];
 
 // Opsi status reservasi
 export const RESERVATION_STATUS_OPTIONS = [
-  { label: 'Upcoming', value: 'upcoming' },
-  { label: 'Ongoing', value: 'ongoing' },
-  { label: 'Completed', value: 'completed' }
+  { label: 'Mendatang', value: 'upcoming' },
+  { label: 'Berlangsung', value: 'ongoing' },
+  { label: 'Selesai', value: 'completed' }
 ];
 
 // Opsi lapangan

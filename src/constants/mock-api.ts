@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport, Field, User, Admin, Reservation } from '@/constants/data';
+import { Location, Sport, Field, User, Admin, Reservation, Member } from '@/constants/data';
 faker.seed(123);
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -1025,3 +1025,178 @@ export const fakeReservations = {
 
 // Inisialisasi reservasi contoh
 fakeReservations.initialize();
+
+// Set a fixed seed untuk konsistensi
+faker.seed(123);
+
+
+// Mock member data store
+export const fakeMembers = {
+  records: [] as Member[], // Menyimpan daftar objek member
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleMembers: Member[] = [];
+    
+    // Daftar nama lapangan
+    const fieldNames = [
+      'Lapangan Futsal Utama',
+      'Lapangan Badminton A',
+      'Lapangan Basket Kota',
+      'Lapangan Voli Stadion',
+      'Lapangan Tennis Center',
+      'Lapangan Sepak Bola Mini',
+      'Lapangan Handball Profesional'
+    ];
+
+    // Daftar hari
+    const dayNames = [
+      'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'
+    ];
+
+    function generateRandomMemberData(memberId: number): Member {
+      // Generate tanggal dasar
+      const createDate = new Date('2024-01-01');
+      createDate.setDate(createDate.getDate() + (memberId * 3)); // Variasi tanggal
+
+      // Hitung tanggal valid until (30 hari setelah create)
+      const validUntilDate = new Date(createDate);
+      validUntilDate.setDate(validUntilDate.getDate() + 30);
+
+      // Format tanggal
+      function formatDate(date: Date): string {
+        const pad = (num: number) => num.toString().padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+      }
+
+      // Generate nama dan data pribadi
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+
+      // Pilih lapangan dan jam secara deterministik
+      const selectedField = fieldNames[memberId % fieldNames.length];
+      const startHour = 9 + (memberId % 10); // Jam mulai antara 9-18
+      const endHour = startHour + 2;
+
+      return {
+        memberId,
+        username: faker.internet.username({
+          firstName: firstName,
+          lastName: lastName
+        }),
+        name: `${firstName} ${lastName}`,
+        email: faker.internet.email({
+          firstName: firstName,
+          lastName: lastName
+        }),
+        phone: `+62 8${faker.string.numeric(9)}`,
+        day: dayNames[memberId % dayNames.length],
+        validUntil: formatDate(validUntilDate),
+        fieldTime: `${selectedField} (${startHour}.00 - ${endHour}.00)`,
+        create_at: formatDate(createDate)
+      };
+    }
+
+    // Generate 50 member
+    for (let i = 1; i <= 50; i++) {
+      sampleMembers.push(generateRandomMemberData(i));
+    }
+
+    this.records = sampleMembers;
+  },
+
+  // Ambil semua member dengan filter opsional
+  async getAll({
+    day = [],
+    search
+  }: {
+    day?: string[];
+    search?: string;
+  }) {
+    let members = [...this.records];
+
+    // Filter berdasarkan hari
+    if (day.length > 0) {
+      members = members.filter((member) =>
+        day.includes(member.day)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      members = matchSorter(members, search, {
+        keys: ['username', 'name', 'email', 'phone']
+      });
+    }
+
+    return members;
+  },
+
+  // Ambil member dengan pagination
+  async getMembers({
+    page = 1,
+    limit = 10,
+    day,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    day?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const dayArray = day ? day.split('.') : [];
+    const allMembers = await this.getAll({
+      day: dayArray,
+      search
+    });
+    const totalMembers = allMembers.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedMembers = allMembers.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data member untuk keperluan testing',
+      total_members: totalMembers,
+      offset,
+      limit,
+      members: paginatedMembers
+    };
+  },
+
+  // Ambil member berdasarkan ID
+  async getMemberById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari member berdasarkan ID
+    const member = this.records.find((member) => member.memberId === id);
+
+    if (!member) {
+      return {
+        success: false,
+        message: `Member dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Member dengan ID ${id} ditemukan`,
+      member
+    };
+  }
+};
+
+// Inisialisasi member contoh
+fakeMembers.initialize();

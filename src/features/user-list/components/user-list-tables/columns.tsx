@@ -14,24 +14,29 @@ export const columns: ColumnDef<User>[] = [
     header: ({ column }: { column: Column<User, unknown> }) => (
       <DataTableColumnHeader column={column} title='Username' />
     ),
-    cell: ({ cell }) => <div>{cell.getValue<User['username']>()}</div>,
-    meta: {
-      label: 'Username',
-      placeholder: 'Cari username...',
-      variant: 'text',
-      icon: Text
+    cell: ({ cell }) => {
+      const username = cell.getValue<User['username']>();
+      return <div>{username}</div>;
     },
-    enableColumnFilter: true
+    meta:{
+      label: 'Username'
+    }
   },
   {
+    id: 'name',
     accessorKey: 'name',
     header: ({ column }: { column: Column<User, unknown> }) => (
       <DataTableColumnHeader column={column} title='Nama' />
     ),
-    cell: ({ cell }) => {
-      const name = cell.getValue<User['name']>();
-      return <div>{name}</div>;
-    }
+
+    cell: ({ cell }) => <div>{cell.getValue<User['name']>()}</div>,
+    meta: {
+      label: 'Nama',
+      placeholder: 'Cari...',
+      variant: 'text',
+      icon: Text
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'email',

@@ -1,7 +1,7 @@
 export const ACCOUNT_STATUS_OPTIONS = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Inactive', value: 'Inactive' },
-  { label: 'Suspended', value: 'Suspended' }
+  { label: 'Aktif', value: 'Active' },
+  { label: 'Tidak Aktif', value: 'Inactive' },
+  { label: 'Ditangguhkan', value: 'Suspended' }
 ];
 export const LOCATION_OPTIONS = [
   { label: 'GOR Utama', value: 'GOR Utama' },

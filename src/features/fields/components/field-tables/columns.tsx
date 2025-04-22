@@ -16,8 +16,8 @@ export const columns: ColumnDef<Field>[] = [
     ),
     cell: ({ cell }) => <div>{cell.getValue<Field['name']>()}</div>,
     meta: {
-      label: 'Nama',
-      placeholder: 'Cari lapangan...',
+      label: 'Nama Lapangan',
+      placeholder: 'Cari...',
       variant: 'text',
       icon: Text
     },
@@ -27,7 +27,7 @@ export const columns: ColumnDef<Field>[] = [
     id: 'location',
     accessorKey: 'location',
     header: ({ column }: { column: Column<Field, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Lokasi' />
+      <DataTableColumnHeader column={column} title='Lokasi Cabang' />
     ),
     cell: ({ cell }) => {
       const location = cell.getValue<Field['location']>();
@@ -35,7 +35,7 @@ export const columns: ColumnDef<Field>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      label: 'Lokasi',
+      label: 'Lokasi Cabang',
       variant: 'multiSelect',
       options: LOCATION_OPTIONS
     }
