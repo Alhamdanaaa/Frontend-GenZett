@@ -35,6 +35,70 @@ export type Sport = {
   updated_at: string;
 };
 
+export type Field = {
+  id: number;
+  name: string;
+  location: string;
+  sport: string;
+  jamMulai: string;
+  jamTutup: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
+// Tipe data User
+export type User = {
+  userId: number;
+  username: string;
+  name: string;
+  email: string;
+  phone: string;
+  memberStatus: 'Member' | 'Non-Member';
+  created_at: string;
+  updated_at: string;
+};
+
+// Tipe data Admin
+export type Admin = {
+  adminId: number;
+  name: string;
+  phone: string;
+  location: string;
+  accountStatus: 'Active' | 'Inactive' | 'Suspended';
+  created_at: string;
+  updated_at: string;
+};
+
+
+// Tipe data Reservation
+export type Reservation = {
+  reservationId: number;
+  createTime: string;
+  name: string;
+  fieldTime: string;
+  date: string;
+  totalPayment: number;
+  remainingPayment: number;
+  paymentStatus: 'pending' | 'down payment' | 'complete' | 'fail';
+  status: 'upcoming' | 'ongoing' | 'completed';
+  created_at: string;
+  updated_at: string;
+};
+
+// Tipe data Member
+export type Member = {
+  memberId: number;
+  username: string;
+  name: string;
+  email: string;
+  phone: string;
+  day: string;
+  validUntil: string;
+  fieldTime: string;
+  create_at: string;
+};
+
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
@@ -47,7 +111,7 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Location',
+    title: 'Lokasi Cabang',
     url: '/dashboard/location',
     icon: 'location',
     shortcut: ['l', 'l'],
@@ -55,7 +119,15 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Sports',
+    title: 'Lapangan',
+    url: '/dashboard/field',
+    icon: 'field',
+    shortcut: ['f', 'f'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Cabang Olahraga',
     url: '/dashboard/sport',
     icon: 'sport',
     shortcut: ['s', 's'],
@@ -63,7 +135,7 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Users',
+    title: 'Pengguna',
     url: '#', // Placeholder as there is no direct link for the parent
     icon: 'userPen',
     isActive: true,
@@ -81,43 +153,83 @@ export const navItems: NavItem[] = [
       }
     ]
   },
-  {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'billing',
-    isActive: true,
+  // {
+  //   title: 'Product',
+  //   url: '/dashboard/product',
+  //   icon: 'product',
+  //   shortcut: ['p', 'p'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
+  // {
+  //   title: 'Account',
+  //   url: '#', // Placeholder as there is no direct link for the parent
+  //   icon: 'billing',
+  //   isActive: true,
 
-    items: [
-      {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'userPen',
-        shortcut: ['m', 'm']
-      },
-      {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
-      }
-    ]
+  //   items: [
+  //     {
+  //       title: 'Profile',
+  //       url: '/dashboard/profile',
+  //       icon: 'userPen',
+  //       shortcut: ['m', 'm']
+  //     },
+  //     {
+  //       title: 'Login',
+  //       shortcut: ['l', 'l'],
+  //       url: '/',
+  //       icon: 'login'
+  //     }
+  //   ]
+  // },
+  // {
+  //   title: 'Kanban',
+  //   url: '/dashboard/kanban',
+  //   icon: 'kanban',
+  //   shortcut: ['k', 'k'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
+  {
+    title: 'Dashboard admin',
+    url: '/dashboard/overview',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['d', 'd'],
+    items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
+    title: 'Jadwal Lapangan',
+    url: '/dashboard/schedule',
+    icon: 'timeline',
+    shortcut: ['l', 'l'],
     isActive: false,
     items: [] // No child items
-  }
+  },
+  {
+    title: 'Anggota Member',
+    url: '/dashboard/member',
+    icon: 'user',
+    shortcut: ['m', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Lapangan-admin',
+    url: '/dashboard/field',
+    icon: 'field',
+    shortcut: ['s', 's'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Reservasi Lapangan',
+    url: '/dashboard/reservation',
+    icon: 'reservation',
+    shortcut: ['r', 'r'],
+    isActive: false,
+    items: [] // No child items
+  },
 ];
 
 export interface SaleUser {

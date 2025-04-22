@@ -7,14 +7,11 @@ import { columns } from './location-tables/columns';
 type LocationListingPage = {};
 
 export default async function LocationListingPage({}: LocationListingPage) {
-  console.log('SPORTS:', searchParamsCache.get('sports'));
-console.log('ALL PARAMS:', searchParamsCache.all());
-
   // Penggunaan cache search params di Render Server Components
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
-  const sports = searchParamsCache.get('sports');
+  const sports = searchParamsCache.get('sport');
   
   // // Gunakan query string asli untuk sports
   // const sports = typeof window !== 'undefined' 

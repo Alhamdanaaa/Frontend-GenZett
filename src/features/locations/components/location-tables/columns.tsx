@@ -8,21 +8,13 @@ import Image from 'next/image';
 import { CellAction } from './cell-action';
 import { SPORTS_OPTIONS } from './options';
 
-// // Opsi untuk filter cabang olahraga
-// export const SPORTS_OPTIONS = [
-//   { label: 'Futsal', value: 'Futsal' },
-//   { label: 'Badminton', value: 'Badminton' },
-//   { label: 'Basketball', value: 'Basketball' },
-//   { label: 'Volleyball', value: 'Volleyball' },
-//   { label: 'Tennis', value: 'Tennis' },
-//   { label: 'Sepak Bola', value: 'Sepak Bola' },
-//   { label: 'Handball', value: 'Handball' }
-// ];
-
 export const columns: ColumnDef<Location>[] = [
   {
     accessorKey: 'img',
     header: 'GAMBAR',
+    meta:{
+      label: 'Gambar'
+    },
     cell: ({ row }) => {
       return (
         <div className='relative aspect-square w-16 h-16'>
@@ -44,8 +36,8 @@ export const columns: ColumnDef<Location>[] = [
     ),
     cell: ({ cell }) => <div>{cell.getValue<Location['name']>()}</div>,
     meta: {
-      label: 'Nama',
-      placeholder: 'Cari lokasi...',
+      label: 'Nama Lokasi',
+      placeholder: 'Cari...',
       variant: 'text',
       icon: Text
     },
@@ -78,10 +70,15 @@ export const columns: ColumnDef<Location>[] = [
   },
   {
     accessorKey: 'countLap',
-    header: 'Jumlah Lapangan',
+    header: ({ column }: { column: Column<Location, unknown> }) => (
+      <DataTableColumnHeader column={column} title='Jumlah Lapangan' />
+    ),
     cell: ({ cell }) => {
       const count = cell.getValue<Location['countLap']>();
       return <div>{count} Lapangan</div>;
+    },
+    meta:{
+      label: 'Jumlah Lapangan'
     }
   },
   {
@@ -90,6 +87,9 @@ export const columns: ColumnDef<Location>[] = [
     cell: ({ cell }) => {
       const address = cell.getValue<Location['address']>();
       return <div className='max-w-[200px] truncate'>{address}</div>;
+    },
+    meta:{
+      label: 'Alamat'
     }
   },
   {

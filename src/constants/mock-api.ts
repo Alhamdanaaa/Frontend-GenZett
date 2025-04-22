@@ -4,8 +4,8 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport } from '@/constants/data';
-
+import { Location, Sport, Field, User, Admin, Reservation, Member } from '@/constants/data';
+faker.seed(123);
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -344,3 +344,859 @@ export const fakeSports = {
 
 // Jangan lupa panggil initialize
 fakeSports.initialize();
+
+
+// Mock field data store
+export const fakeFields = {
+  records: [] as Field[], // Menyimpan daftar objek lapangan
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleFields: Field[] = [];
+
+    // Daftar cabang olahraga yang mungkin
+    const sportsList = [
+      'Futsal',
+      'Badminton',
+      'Basketball',
+      'Volleyball',
+      'Tennis',
+      'Sepak Bola',
+      'Handball'
+    ];
+
+    // Daftar lokasi
+    const locationsList = [
+      'GOR Utama',
+      'Sport Center Kota',
+      'Stadion Olahraga',
+      'Pusat Kebugaran',
+      'Arena Olahraga',
+      'Kompleks Olahraga',
+      'Lapangan Terpadu'
+    ];
+
+    function generateRandomFieldData(id: number): Field {
+      return {
+        id,
+        name: `Lapangan ${faker.helpers.arrayElement(sportsList)} ${id}`,
+        location: faker.helpers.arrayElement(locationsList),
+        sport: faker.helpers.arrayElement(sportsList),
+        jamMulai: '09:00',
+        jamTutup: '23:00',
+        description: faker.lorem.paragraph(),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 lapangan
+    for (let i = 1; i <= 50; i++) {
+      sampleFields.push(generateRandomFieldData(i));
+    }
+
+    this.records = sampleFields;
+  },
+
+  // Ambil semua lapangan dengan filter opsional
+  async getAll({
+    locations = [],
+    sports = [],
+    search
+  }: {
+    locations?: string[];
+    sports?: string[];
+    search?: string;
+  }) {
+    let fields = [...this.records];
+
+    // Filter berdasarkan location
+    if (locations.length > 0) {
+      fields = fields.filter((field) =>
+        locations.includes(field.location)
+      );
+    }
+
+    // Filter berdasarkan cabang olahraga
+    if (sports.length > 0) {
+      fields = fields.filter((field) =>
+        sports.includes(field.sport)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      fields = matchSorter(fields, search, {
+        keys: ['name', 'location', 'sport', 'description']
+      });
+    }
+
+    return fields;
+  },
+
+  // Ambil lapangan dengan pagination
+  async getFields({
+    page = 1,
+    limit = 10,
+    locations,
+    sports,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    locations?: string;
+    sports?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const locationArray = locations ? locations.split('.') : [];
+    const sportArray = sports ? sports.split('.') : [];
+
+    const allFields = await this.getAll({
+      locations: locationArray,
+      sports: sportArray,
+      search
+    });
+
+    const totalFields = allFields.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedFields = allFields.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data lapangan untuk keperluan testing',
+      total_fields: totalFields,
+      offset,
+      limit,
+      fields: paginatedFields
+    };
+  },
+
+  // Ambil lapangan berdasarkan ID
+  async getFieldById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari lapangan berdasarkan ID
+    const field = this.records.find((field) => field.id === id);
+
+    if (!field) {
+      return {
+        success: false,
+        message: `Lapangan dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Lapangan dengan ID ${id} ditemukan`,
+      field
+    };
+  }
+};
+
+
+// Inisialisasi lapangan contoh
+fakeFields.initialize();
+
+
+
+// Mock user data store
+export const fakeUsers = {
+  records: [] as User[], // Menyimpan daftar objek user
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleUsers: User[] = [];
+    
+    // Status member
+    const memberStatuses: User['memberStatus'][] = [
+      'Member', 
+      'Non-Member'
+    ];
+
+    function generateRandomUserData(userId: number): User {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      
+      return {
+        userId,
+        username: faker.internet.username({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
+        name: `${firstName} ${lastName}`,
+        email: faker.internet.email({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
+        phone: `+62 8${faker.string.numeric(9)}`,
+        memberStatus: faker.helpers.arrayElement(memberStatuses),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 users
+    for (let i = 1; i <= 50; i++) {
+      sampleUsers.push(generateRandomUserData(i));
+    }
+
+    this.records = sampleUsers;
+  },
+
+  // Ambil semua users dengan filter opsional
+  async getAll({
+    memberStatus = [],
+    search
+  }: {
+    memberStatus?: string[];
+    search?: string;
+  }) {
+    let users = [...this.records];
+
+    // Filter berdasarkan status member
+    if (memberStatus.length > 0) {
+      users = users.filter((user) =>
+        memberStatus.includes(user.memberStatus)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      users = matchSorter(users, search, {
+        keys: ['username', 'name', 'email', 'phone']
+      });
+    }
+
+    return users;
+  },
+
+  // Ambil users dengan pagination
+  async getUsers({
+    page = 1,
+    limit = 10,
+    memberStatus,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    memberStatus?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const memberStatusArray = memberStatus ? memberStatus.split('.') : [];
+    const allUsers = await this.getAll({
+      memberStatus: memberStatusArray,
+      search
+    });
+    const totalUsers = allUsers.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedUsers = allUsers.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data user untuk keperluan testing',
+      total_users: totalUsers,
+      offset,
+      limit,
+      users: paginatedUsers
+    };
+  },
+
+  // Ambil user berdasarkan ID
+  async getUserById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari user berdasarkan ID
+    const user = this.records.find((user) => user.userId === id);
+
+    if (!user) {
+      return {
+        success: false,
+        message: `User dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `User dengan ID ${id} ditemukan`,
+      user
+    };
+  }
+};
+
+// Inisialisasi users contoh
+fakeUsers.initialize();
+
+// Mock admin data store
+export const fakeAdmins = {
+  records: [] as Admin[], // Menyimpan daftar objek admin
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleAdmins: Admin[] = [];
+
+    // Daftar lokasi
+    const locationsList = [
+      'GOR Utama',
+      'Sport Center Kota',
+      'Stadion Olahraga',
+      'Pusat Kebugaran',
+      'Arena Olahraga',
+      'Kompleks Olahraga',
+      'Lapangan Terpadu'
+    ];
+
+    // Status akun
+    const accountStatuses: Admin['accountStatus'][] = [
+      'Active',
+      'Inactive',
+      'Suspended'
+    ];
+
+    function generateRandomAdminData(adminId: number): Admin {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+
+      return {
+        adminId,
+        name: `${firstName} ${lastName}`,
+        phone: `+62 8${faker.string.numeric(9)}`,
+        location: faker.helpers.arrayElement(locationsList),
+        accountStatus: faker.helpers.arrayElement(accountStatuses),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 admin
+    for (let i = 1; i <= 50; i++) {
+      sampleAdmins.push(generateRandomAdminData(i));
+    }
+
+    this.records = sampleAdmins;
+  },
+
+  // Ambil semua admin dengan filter opsional
+  async getAll({
+    accountStatus = [],
+    location = [],
+    search
+  }: {
+    accountStatus?: string[];
+    location?: string[];
+    search?: string;
+  }) {
+    let admins = [...this.records];
+
+    // Filter berdasarkan status akun
+    if (accountStatus.length > 0) {
+      admins = admins.filter((admin) =>
+        accountStatus.includes(admin.accountStatus)
+      );
+    }
+
+    // Filter berdasarkan location
+    if (location.length > 0) {
+      admins = admins.filter((admin) =>
+        location.includes(admin.location)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      admins = matchSorter(admins, search, {
+        keys: ['name', 'phone', 'location']
+      });
+    }
+
+    return admins;
+  },
+
+  // Ambil admin dengan pagination
+  async getAdmins({
+    page = 1,
+    limit = 10,
+    location,
+    accountStatus,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    location?: string;
+    accountStatus?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const locationArray = location ? location.split('.') : [];
+    const accountStatusArray = accountStatus ? accountStatus.split('.') : [];
+
+    const allAdmins = await this.getAll({
+      location: locationArray,
+      accountStatus: accountStatusArray,
+      search
+    });
+
+    const totalAdmins = allAdmins.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedAdmins = allAdmins.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data admin untuk keperluan testing',
+      total_admins: totalAdmins,
+      offset,
+      limit,
+      admins: paginatedAdmins
+    };
+  },
+
+  // Ambil admin berdasarkan ID
+  async getAdminById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari admin berdasarkan ID
+    const admin = this.records.find((admin) => admin.adminId === id);
+
+    if (!admin) {
+      return {
+        success: false,
+        message: `Admin dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Admin dengan ID ${id} ditemukan`,
+      admin
+    };
+  }
+};
+
+// Inisialisasi admin contoh
+fakeAdmins.initialize();
+
+
+// Mock reservation data store
+export const fakeReservations = {
+  records: [] as Reservation[], // Menyimpan daftar objek reservasi
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleReservations: Reservation[] = [];
+    
+    // Daftar nama lapangan
+    const fieldNames = [
+      'Lapangan Futsal Utama',
+      'Lapangan Badminton A',
+      'Lapangan Basket Kota',
+      'Lapangan Voli Stadion',
+      'Lapangan Tennis Center',
+      'Lapangan Sepak Bola Mini',
+      'Lapangan Handball Profesional'
+    ];
+
+    // Status pembayaran dan reservasi
+    const paymentStatuses: Reservation['paymentStatus'][] = ['pending', 'down payment', 'complete', 'fail'];
+    const reservationStatuses: Reservation['status'][] = ['upcoming', 'ongoing', 'completed'];
+
+    function generateRandomReservationData(reservationId: number): Reservation {
+      // Generate waktu mulai dan selesai
+      const startHour = faker.number.int({ min: 9, max: 20 }); 
+      const startTime = new Date();
+      startTime.setHours(startHour, 0, 0, 0);
+      const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
+      // Format waktu menjadi string seperti "8.00", "12.00"
+      const formatTime = (date: Date) => {
+        return `${date.getHours()}.00`;
+      };
+
+      // Total dan sisa pembayaran
+      const totalPayment = faker.number.int({ min: 50000, max: 500000 });
+      const paymentStatus = faker.helpers.arrayElement(paymentStatuses);
+      
+      // Hitung sisa pembayaran berdasarkan status
+      let remainingPayment = 0;
+      switch (paymentStatus) {
+        case 'pending':
+          remainingPayment = totalPayment;
+          break;
+        case 'down payment':
+          remainingPayment = totalPayment * 0.5;
+          break;
+        case 'complete':
+          remainingPayment = 0;
+          break;
+        case 'fail':
+          remainingPayment = totalPayment;
+          break;
+      }
+
+      // Generate nama pemesan
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+
+      function formatDateTime(date: Date): string {
+        const pad = (num: number) => num.toString().padStart(2, '0');
+        
+        const year = date.getFullYear().toString().slice(-2);
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+        
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+      }
+      return {
+        reservationId,
+        
+        // Dalam mock data
+        createTime: formatDateTime(faker.date.recent()),
+        name: `${firstName} ${lastName}`,
+        fieldTime: `${faker.helpers.arrayElement(fieldNames)} (${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()})`,
+        date: startTime.toISOString().split('T')[0],
+        totalPayment,
+        remainingPayment: Math.round(remainingPayment),
+        paymentStatus,
+        status: faker.helpers.arrayElement(reservationStatuses),
+        created_at: faker.date
+          .between({ from: '2022-01-01', to: '2023-12-31' })
+          .toISOString(),
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    // Generate 50 reservasi
+    for (let i = 1; i <= 50; i++) {
+      sampleReservations.push(generateRandomReservationData(i));
+    }
+
+    this.records = sampleReservations;
+  },
+
+  // Ambil semua reservasi dengan filter opsional
+  async getAll({
+    paymentStatus = [],
+    status = [],
+    search
+  }: {
+    paymentStatus?: string[];
+    status?: string[];
+    search?: string;
+  }) {
+    let reservations = [...this.records];
+
+    // Filter berdasarkan status pembayaran
+    if (paymentStatus.length > 0) {
+      reservations = reservations.filter((reservation) =>
+        paymentStatus.includes(reservation.paymentStatus)
+      );
+    }
+
+    // Filter berdasarkan status reservasi
+    if (status.length > 0) {
+      reservations = reservations.filter((reservation) =>
+        status.includes(reservation.status)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      reservations = matchSorter(reservations, search, {
+        keys: ['name', 'fieldTime', 'date']
+      });
+    }
+
+    return reservations;
+  },
+
+  // Ambil reservasi dengan pagination
+  async getReservations({
+    page = 1,
+    limit = 10,
+    paymentStatus,
+    status,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    paymentStatus?: string;
+    status?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const paymentStatusArray = paymentStatus ? paymentStatus.split('.') : [];
+    const statusArray = status ? status.split('.') : [];
+    const allReservations = await this.getAll({
+      paymentStatus: paymentStatusArray,
+      status: statusArray,
+      search
+    });
+    const totalReservations = allReservations.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedReservations = allReservations.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data reservasi untuk keperluan testing',
+      total_reservations: totalReservations,
+      offset,
+      limit,
+      reservations: paginatedReservations
+    };
+  },
+
+  // Ambil reservasi berdasarkan ID
+  async getReservationById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari reservasi berdasarkan ID
+    const reservation = this.records.find((reservation) => reservation.reservationId === id);
+
+    if (!reservation) {
+      return {
+        success: false,
+        message: `Reservasi dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Reservasi dengan ID ${id} ditemukan`,
+      reservation
+    };
+  }
+};
+
+// Inisialisasi reservasi contoh
+fakeReservations.initialize();
+
+// Set a fixed seed untuk konsistensi
+faker.seed(123);
+
+
+// Mock member data store
+export const fakeMembers = {
+  records: [] as Member[], // Menyimpan daftar objek member
+
+  // Inisialisasi dengan data contoh
+  initialize() {
+    const sampleMembers: Member[] = [];
+    
+    // Daftar nama lapangan
+    const fieldNames = [
+      'Lapangan Futsal Utama',
+      'Lapangan Badminton A',
+      'Lapangan Basket Kota',
+      'Lapangan Voli Stadion',
+      'Lapangan Tennis Center',
+      'Lapangan Sepak Bola Mini',
+      'Lapangan Handball Profesional'
+    ];
+
+    // Daftar hari
+    const dayNames = [
+      'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'
+    ];
+
+    function generateRandomMemberData(memberId: number): Member {
+      // Generate tanggal dasar
+      const createDate = new Date('2024-01-01');
+      createDate.setDate(createDate.getDate() + (memberId * 3)); // Variasi tanggal
+
+      // Hitung tanggal valid until (30 hari setelah create)
+      const validUntilDate = new Date(createDate);
+      validUntilDate.setDate(validUntilDate.getDate() + 30);
+
+      // Format tanggal
+      function formatDate(date: Date): string {
+        const pad = (num: number) => num.toString().padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+      }
+
+      // Generate nama dan data pribadi
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+
+      // Pilih lapangan dan jam secara deterministik
+      const selectedField = fieldNames[memberId % fieldNames.length];
+      const startHour = 9 + (memberId % 10); // Jam mulai antara 9-18
+      const endHour = startHour + 2;
+
+      return {
+        memberId,
+        username: faker.internet.username({
+          firstName: firstName,
+          lastName: lastName
+        }),
+        name: `${firstName} ${lastName}`,
+        email: faker.internet.email({
+          firstName: firstName,
+          lastName: lastName
+        }),
+        phone: `+62 8${faker.string.numeric(9)}`,
+        day: dayNames[memberId % dayNames.length],
+        validUntil: formatDate(validUntilDate),
+        fieldTime: `${selectedField} (${startHour}.00 - ${endHour}.00)`,
+        create_at: formatDate(createDate)
+      };
+    }
+
+    // Generate 50 member
+    for (let i = 1; i <= 50; i++) {
+      sampleMembers.push(generateRandomMemberData(i));
+    }
+
+    this.records = sampleMembers;
+  },
+
+  // Ambil semua member dengan filter opsional
+  async getAll({
+    day = [],
+    search
+  }: {
+    day?: string[];
+    search?: string;
+  }) {
+    let members = [...this.records];
+
+    // Filter berdasarkan hari
+    if (day.length > 0) {
+      members = members.filter((member) =>
+        day.includes(member.day)
+      );
+    }
+
+    // Pencarian di berbagai field
+    if (search) {
+      members = matchSorter(members, search, {
+        keys: ['username', 'name', 'email', 'phone']
+      });
+    }
+
+    return members;
+  },
+
+  // Ambil member dengan pagination
+  async getMembers({
+    page = 1,
+    limit = 10,
+    day,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    day?: string;
+    search?: string;
+  }) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    const dayArray = day ? day.split('.') : [];
+    const allMembers = await this.getAll({
+      day: dayArray,
+      search
+    });
+    const totalMembers = allMembers.length;
+
+    // Logika pagination
+    const offset = (page - 1) * limit;
+    const paginatedMembers = allMembers.slice(offset, offset + limit);
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    // Kembalikan respons dengan pagination
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data member untuk keperluan testing',
+      total_members: totalMembers,
+      offset,
+      limit,
+      members: paginatedMembers
+    };
+  },
+
+  // Ambil member berdasarkan ID
+  async getMemberById(id: number) {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+
+    // Cari member berdasarkan ID
+    const member = this.records.find((member) => member.memberId === id);
+
+    if (!member) {
+      return {
+        success: false,
+        message: `Member dengan ID ${id} tidak ditemukan`
+      };
+    }
+
+    // Waktu saat ini
+    const currentTime = new Date().toISOString();
+
+    return {
+      success: true,
+      time: currentTime,
+      message: `Member dengan ID ${id} ditemukan`,
+      member
+    };
+  }
+};
+
+// Inisialisasi member contoh
+fakeMembers.initialize();

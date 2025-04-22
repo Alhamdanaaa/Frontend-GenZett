@@ -45,7 +45,7 @@ const salesData = [
   }
 ];
 
-export function RecentSales() {
+export default function RecentSales() {
   return (
     <Card className='h-full'>
       <CardHeader>
