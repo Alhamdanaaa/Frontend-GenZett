@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import AdminListViewPage from '@/features/admin-list/components/admin-list-view-page';
 
 export const metadata = {
-  title: 'Dashboard : Manajemen Lokasi'
+  title: 'Dashboard : Manajemen Admin'
 };
 
 type PageProps = { params: Promise<{ adminId: string }> };

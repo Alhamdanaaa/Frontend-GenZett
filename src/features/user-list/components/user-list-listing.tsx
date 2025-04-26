@@ -11,13 +11,11 @@ export default async function UserListListingPage({}: UserListListingPage) {
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
-  const memberStatus = searchParamsCache.get('memberStatus');
   
   const filters = {
     page,
     limit: pageLimit,
-    ...(search && { search }),
-    ...(memberStatus && { memberStatus: memberStatus })
+    ...(search && { search })
   };
 
   const data = await fakeUsers.getUsers(filters);
