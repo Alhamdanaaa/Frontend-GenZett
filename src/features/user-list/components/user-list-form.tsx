@@ -11,23 +11,10 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { User } from '@/constants/data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-
-// Opsi status member
-const MEMBER_STATUS_OPTIONS = [
-  { label: 'Member', value: 'Member' },
-  { label: 'Non-Member', value: 'Non-Member' }
-];
 
 const formSchema = z.object({
   username: z.string().min(3, {
@@ -41,9 +28,6 @@ const formSchema = z.object({
   }),
   phone: z.string().regex(/^\+62\s?8\d{9,10}$/, {
     message: 'Nomor telepon harus dimulai dengan +62 8 dan 9-10 digit.'
-  }),
-  memberStatus: z.enum(['Member', 'Non-Member'], {
-    required_error: 'Status member harus dipilih.'
   })
 });
 
@@ -58,8 +42,7 @@ export default function UserForm({
     username: initialData?.username || '',
     name: initialData?.name || '',
     email: initialData?.email || '',
-    phone: initialData?.phone || '+62 8',
-    memberStatus: initialData?.memberStatus || 'Member'
+    phone: initialData?.phone || '+62 8'
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -139,33 +122,6 @@ export default function UserForm({
                         {...field} 
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='memberStatus'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status Member</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih status member' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {MEMBER_STATUS_OPTIONS.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

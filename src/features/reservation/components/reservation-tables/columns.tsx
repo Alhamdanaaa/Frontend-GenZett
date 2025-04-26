@@ -9,19 +9,6 @@ import { PAYMENT_STATUS_OPTIONS, RESERVATION_STATUS_OPTIONS } from './options';
 
 export const columns: ColumnDef<Reservation>[] = [
   {
-    accessorKey: 'createTime',
-    header: ({ column }: { column: Column<Reservation, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Waktu Pesanan' />
-    ),
-    cell: ({ cell }) => {
-      const createTime = cell.getValue<Reservation['createTime']>();
-      return <div>{createTime}</div>;
-    },
-    meta: {
-      label: 'Waktu Pesanan'
-    }
-  },
-  {
     id: 'name',
     accessorKey: 'name',
     header: 'Nama Pemesan',
@@ -48,14 +35,11 @@ export const columns: ColumnDef<Reservation>[] = [
     cell: ({ cell }) => {
       const date = cell.getValue<Reservation['date']>();
       return <div>{date}</div>;
-    }
-  },
-  {
-    accessorKey: 'totalPayment',
-    header: 'Total Pembayaran',
-    cell: ({ cell }) => {
-      const totalPayment = cell.getValue<Reservation['totalPayment']>();
-      return <div>Rp {totalPayment.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</div>;
+    },
+    enableColumnFilter: true,
+    meta: {
+      label: 'Tanggal Main',
+      variant: 'date'
     }
   },
   {
@@ -103,44 +87,6 @@ export const columns: ColumnDef<Reservation>[] = [
       label: 'Status Pembayaran',
       variant: 'multiSelect',
       options: PAYMENT_STATUS_OPTIONS
-    }
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: ({ column }: { column: Column<Reservation, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Status Reservasi' />
-    ),
-    cell: ({ cell }) => {
-      const status = cell.getValue<Reservation['status']>();
-      
-      const label = status === 'upcoming'
-        ? 'Mendatang'
-        : status === 'ongoing'
-        ? 'Berlangsung'
-        : status === 'completed'
-        ? 'Selesai'
-        : status;
-    
-      return (
-        <Badge 
-          variant='outline' 
-          className={`
-            capitalize 
-            ${status === 'upcoming' ? 'bg-blue-300 text-black' : ''}
-            ${status === 'ongoing' ? 'bg-yellow-300 text-black' : ''}
-            ${status === 'completed' ? 'bg-green-300 text-black' : ''}
-          `}
-        >
-          {label}
-        </Badge>
-      );
-    },
-    enableColumnFilter: true,
-    meta: {
-      label: 'Status Reservasi',
-      variant: 'multiSelect',
-      options: RESERVATION_STATUS_OPTIONS
     }
   },
   {

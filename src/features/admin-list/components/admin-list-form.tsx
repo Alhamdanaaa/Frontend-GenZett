@@ -22,24 +22,7 @@ import { Admin } from '@/constants/data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-
-// Daftar lokasi
-const LOCATION_OPTIONS = [
-  { label: 'GOR Utama', value: 'GOR Utama' },
-  { label: 'Sport Center Kota', value: 'Sport Center Kota' },
-  { label: 'Stadion Olahraga', value: 'Stadion Olahraga' },
-  { label: 'Pusat Kebugaran', value: 'Pusat Kebugaran' },
-  { label: 'Arena Olahraga', value: 'Arena Olahraga' },
-  { label: 'Kompleks Olahraga', value: 'Kompleks Olahraga' },
-  { label: 'Lapangan Terpadu', value: 'Lapangan Terpadu' }
-];
-
-// Opsi status akun
-const ACCOUNT_STATUS_OPTIONS = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Inactive', value: 'Inactive' },
-  { label: 'Suspended', value: 'Suspended' }
-];
+import { LOCATION_OPTIONS } from './admin-list-tables/options';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -50,9 +33,6 @@ const formSchema = z.object({
   }),
   location: z.string({
     required_error: 'Lokasi harus dipilih.'
-  }),
-  accountStatus: z.enum(['Active', 'Inactive', 'Suspended'], {
-    required_error: 'Status akun harus dipilih.'
   })
 });
 
@@ -66,8 +46,7 @@ export default function AdminForm({
   const defaultValues = {
     name: initialData?.name || '',
     phone: initialData?.phone || '+62 8',
-    location: initialData?.location || '',
-    accountStatus: initialData?.accountStatus || 'Active'
+    location: initialData?.location || ''
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -140,33 +119,6 @@ export default function AdminForm({
                         {LOCATION_OPTIONS.map((location) => (
                           <SelectItem key={location.value} value={location.value}>
                             {location.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='accountStatus'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status Akun</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih status akun' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {ACCOUNT_STATUS_OPTIONS.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
