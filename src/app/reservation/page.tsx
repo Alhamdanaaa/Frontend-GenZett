@@ -50,6 +50,10 @@ export default function SportsLocationPage() {
     };
   }, [isOpen]);  
 
+  const handleCardClick = (item: any) => {
+    router.push('/reservation/schedule');
+  };
+
   return (
     <>
       <Head>
@@ -108,6 +112,7 @@ export default function SportsLocationPage() {
                 <div
                   key={idx}
                   className="bg-white rounded-xl overflow-hidden border border-gray-200 cursor-pointer transition-all hover:shadow-xl"
+                  onClick={() => handleCardClick(item)}
                 >
                   <div className="h-48 w-full relative">
                     <Image
