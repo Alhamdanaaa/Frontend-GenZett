@@ -11,9 +11,9 @@ export default function NavbarUser() {
   const [isOpen, setIsOpen] = useState(false)
 
   const navItems = [
-    { label: 'Beranda', href: '/user' },
-    { label: 'Reservasi', href: '/user/reservation' },
-    { label: 'Riwayat', href: '/user/riwayat' },
+    { label: 'Beranda', href: '/' },
+    { label: 'Reservasi', href: '/reservation' },
+    { label: 'Riwayat', href: '/riwayat' },
   ]
 
   return (
