@@ -29,7 +29,7 @@ export default function ReservationDetailDialog({ data, trigger }: ReservationDe
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
           <DetailRow label='ID Reservasi' value={String(data.reservationId)} />
-          <DetailRow label='Waktu Pemesanan' value={data.createTime} />
+          <DetailRow label='Waktu Pemesanan' value={parseCustomDate(data.createTime)} />
           <DetailRow label='Nama Pemesan' value={data.name} />
           <DetailRow label='Waktu Lapangan' value={data.fieldTime} />
           <DetailRow label='Tanggal Main' value={formatDate(data.date, true)} />
@@ -43,7 +43,6 @@ export default function ReservationDetailDialog({ data, trigger }: ReservationDe
             label='Status Reservasi'
             value={<Badge variant='outline' className='capitalize'>{data.status}</Badge>}
           />
-          <DetailRow label='Dibuat Pada' value={formatDate(data.created_at)} />
         </div>
       </DialogContent>
     </Dialog>
@@ -61,6 +60,23 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 
 function formatDate(dateStr: string, onlyDate = false) {
   const date = new Date(dateStr);
+  return date.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    ...(onlyDate ? {} : { hour: '2-digit', minute: '2-digit' })
+  });
+}
+
+function parseCustomDate(dateStr: string, onlyDate = false) {
+  const [datePart, timePart] = dateStr.split(' ');
+  const [day, month, year] = datePart.split('/').map(Number);
+  const [hours, minutes, seconds] = timePart.split(':').map(Number);
+
+  const fullYear = year < 100 ? 2000 + year : year; // 25 → 2025
+
+  const date = new Date(fullYear, month - 1, day, hours, minutes, seconds);
+
   return date.toLocaleString('id-ID', {
     day: '2-digit',
     month: 'long',

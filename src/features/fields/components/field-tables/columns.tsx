@@ -64,9 +64,9 @@ export const columns: ColumnDef<Field>[] = [
   {
     accessorKey: 'jamMulai',
     header: 'Jam Operasi',
-    cell: ({ cell }) => {
-      const jamMulai = cell.getValue<Field['jamMulai']>();
-      const jamTutup = cell.getValue<Field['jamTutup']>();
+    cell: ({ row }) => {
+      const jamMulai = row.original.jamMulai;
+      const jamTutup = row.original.jamTutup;
       return <div>{jamMulai} - {jamTutup}</div>;
     }
   },
