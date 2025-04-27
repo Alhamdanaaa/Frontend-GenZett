@@ -12,14 +12,12 @@ export default async function AdminListListingPage({}: AdminListListingPage) {
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
   const location = searchParamsCache.get('location');
-  const accountStatus = searchParamsCache.get('accountStatus');
   
   const filters = {
     page,
     limit: pageLimit,
     ...(search && { search }),
     ...(location && { location: location }),
-    ...(accountStatus && { accountStatus: accountStatus })
   };
 
   const data = await fakeAdmins.getAdmins(filters);

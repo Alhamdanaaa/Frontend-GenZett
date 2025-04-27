@@ -11,15 +11,15 @@ export default async function ReservationListingPage({}: ReservationListingPage)
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
+  const date = searchParamsCache.get('date');
   const paymentStatus = searchParamsCache.get('paymentStatus');
-  const status = searchParamsCache.get('status');
   
   const filters = {
     page,
     limit: pageLimit,
     ...(search && { search }),
     ...(paymentStatus && { paymentStatus: paymentStatus }),
-    ...(status && { status: status })
+    ...(date && { date: date }),
   };
 
   const data = await fakeReservations.getReservations(filters);

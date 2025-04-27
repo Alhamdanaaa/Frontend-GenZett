@@ -63,26 +63,11 @@ export const columns: ColumnDef<Field>[] = [
   },
   {
     accessorKey: 'jamMulai',
-    header: 'Jam Mulai',
-    cell: ({ cell }) => {
-      const jamMulai = cell.getValue<Field['jamMulai']>();
-      return <div>{jamMulai}</div>;
-    }
-  },
-  {
-    accessorKey: 'jamTutup',
-    header: 'Jam Tutup',
-    cell: ({ cell }) => {
-      const jamTutup = cell.getValue<Field['jamTutup']>();
-      return <div>{jamTutup}</div>;
-    }
-  },
-  {
-    accessorKey: 'description',
-    header: 'Deskripsi',
-    cell: ({ cell }) => {
-      const description = cell.getValue<Field['description']>();
-      return <div className='max-w-[200px] truncate'>{description}</div>;
+    header: 'Jam Operasi',
+    cell: ({ row }) => {
+      const jamMulai = row.original.jamMulai;
+      const jamTutup = row.original.jamTutup;
+      return <div>{jamMulai} - {jamTutup}</div>;
     }
   },
   {

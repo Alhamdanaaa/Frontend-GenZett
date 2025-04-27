@@ -9,9 +9,10 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Reservation } from '@/constants/data';
-import { IconEdit, IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconDotsVertical, IconTrash, IconListDetails } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import ReservationDetailDialog from '../reservation-detail-dialog';
 
 interface CellActionProps {
   data: Reservation;
@@ -41,9 +42,22 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-
+          <ReservationDetailDialog
+            data={data}
+            trigger={
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <IconListDetails className='mr-2 h-4 w-4' /> Detail
+              </DropdownMenuItem>
+            }
+          />
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/reservation/${data.reservationId}`)}
+            onClick={() =>
+              router.push(`/dashboard/reservation/${data.reservationId}`)
+            }
           >
             <IconEdit className='mr-2 h-4 w-4' /> Ubah
           </DropdownMenuItem>
