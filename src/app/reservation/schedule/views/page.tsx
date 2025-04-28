@@ -421,7 +421,7 @@ export default function SchedulesPage() {
             {['Lapangan 1', 'Lapangan 2'].map((court, index) => (
               <div
               key={index}
-              className={`rounded-xl ${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}
+              className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}
               >
               <div className='mb-4'>
               <p className='text-lg font-semibold text-black'>{court}</p>
