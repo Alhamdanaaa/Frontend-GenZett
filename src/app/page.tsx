@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button"
 import { MoveRight } from "lucide-react"
 import UserLayout from '@/app/user/layout'
 
-export const metadata: Metadata = {
-  title: 'Beranda',
-  description: 'Beranda User',
-}
+// export const metadata: Metadata = {
+//   title: 'Beranda',
+//   description: 'Beranda User',
+// }
 
 export default function HomePage() {
   return (
     <UserLayout>
-        <main className="bg-white text-gray-800">
+        <div className="bg-white text-gray-800">
             {/* Hero Section */}
             <section className="px-4 py-5 md:py-20 flex flex-col-reverse md:flex-row items-center max-w-6xl mx-auto gap-8">
                 <div className="md:w-1/2 space-y-4">
@@ -279,7 +279,7 @@ export default function HomePage() {
                 </div>
                 </div>
             </section>
-        </main>
+        </div>
     </UserLayout>
   );
 }
