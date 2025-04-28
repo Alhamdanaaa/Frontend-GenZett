@@ -157,7 +157,7 @@ export default function SchedulesPage() {
                     onClick={() => setSelectedDate(date)}
                     className={`min-w-[100px] cursor-pointer rounded-2xl py-3 text-center text-sm font-medium transition-all ${
                     isSelected
-                      ? 'bg-[#D5FF35]'
+                      ? 'bg-[#C5FC40]'
                       : 'bg-[#2C473A] hover:bg-[#3A5849]'
                     }`}
                   >
@@ -189,7 +189,7 @@ export default function SchedulesPage() {
                           openDropdown === 'calendar' ? null : 'calendar'
                         )
                       }
-                      className='flex items-center gap-2 text-white'
+                      className='flex items-center gap-2 text-white cursor-pointer'
                     >
                       <svg
                         xmlns='http://www.w3.org/2000/svg'
@@ -226,9 +226,9 @@ export default function SchedulesPage() {
                         openDropdown === 'category' ? null : 'category'
                       )
                     }
-                    className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-md px-3 py-3'
+                    className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer'
                     style={{ width: '140px' }} // Fixed width for the button
-                  >
+                    >
                     <span className='text-sm truncate'>{selectedCategory || 'Pilih Cabor'}</span>
                     <svg
                       xmlns='http://www.w3.org/2000/svg'
@@ -244,7 +244,7 @@ export default function SchedulesPage() {
                     >
                       <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
-                  </button>
+                    </button>
                   
                   {openDropdown === 'category' && (
                     <div className='absolute mt-62 rounded-lg bg-white p-2 shadow-lg z-10'
@@ -258,7 +258,7 @@ export default function SchedulesPage() {
                               console.log(sport);
                               setOpenDropdown(null);
                             }}
-                            className='rounded-md px-4 py-2 text-left text-sm hover:bg-gray-100 w-full truncate'
+                            className='rounded-md px-4 py-2 text-left text-sm hover:bg-gray-100 w-full truncate cursor-pointer'
                           >
                             {sport}
                           </button>
@@ -429,22 +429,13 @@ export default function SchedulesPage() {
                     onClick={() =>
                     setOpenDropdown(openDropdown === court ? null : court)
                     }
-                    className='flex items-center gap-1 rounded-full bg-lime-400 px-3 py-1 text-sm font-semibold text-white hover:bg-lime-500'>
+                    className='flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'>
                     {timeSlots.filter((slot) => !slot.booked).length} Jadwal
                     Tersedia
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      className={`h-4 w-4 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      stroke='currentColor'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M19 9l-7 7-7-7'
-                      />
-                    </svg>
+                    <ChevronDownCircle
+                      className={`h-5 w-5 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
+                      stroke="currentColor"
+                    />
                   </button>
 
                   {/* Dropdown Content - bg-white shadow-lg*/}
@@ -461,12 +452,13 @@ export default function SchedulesPage() {
                               onClick={() => !time.booked && handleTimeClick(key)}
                               disabled={time.booked}
                               className={`relative rounded-lg border px-3 py-4 text-center text-base transition-all ${
-                              time.booked
-                              ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
-                              : isSelected
-                              ? 'border-lime-400 bg-lime-50 text-black'
-                              : 'border-gray-300 bg-white hover:border-lime-300 hover:bg-lime-50'
-                              }`}>
+                                time.booked
+                                  ? 'pointer-events-none border-gray-200 text-gray-400'
+                                  : isSelected
+                                    ? 'border-lime-400 bg-lime-50 text-black cursor-pointer'
+                                    : 'border-gray-300 bg-white hover:border-lime-300 hover:bg-lime-50 cursor-pointer'
+                              }`}
+                            >
                               <div className='mb-1 text-xs font-medium text-[#A0A4A8]'>
                                 60 menit
                               </div>
@@ -484,7 +476,8 @@ export default function SchedulesPage() {
                                     fill='none'
                                     viewBox='0 0 24 24'
                                     stroke='currentColor'
-                                    strokeWidth='3'>
+                                    strokeWidth='3'
+                                  >
                                     <path
                                       strokeLinecap='round'
                                       strokeLinejoin='round'
@@ -510,24 +503,25 @@ export default function SchedulesPage() {
                   <p className='text-sm font-medium text-white'>
                     {selectedTimes.length} lapangan dipilih
                   </p>
-                  <button
-                    className='text-white-500 hover:text-white-600 flex items-center'
+                    <button
+                    className='text-white flex items-center'
                     onClick={() => setShowDetails((prev) => !prev)}
-                  >
+                    >
                     <ChevronDownCircle
-                      className={`h-4 w-4 transition-transform ${showDetails ? 'rotate-180' : ''}`}
+                      className={`h-5 w-5 transition-transform ${showDetails ? 'rotate-180' : ''}`}
+                      stroke="white"
                     />
-                  </button>
+                    </button>
                 </div>
                 <div className='flex items-center gap-4'>
-                  <div className='text-right'>
-                    <p className='text-lg font-bold text-white'>
+                  {/* <div className='text-right'>
+                    <p className='text-lg font-semibold text-white'>
                       Rp. {selectedTimes.length * 60000}
                     </p>
-                  </div>
-                  <Button className='bg-orange-500 hover:bg-orange-600'>
+                  </div> */}
+                    <Button className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'>
                     BAYAR
-                  </Button>
+                    </Button>
                 </div>
               </div>
 
@@ -543,17 +537,17 @@ export default function SchedulesPage() {
                           className='flex items-center justify-between text-sm'
                         >
                           <div>
-                            <p className='font-medium'>{court}</p>
-                            <p className='text-gray-500'>{timeSlot}</p>
+                            <p className='font-medium text-white'>{court}</p>
+                            <p className='text-white'>{timeSlot}</p>
                           </div>
-                          <p>Rp60.000</p>
+                          <p className='text-white'>Rp60.000</p>
                         </div>
                       );
                     })}
                   </div>
 
-                  <div className='mt-3 flex justify-between border-t pt-3'>
-                    <p className='font-medium'>Total</p>
+                  <div className='mt-3 flex justify-between border-t pt-3 text-white'>
+                    <p className='font-bold'>Total</p>
                     <p className='font-bold'>
                       Rp. {selectedTimes.length * 60000}
                     </p>
