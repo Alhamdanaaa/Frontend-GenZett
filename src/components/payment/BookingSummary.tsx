@@ -15,7 +15,7 @@ export default function BookingSummary({ location, bookings }: {
     <div className="">
       <div className="text-gray-600">
         <h2 className="font-semibold text-lg text-black">Lokasi Cabang : <br /> {location}</h2>
-        <div className="mt-4 h-96 overflow-y-auto">
+        <div className="mt-4 h-96 w- overflow-y-auto">
           {bookings.map((booking, index) => (
             <div key={`booking-${index}`} className="mb-4">
               <p className="m-2">{booking.field}</p>

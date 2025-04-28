@@ -18,6 +18,18 @@ export default function MemberCard() {
             description: 'Pembelian Paket 1 Bulan',
             benefits: ['1x pertemuan gratis', 'Diskon 10% untuk pembelian selanjutnya'],
         },
+        {
+            name: 'PAKET SILVER',
+            price: 500000,
+            description: 'Pembelian Paket 1 Bulan',
+            benefits: ['1x pertemuan gratis', 'Diskon 10% untuk pembelian selanjutnya'],
+        },
+        {
+            name: 'PAKET GOLD',
+            price: 1000000,
+            description: 'Pembelian Paket 1 Bulan',
+            benefits: ['1x pertemuan gratis', 'Diskon 10% untuk pembelian selanjutnya'],
+        },
     ];
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-10 py-6">
