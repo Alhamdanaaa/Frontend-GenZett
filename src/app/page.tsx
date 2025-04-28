@@ -8,6 +8,7 @@ import Navbar from "@/components/user/navbar-user";
 import FAQItem from "@/components/user/FAQItem";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { CircleArrowRight } from "lucide-react";
 
 // Animation variants
 const fadeInUp = {
@@ -147,8 +148,8 @@ export default function HomePage() {
                 variants={fadeInUp}
                 className="flex items-start gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#D1F12F] text-black font-bold text-sm mt-1 transition-transform duration-300 group-hover:scale-110">
-                  ➤
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#D1F12F] text-black font-bold text-sm mt-1 transition-transform duration-300 group-hover:scale-110 aspect-square">
+                  <CircleArrowRight className="w-4 h-4" /> {/* Ukuran icon lebih kecil */}
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1 transition-all duration-300 hover:text-[#2C473A]">{item.title}</h3>
