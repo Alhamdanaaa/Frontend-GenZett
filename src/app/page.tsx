@@ -81,6 +81,7 @@ export default function HomePage() {
           </motion.div>
         </section>
 
+
         {/* About Us */}
         <section id="about" className="pt-1 pb-[1px] px-4">
           <motion.div 
