@@ -1,11 +1,11 @@
 import React from 'react'
 import ClientNavbarLayout from './client-navbar-layout'
-import { Metadata } from 'next'
+// import { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'Beranda User',
-  description: 'Halaman utama bagi pengguna sport center',
-}
+// export const metadata: Metadata = {
+//   title: 'Beranda User',
+//   description: 'Halaman utama bagi pengguna sport center',
+// }
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
