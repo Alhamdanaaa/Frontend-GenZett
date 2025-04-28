@@ -16,12 +16,6 @@ const META_THEME_COLORS = {
   dark: '#09090b'
 };
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-poppins',
-});
-
 export const metadata: Metadata = {
   title: 'Next Shadcn',
   description: 'Basic dashboard with Next.js and Shadcn'
