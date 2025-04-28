@@ -75,6 +75,7 @@ export default function SignInViewPage({ stars }: { stars: number }) {
             initialValues={{
               emailAddress: 'your_mail+clerk_test@example.com'
             }}
+            afterSignInUrl="/dashboard" 
           />
 
           <p className='text-muted-foreground px-8 text-center text-sm'>
