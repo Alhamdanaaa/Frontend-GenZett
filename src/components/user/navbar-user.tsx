@@ -13,8 +13,8 @@ export default function NavbarUser() {
 
   const navItems = [
     { label: 'Beranda', href: '/' },
-    { label: 'Reservasi', href: '/user/reservation' },
-    { label: 'Riwayat', href: '/user/riwayat' },
+    { label: 'Reservasi', href: '/reservation' },
+    { label: 'Riwayat', href: '/riwayat' },
   ]
 
   return (
