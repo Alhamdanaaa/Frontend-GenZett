@@ -120,8 +120,8 @@ export default function ReservationForm({
                       </FormControl>
                       <SelectContent>
                         {FIELD_OPTIONS.map((field) => (
-                          <SelectItem key={field} value={field}>
-                            {field}
+                          <SelectItem key={field.value} value={field.value}>
+                            {field.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
