@@ -1,26 +1,33 @@
-import { fakeReservations } from '@/constants/mock-api';
-import { Reservation } from '@/constants/data';
 import { notFound } from 'next/navigation';
-import ReservationForm from './reservation-form';
+import { Reservation } from '@/constants/data';
+import { fakeReservations } from '@/constants/mock-api';
+import ReservationViewPageClient from './reservation-view-page-client';
 
-type TReservationViewPageProps = {
+interface ReservationViewPageProps {
   reservationId: string;
-};
+}
 
-export default async function ReservationViewPage({
-  reservationId
-}: TReservationViewPageProps) {
-  let reservation = null;
+async function fetchReservation(reservationId: string): Promise<Reservation | null> {
+  try {
+    const data = await fakeReservations.getReservationById(Number(reservationId));
+    return data.reservation as Reservation;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export default async function ReservationViewPage({ reservationId }: ReservationViewPageProps) {
+  let reservation: Reservation | null = null;
   let pageTitle = 'Tambah Reservasi Baru';
 
   if (reservationId !== 'new') {
-    const data = await fakeReservations.getReservationById(Number(reservationId));
-    reservation = data.reservation as Reservation;
+    reservation = await fetchReservation(reservationId);
     if (!reservation) {
       notFound();
     }
-    pageTitle = `Edit Reservasi`;
+    pageTitle = `Edit Reservasi - ${reservation.name}`; // Bisa ganti dynamic title kalau mau
   }
 
-  return <ReservationForm initialData={reservation} pageTitle={pageTitle} />;
+  return <ReservationViewPageClient reservation={reservation} pageTitle={pageTitle} />;
 }

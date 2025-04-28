@@ -1,26 +1,40 @@
-import { fakeSports } from '@/constants/mock-api';
 import { Sport } from '@/constants/data';
 import { notFound } from 'next/navigation';
-import SportForm from './sport-form';
+import SportViewPageClient from './sport-view-page-client';
+import { fakeSports } from '@/constants/mock-api';
 
-type TSportViewPageProps = {
+interface SportViewPageProps {
   sportId: string;
-};
+}
 
-export default async function SportViewPage({
-  sportId
-}: TSportViewPageProps) {
-  let sport = null;
-  let pageTitle = 'Tambah Cabang Olahraga';
+async function fetchSport(sportId: string): Promise<Sport | null> {
+  try {
+    // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sports/${sportId}`, {
+    //   cache: 'no-store'
+    // });
+    // if (!res.ok) {
+    //   throw new Error('Sport not found');
+    // }
+    // const data = await res.json();
+    const data = await fakeSports.getSportById(Number(sportId));
+    return data.sport as Sport;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export default async function SportViewPage({ sportId }: SportViewPageProps) {
+  let sport: Sport | null = null;
+  let pageTitle = 'Tambah Cabang Olahraga Baru';
 
   if (sportId !== 'new') {
-    const data = await fakeSports.getSportById(Number(sportId));
-    sport = data.sport as Sport;
+    sport = await fetchSport(sportId);
     if (!sport) {
       notFound();
     }
-    pageTitle = 'Edit Cabang Olahraga';
+    pageTitle = `Edit Cabang Olahraga - ${sport.name}`;
   }
 
-  return <SportForm initialData={sport} pageTitle={pageTitle} />;
+  return <SportViewPageClient sport={sport} pageTitle={pageTitle} />;
 }
