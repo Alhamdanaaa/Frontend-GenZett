@@ -1,5 +1,5 @@
 import React from 'react'
-import { Metadata } from 'next'
+// import { Metadata } from 'next'
 import NavbarUser from '@/components/user/navbar-user'
 import FooterUser from '@/components/user/footer-user'
 
