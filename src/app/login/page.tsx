@@ -25,5 +25,5 @@ export default async function Page() {
     // fallback value
   }
 
-  return <LoginPage stars={stars} />;
+  return <LoginPage />;
 }

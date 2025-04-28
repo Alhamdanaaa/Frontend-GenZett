@@ -1,28 +1,38 @@
 'use client';
-import { generateColumns, generateTableData } from './columns';
-import { useMemo, useState } from 'react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { isSameDay } from 'date-fns';
-import ScheduleFilter from './schedule-filter';
-import { fakeSchedules } from '@/constants/mock-api';
+import { useMemo } from 'react';
 import { DataTableSchedule } from '@/components/ui/table/data-table-schedule';
+import { useScheduleData } from '@/features/schedule/hooks/use-schedule-data';
+import { generateColumns, generateTableData } from './columns';
+import { isSameDay } from 'date-fns';
 
-export default function ScheduleListingPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date('2024-05-27'));
-  const [selectedSport, setSelectedSport] = useState('Futsal');
+type ScheduleListingPageProps = {
+  selectedDate: Date;
+  selectedSport: string;
+};
 
+export default function ScheduleListingPage({ 
+  selectedDate, 
+  selectedSport 
+}: ScheduleListingPageProps) {
+  // Use a custom hook for data fetching
+  const { scheduleData, isLoading } = useScheduleData();
+  
   const { columns, tableData } = useMemo(() => {
-    const allData = fakeSchedules.records;
-
-    const filteredData = allData.filter((item) => {
+    if (!scheduleData) {
+      return { columns: [], tableData: [] };
+    }
+    
+    const filteredData = scheduleData.filter((item) => {
       const matchDate = isSameDay(new Date(item.date), selectedDate);
       const matchSport =
         selectedSport === 'all' || item.sport === selectedSport;
       return matchDate && matchSport;
     });
 
+    // Limit fields to improve performance
     const allFields = Array.from(
-      new Set(allData.map((item) => item.field))
+      new Set(scheduleData.map((item) => item.field))
     ).sort(
       (a, b) =>
         parseInt(a.match(/\d+/)?.[0] ?? '0') -
@@ -30,30 +40,23 @@ export default function ScheduleListingPage() {
     );
 
     return {
-      columns: generateColumns(allFields),
-      tableData: generateTableData(filteredData, allFields)
+      columns: generateColumns(allFields.slice(0, 8)), // Limit to 8 fields at a time
+      tableData: generateTableData(filteredData, allFields.slice(0, 8))
     };
-  }, [selectedDate, selectedSport]);
-  console.log('columns', columns);
-  console.log('tableData', tableData);
-
-  const memoColumns = useMemo(() => columns, [columns]);
-  const memoData = useMemo(() => tableData, [tableData]);
+  }, [selectedDate, selectedSport, scheduleData]);
 
   const table = useReactTable({
-    data: memoData,
-    columns: memoColumns,
+    data: tableData,
+    columns,
     getCoreRowModel: getCoreRowModel()
   });
 
+  if (isLoading) {
+    return <div className="h-[400px] w-full flex items-center justify-center">Loading schedule data...</div>;
+  }
+
   return (
     <div className='space-y-4'>
-      <ScheduleFilter
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        selectedSport={selectedSport}
-        setSelectedSport={setSelectedSport}
-      />
       <DataTableSchedule table={table} />
     </div>
   );

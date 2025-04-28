@@ -18,7 +18,6 @@ interface DataTableProps<TData> extends React.ComponentProps<'div'> {
 
 export function DataTableSchedule<TData>({
   table,
-  actionBar,
   children
 }: DataTableProps<TData>) {
   return (
@@ -90,12 +89,6 @@ export function DataTableSchedule<TData>({
           </ScrollArea>
         </div>
       </div>
-      {/* <div className='flex flex-col gap-2.5'>
-        <DataTablePagination table={table} />
-        {actionBar &&
-          table.getFilteredSelectedRowModel().rows.length > 0 &&
-          actionBar}
-      </div> */}
     </div>
   );
 }

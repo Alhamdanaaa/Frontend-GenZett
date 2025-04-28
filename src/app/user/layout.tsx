@@ -1,7 +1,6 @@
 import React from 'react'
-import ClientNavbarLayout from './client-navbar-layout'
-import FooterUser from '@/components/user/footer-user'
-// import { Metadata } from 'next'
+import { Metadata } from 'next'
+import NavbarUser from '@/components/user/navbar-user'
 
 // export const metadata: Metadata = {
 //   title: 'Beranda User',
@@ -11,7 +10,7 @@ import FooterUser from '@/components/user/footer-user'
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
-      <ClientNavbarLayout />  {/* Navbar yang client-side */}
+      <NavbarUser /> 
       <main className="pt-4 px-6">{children}</main>
       <FooterUser />
     </div>

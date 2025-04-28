@@ -36,15 +36,14 @@ export function generateColumns(fieldNames: string[]): ColumnDef<ScheduleRow>[] 
   return [timeColumn, ...fieldColumns];
 }
 
-
+// Optimized table data generation
 export function generateTableData(schedules: Schedule[], fieldNames: string[]): ScheduleRow[] {
-  const operatingHours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00']
-
+  const operatingHours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
   return operatingHours.map((hour) => {
     const row: ScheduleRow = { time: hour };
 
     fieldNames.forEach((field) => {
-      const key = field.replace(/\s+/g, '_'); // <- HARUS SAMA dengan di columns
+      const key = field.replace(/\s+/g, '_');
       const match = schedules.find(
         (s) => s.fieldTime === hour && s.field === field
       );
@@ -66,4 +65,3 @@ export function generateTableData(schedules: Schedule[], fieldNames: string[]): 
     return row;
   });
 }
-
