@@ -205,6 +205,7 @@ export const fakeLocations = {
   },
 
   // Ambil semua lokasi dengan filter opsional
+  // Optimized getAll method
   async getAll({
     sports = [],
     search
@@ -214,24 +215,28 @@ export const fakeLocations = {
   }) {
     let locations = [...this.records];
 
-    // Filter berdasarkan cabang olahraga
+    // Filter based on sports efficiently
     if (sports.length > 0) {
+      const sportsSet = new Set(sports);
       locations = locations.filter((location) =>
-        location.sports.some(sport => sports.includes(sport))
+        location.sports.some(sport => sportsSet.has(sport))
       );
     }
 
-    // Pencarian di berbagai field
+    // Optimize search by checking direct matches first
     if (search) {
-      locations = matchSorter(locations, search, {
-        keys: ['name', 'desc', 'sports']
-      });
+      const searchLower = search.toLowerCase();
+      locations = locations.filter(location => 
+        location.name.toLowerCase().includes(searchLower) ||
+        location.desc.toLowerCase().includes(searchLower) ||
+        location.sports.some(sport => sport.toLowerCase().includes(searchLower))
+      );
     }
 
     return locations;
   },
 
-  // Ambil lokasi dengan pagination
+  // Optimized getLocations method - remove artificial delay
   async getLocations({
     page = 1,
     limit = 10,
@@ -243,7 +248,8 @@ export const fakeLocations = {
     sports?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // Remove the artificial delay
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     const sportsArray = sports ? sports.split('.') : [];
     const allLocations = await this.getAll({
@@ -252,17 +258,13 @@ export const fakeLocations = {
     });
     const totalLocations = allLocations.length;
 
-    // Logika pagination
+    // Pagination logic
     const offset = (page - 1) * limit;
     const paginatedLocations = allLocations.slice(offset, offset + limit);
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
-    // Kembalikan respons dengan pagination
     return {
       success: true,
-      time: currentTime,
+      time: new Date().toISOString(),
       message: 'Data lokasi untuk keperluan testing',
       total_locations: totalLocations,
       offset,
@@ -271,11 +273,11 @@ export const fakeLocations = {
     };
   },
 
-  // Ambil lokasi berdasarkan ID
+  // Optimized getLocationById - remove artificial delay
   async getLocationById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // Remove the artificial delay
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Cari lokasi berdasarkan ID
     const location = this.records.find((location) => location.id === id);
 
     if (!location) {
@@ -285,19 +287,16 @@ export const fakeLocations = {
       };
     }
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
     return {
       success: true,
-      time: currentTime,
+      time: new Date().toISOString(),
       message: `Lokasi dengan ID ${id} ditemukan`,
       location
     };
   }
 };
 
-// Inisialisasi lokasi contoh
+// Initialize example locations
 fakeLocations.initialize();
 
 // Data sport
@@ -555,7 +554,6 @@ export const fakeUsers = {
 
   // Ambil semua users dengan filter opsional
   async getAll({
-    memberStatus = [],
     search
   }: {
     memberStatus?: string[];
@@ -687,7 +685,6 @@ export const fakeAdmins = {
 
   // Ambil semua admin dengan filter opsional
   async getAll({
-    accountStatus = [],
     location = [],
     search
   }: {
@@ -819,10 +816,6 @@ export const fakeReservations = {
       const startTime = new Date();
       startTime.setHours(startHour, 0, 0, 0);
       const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
-      // Format waktu menjadi string seperti "8.00", "12.00"
-      const formatTime = (date: Date) => {
-        return `${date.getHours()}.00`;
-      };
 
       // Total dan sisa pembayaran
       const totalPayment = faker.number.int({ min: 50000, max: 500000 });

@@ -5,7 +5,7 @@ interface Props<TData, TValue> {
   title: string;
 }
 
-export function DataTableColumnHeader<TData, TValue>({ column, title }: Props<TData, TValue>) {
+export function DataTableColumnHeader<TData, TValue>({ title }: Props<TData, TValue>) {
   return (
     <div className="font-medium">
       {title}
