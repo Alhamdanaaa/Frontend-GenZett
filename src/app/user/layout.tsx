@@ -1,6 +1,7 @@
 import React from 'react'
 import { Metadata } from 'next'
 import NavbarUser from '@/components/user/navbar-user'
+import FooterUser from '@/components/user/footer-user'
 
 // export const metadata: Metadata = {
 //   title: 'Beranda User',
