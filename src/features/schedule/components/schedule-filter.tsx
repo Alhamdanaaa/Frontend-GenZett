@@ -1,6 +1,5 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -9,7 +8,6 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { SPORT_OPTIONS } from './option';
-import format from 'date-fns';
 
 // Dynamically import the Calendar component
 const PopoverWithCalendar = dynamic(

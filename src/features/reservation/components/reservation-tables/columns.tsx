@@ -5,7 +5,7 @@ import { Reservation } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
 import { CellAction } from './cell-action';
-import { PAYMENT_STATUS_OPTIONS, RESERVATION_STATUS_OPTIONS } from './options';
+import { PAYMENT_STATUS_OPTIONS } from './options';
 
 export const columns: ColumnDef<Reservation>[] = [
   {
