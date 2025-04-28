@@ -2,7 +2,7 @@ import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import ScheduleListingPage from '@/features/schedule/components/schedule-listing-page';
+import ScheduleListingPageWrapper from '@/features/schedule/components/schedule-listing-page-wrapper';
 import { Suspense } from 'react';
 
 export const metadata = {
@@ -23,7 +23,7 @@ export default function SchedulePage() {
             <DataTableSkeleton columnCount={4} rowCount={8} filterCount={2} />
           }
         >
-          < ScheduleListingPage />
+          <ScheduleListingPageWrapper />
         </Suspense>
       </div>
     </PageContainer>

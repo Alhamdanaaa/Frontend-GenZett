@@ -1,11 +1,5 @@
 'use client';
-
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -15,7 +9,13 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { SPORT_OPTIONS } from './option';
-import { format } from 'date-fns';
+import format from 'date-fns';
+
+// Dynamically import the Calendar component
+const PopoverWithCalendar = dynamic(
+  () => import('./popover-with-calendar'),
+  { ssr: false }
+);
 
 type ScheduleFilterProps = {
   selectedDate: Date;
@@ -32,24 +32,10 @@ export default function ScheduleFilter({
 }: ScheduleFilterProps) {
   return (
     <div className='mb-4 flex flex-wrap items-center gap-4'>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant='outline'
-            className='w-[200px] justify-start text-left font-normal'
-          >
-            {selectedDate ? format(selectedDate, 'PPP') : 'Pilih tanggal'}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className='w-auto p-0'>
-          <Calendar
-            mode='single'
-            selected={selectedDate}
-            onSelect={(date) => date && setSelectedDate(date)}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
+      <PopoverWithCalendar 
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
       <Select onValueChange={setSelectedSport} defaultValue={selectedSport}>
         <SelectTrigger className='w-[200px]'>
           <SelectValue placeholder='Pilih Olahraga' />
