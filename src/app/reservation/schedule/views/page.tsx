@@ -416,107 +416,90 @@ export default function SchedulesPage() {
             </div>
           </div>
 
-            {/* Court Time Slots - bg-white p-4 shadow-sm */}
-            <div className='mt-8 space-y-6'>
+          {/* Court Time Slots - bg-white p-4 shadow-sm */}
+          <div className='mt-8 space-y-6'>
             {['Lapangan 1', 'Lapangan 2'].map((court, index) => (
-              <div
-              key={index}
-              className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}
-              >
-              <div className='mb-4'>
-              <p className='text-lg font-semibold text-black'>{court}</p>
-              <p className='text-sm text-gray-600'>
-              Lapangan Badminton beralaskan karpet vinyl
-              </p>
-              </div>
-              <div className='relative'>
-              <button
-              onClick={() =>
-              setOpenDropdown(openDropdown === court ? null : court)
-              }
-              className='flex items-center gap-1 rounded-full bg-lime-400 px-3 py-1 text-sm font-semibold text-white hover:bg-lime-500'
-              >
-              {timeSlots.filter((slot) => !slot.booked).length} Jadwal
-              Tersedia
-              <svg
-              xmlns='http://www.w3.org/2000/svg'
-              className={`h-4 w-4 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-              >
-              <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              d='M19 9l-7 7-7-7'
-              />
-              </svg>
-              </button>
+              <div key={index} className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}>
+                <div className='mb-4'>
+                  <p className='text-lg font-semibold text-black'>{court}</p>
+                  <p className='text-sm text-gray-600'>Lapangan Badminton beralaskan karpet vinyl</p>
+                </div>
+                <div className='relative'>
+                  <button
+                    onClick={() =>
+                    setOpenDropdown(openDropdown === court ? null : court)
+                    }
+                    className='flex items-center gap-1 rounded-full bg-lime-400 px-3 py-1 text-sm font-semibold text-white hover:bg-lime-500'>
+                    {timeSlots.filter((slot) => !slot.booked).length} Jadwal
+                    Tersedia
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      className={`h-4 w-4 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke='currentColor'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M19 9l-7 7-7-7'
+                      />
+                    </svg>
+                  </button>
 
-              {/* Dropdown Content - bg-white shadow-lg*/}
-              {(openDropdown === court || (openDropdown === null && index === 0)) && (
-              <div className='mt-4 w-full rounded-md'>
-              <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
-              {timeSlots.map((time, idx) => {
-              const key = `${court}|${time.time}`;
-              const isSelected = selectedTimes.includes(key);
+                  {/* Dropdown Content - bg-white shadow-lg*/}
+                  {(openDropdown === court || (openDropdown === null && index === 0)) && (
+                    <div className='mt-4 w-full rounded-md'>
+                      <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
+                        {timeSlots.map((time, idx) => {
+                          const key = `${court}|${time.time}`;
+                          const isSelected = selectedTimes.includes(key);
 
-              return (
-              <button
-                key={idx}
-                onClick={() => !time.booked && handleTimeClick(key)}
-                disabled={time.booked}
-                className={`relative rounded-lg border px-3 py-4 text-center text-base transition-all ${
-                time.booked
-                ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
-                : isSelected
-                ? 'border-lime-400 bg-lime-50 text-black'
-                : 'border-gray-300 bg-white hover:border-lime-300 hover:bg-lime-50'
-                }`}
-              >
-                <div className='mb-1 text-xs font-medium text-[#A0A4A8]'>
-                60 menit
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => !time.booked && handleTimeClick(key)}
+                              disabled={time.booked}
+                              className={`relative rounded-lg border px-3 py-4 text-center text-base transition-all ${
+                              time.booked
+                              ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400'
+                              : isSelected
+                              ? 'border-lime-400 bg-lime-50 text-black'
+                              : 'border-gray-300 bg-white hover:border-lime-300 hover:bg-lime-50'
+                              }`}>
+                              <div className='mb-1 text-xs font-medium text-[#A0A4A8]'>
+                                60 menit
+                              </div>
+                              <div className={`mb-1 text-base font-semibold ${time.booked ? 'text-gray-400' : 'text-black'}`}>
+                                {time.time}
+                              </div>
+                              <div className={`text-sm ${time.booked ? 'text-gray-500' : 'text-[#2C473A]'}`}>
+                                {time.booked ? 'BOOKED' : 'Rp60.000'}
+                              </div>
+                              {isSelected && (
+                                <div className='absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-lime-400'>
+                                  <svg
+                                    xmlns='http://www.w3.org/2000/svg'
+                                    className='h-4 w-4 text-white'
+                                    fill='none'
+                                    viewBox='0 0 24 24'
+                                    stroke='currentColor'
+                                    strokeWidth='3'>
+                                    <path
+                                      strokeLinecap='round'
+                                      strokeLinejoin='round'
+                                      d='M5 13l4 4L19 7'
+                                    />
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div
-                className={`mb-1 text-base font-semibold ${
-                time.booked ? 'text-gray-400' : 'text-black'
-                }`}
-                >
-                {time.time}
-                </div>
-                <div
-                className={`text-sm ${
-                time.booked ? 'text-gray-500' : 'text-[#2C473A]'
-                }`}
-                >
-                {time.booked ? 'BOOKED' : 'Rp60.000'}
-                </div>
-                {isSelected && (
-                <div className='absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-lime-400'>
-                <svg
-                xmlns='http://www.w3.org/2000/svg'
-                className='h-4 w-4 text-white'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                strokeWidth='3'
-                >
-                <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M5 13l4 4L19 7'
-                />
-                </svg>
-                </div>
-                )}
-              </button>
-              );
-              })}
-              </div>
-              </div>
-              )}
-              </div>
               </div>
             ))}
 
