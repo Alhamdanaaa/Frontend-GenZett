@@ -5,17 +5,16 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { useUser, UserButton } from '@clerk/nextjs'
+import { UserButton, useUser, SignedIn,SignedOut } from '@clerk/nextjs'
 
 export default function NavbarUser() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const { isSignedIn } = useUser()
 
   const navItems = [
     { label: 'Beranda', href: '/' },
-    { label: 'Reservasi', href: '/reservation' },
-    { label: 'Riwayat', href: '/riwayat' },
+    { label: 'Reservasi', href: '/user/reservation' },
+    { label: 'Riwayat', href: '/user/riwayat' },
   ]
 
   return (
@@ -61,19 +60,20 @@ export default function NavbarUser() {
           })}
         </div>
 
-        {/* LOGIN BUTTON / ACCOUNT MENU (Desktop) */}
-        <div className="hidden md:flex items-center">
-          {!isSignedIn ? (
+        {/* CONDITIONAL ACCOUNT/LOGIN BUTTON */}
+        <SignedIn>
+            {/* Kalau sudah login, tampilkan user menu */}
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            {/* Kalau belum login, tampilkan tombol login */}
             <Link
               href="/login"
-              className="h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition flex items-center justify-center"
+              className="hidden md:flex items-center justify-center h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition"
             >
               Login
             </Link>
-          ) : (
-            <UserButton afterSignOutUrl="/" />
-          )}
-        </div>
+          </SignedOut>
       </div>
 
       {/* MOBILE MENU */}
@@ -97,20 +97,21 @@ export default function NavbarUser() {
               )
             })}
 
-            {/* LOGIN / ACCOUNT MOBILE */}
-            {!isSignedIn ? (
+            {/* CONDITIONAL ACCOUNT/LOGIN (Mobile) */}
+            <SignedIn>
+              <div className="flex justify-center">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
+            <SignedOut>
               <Link
-                href="/sign-in"
+                href="/login"
                 className="bg-[#C5FC40] text-black font-semibold px-4 py-2 rounded-full text-sm hover:bg-lime-300 transition text-center"
                 onClick={() => setIsOpen(false)}
               >
                 Login
               </Link>
-            ) : (
-              <div className="flex justify-center">
-                <UserButton afterSignOutUrl="/" />
-              </div>
-            )}
+            </SignedOut>
           </div>
         </div>
       )}
