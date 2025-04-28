@@ -4,6 +4,7 @@ type FormData = {
   name: string
   phone: string
   paymentType: "dp" | "full"
+  policyAgreement: boolean
 }
 
 type Props = {

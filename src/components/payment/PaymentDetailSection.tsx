@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use client'
 
 import { useForm, Controller } from 'react-hook-form'
@@ -19,6 +20,7 @@ type FormData = {
   name: string
   phone: string
   paymentType: 'dp' | 'full'
+  policyAgreement: boolean
 }
 
 export default function PaymentDetailsSection() {
@@ -32,16 +34,37 @@ export default function PaymentDetailsSection() {
     defaultValues: {
       name: 'SpongeBob Squarepants',
       phone: '08123467890',
-      paymentType: 'dp',
+      paymentType: 'full',
+      policyAgreement: false,
     },
   })
+
   const location = 'Bikini Bottom'
+
   const bookings: Booking[] = [
     {
       field: 'Lapangan 1',
       date: 'Minggu, 10 Maret 2025',
       times: ['19.00', '20.00'],
       pricePerSlot: 50000,
+    },
+    {
+      field: 'Lapangan 2',
+      date: 'Minggu, 10 Maret 2025',
+      times: ['19.00', '20.00'],
+      pricePerSlot: 60000,
+    },
+    {
+      field: 'Lapangan 2',
+      date: 'Minggu, 10 Maret 2025',
+      times: ['19.00', '20.00'],
+      pricePerSlot: 60000,
+    },
+    {
+      field: 'Lapangan 2',
+      date: 'Minggu, 10 Maret 2025',
+      times: ['19.00', '20.00'],
+      pricePerSlot: 60000,
     },
     {
       field: 'Lapangan 2',
@@ -57,6 +80,7 @@ export default function PaymentDetailsSection() {
 
   const onSubmit = async (data: FormData) => {
     const total = data.paymentType === 'dp' ? subtotal * 0.5 : subtotal
+
     const payload = {
       name: data.name,
       phone: data.phone,
@@ -65,7 +89,6 @@ export default function PaymentDetailsSection() {
       bookings,
     }
 
-    // eslint-disable-next-line no-console
     console.log('Data yang dikirim:', payload)
 
     try {
@@ -76,25 +99,33 @@ export default function PaymentDetailsSection() {
       })
       if (!res.ok) throw new Error('Gagal mengirim data')
       const result = await res.json()
-      // eslint-disable-next-line no-console
       console.log('Respon dari server:', result)
     } catch (error) {
-      // eslint-disable-next-line no-console 
       console.error('Error:', error)
     }
   }
 
+  const policyAgreed = watch('policyAgreement')
+  const selectedPaymentType = watch('paymentType')
+  const totalPayment = selectedPaymentType === 'dp' ? subtotal * 0.5 : subtotal
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-between min-h-screen space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit border-2 border-gray-200 border-opacity-75">
-          <h2 className='font-semibold text-lg text-center '>Ringkasan Pemesanan</h2>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col justify-between min-h-screen overflow-y-auto space-y-6"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Ringkasan Pemesanan */}
+        <div className="md:col-span-2 space-y-6 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit overflow-y-auto border-2 border-gray-200 border-opacity-75">
+          <h2 className="font-semibold text-lg text-center">Ringkasan Pemesanan</h2>
           <BookingSummary bookings={bookings} location={location} />
-          <PaymentTotal name='Harga' amount={subtotal}></PaymentTotal>
+          <PaymentTotal name="Harga" amount={subtotal} />
         </div>
 
-        <div className="space-y-6 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit border-2 border-gray-200 border-opacity-75">
+        {/* Informasi Pembayaran */}
+        <div className="md:col-span-1 space-y-6 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit border-2 border-gray-200 border-opacity-75 justify-between">
           <PayerInfo register={register} errors={errors} />
+
           <Controller
             control={control}
             name="paymentType"
@@ -102,10 +133,17 @@ export default function PaymentDetailsSection() {
               <PaymentMethod selected={field.value} onSelect={field.onChange} />
             )}
           />
-          <PaymentPolicy />
-          <PaymentTotal name='Bayar' amount={watch('paymentType') === 'dp' ? subtotal * 0.5 : subtotal} />
-          <div className='bottom-0 my-2'>
-            <PaymentAction />
+
+          <PaymentPolicy control={control} errors={errors} />
+          <PaymentTotal name="Bayar" amount={totalPayment} />
+
+          <div className="bottom-0 my-2 space-y-2">
+            <PaymentAction disabled={!policyAgreed} />
+            {!policyAgreed && (
+              <p className="text-sm text-red-500 text-center">
+                Anda harus menyetujui kebijakan lapangan terlebih dahulu.
+              </p>
+            )}
           </div>
         </div>
       </div>

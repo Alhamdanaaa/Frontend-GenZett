@@ -14,7 +14,7 @@ export const PaymentMethod = ({
             name="payment"
             checked={selected === "dp"}
             onChange={() => onSelect("dp")}
-            className="accent-orange-600"
+            className="accent-lime-600"
           />
           <span>Down Payment 50%</span>
         </label>
@@ -24,7 +24,7 @@ export const PaymentMethod = ({
             name="payment"
             checked={selected === "full"}
             onChange={() => onSelect("full")}
-            className="accent-orange-600"
+            className="accent-lime-600"
           />
           <span>Full Payment 100%</span>
         </label>

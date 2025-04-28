@@ -61,7 +61,8 @@ export default async function RootLayout({
           activeThemeValue ? `theme-${activeThemeValue}` : '',
           isScaled ? 'theme-scaled' : '',
           // fontVariables
-          "font-poppins"
+          // "font-poppins"
+          poppins.className
         )}
       >
         <NextTopLoader showSpinner={false} />
