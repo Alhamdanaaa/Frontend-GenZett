@@ -7,8 +7,8 @@ export default function FooterUser() {
       <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-10 md:grid-cols-4'>
         {/* Logo & Description */}
         <div className='col-span-1'>
-          <h2 className='mb-4 text-2xl font-bold text-neutral-800 dark:text-neutral-200'>
-            ReSport
+          <h2 className='mb-4 text-2xl font-bold text-white'>
+            ReSports
           </h2>
         </div>
 
