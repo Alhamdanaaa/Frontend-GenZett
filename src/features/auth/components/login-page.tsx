@@ -6,7 +6,7 @@ import { Eye, EyeOff, Loader } from "lucide-react";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function LoginPage({ stars }: { stars: number }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
