@@ -12,6 +12,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     <div>
       <NavbarUser /> 
       <main className="pt-4 px-6">{children}</main>
+      <FooterUser />
     </div>
   )
 }
