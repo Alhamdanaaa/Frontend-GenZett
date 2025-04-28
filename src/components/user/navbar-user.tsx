@@ -5,15 +5,16 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import { UserButton, useUser, SignedIn,SignedOut } from '@clerk/nextjs'
 
 export default function NavbarUser() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
   const navItems = [
-    { label: 'Beranda', href: '/user' },
-    { label: 'Reservasi', href: '/user/reservation' },
-    { label: 'Riwayat', href: '/user/riwayat' },
+    { label: 'Beranda', href: '/' },
+    { label: 'Reservasi', href: '/reservation' },
+    { label: 'Riwayat', href: '/riwayat' },
   ]
 
   return (
@@ -59,13 +60,20 @@ export default function NavbarUser() {
           })}
         </div>
 
-        {/* LOGIN BUTTON (Desktop only) */}
-        <Link
-          href="/login"
-          className="hidden md:flex items-center justify-center h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition"
-        >
-          Login
-        </Link>
+        {/* CONDITIONAL ACCOUNT/LOGIN BUTTON */}
+        <SignedIn>
+            {/* Kalau sudah login, tampilkan user menu */}
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            {/* Kalau belum login, tampilkan tombol login */}
+            <Link
+              href="/login"
+              className="hidden md:flex items-center justify-center h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition"
+            >
+              Login
+            </Link>
+          </SignedOut>
       </div>
 
       {/* MOBILE MENU */}
@@ -89,14 +97,21 @@ export default function NavbarUser() {
               )
             })}
 
-            {/* LOGIN Button Mobile */}
-            <Link
-              href="/login"
-              className="bg-[#C5FC40] text-black font-semibold px-4 py-2 rounded-full text-sm hover:bg-lime-300 transition text-center"
-              onClick={() => setIsOpen(false)}
-            >
-              Login
-            </Link>
+            {/* CONDITIONAL ACCOUNT/LOGIN (Mobile) */}
+            <SignedIn>
+              <div className="flex justify-center">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
+            <SignedOut>
+              <Link
+                href="/login"
+                className="bg-[#C5FC40] text-black font-semibold px-4 py-2 rounded-full text-sm hover:bg-lime-300 transition text-center"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Link>
+            </SignedOut>
           </div>
         </div>
       )}

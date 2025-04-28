@@ -1,26 +1,40 @@
-import { fakeUsers } from '@/constants/mock-api';
 import { User } from '@/constants/data';
 import { notFound } from 'next/navigation';
-import UserForm from './user-list-form';
+import UserViewPageClient from './user-list-view-page-client';
+import { fakeUsers } from '@/constants/mock-api';
 
-type TUserViewPageProps = {
+interface UserViewPageProps {
   userId: string;
-};
+}
 
-export default async function UserViewPage({
-  userId
-}: TUserViewPageProps) {
-  let user = null;
-  let pageTitle = 'Tambah User Baru';
+async function fetchUser(userId: string): Promise<User | null> {
+  try {
+    // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user-list/${userId}`, {
+    //   cache: 'no-store'
+    // });
+    // if (!res.ok) {
+    //   throw new Error('User not found');
+    // }
+    // const data = await res.json();
+    const data = await fakeUsers.getUserById(Number(userId));
+    return data.user as User;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export default async function UserViewPage({ userId }: UserViewPageProps) {
+  let user: User | null = null;
+  let pageTitle = 'Tambah Cabang Olahraga Baru';
 
   if (userId !== 'new') {
-    const data = await fakeUsers.getUserById(Number(userId));
-    user = data.user as User;
+    user = await fetchUser(userId);
     if (!user) {
       notFound();
     }
-    pageTitle = `Edit User`;
+    pageTitle = `Edit User - ${user.name}`;
   }
 
-  return <UserForm initialData={user} pageTitle={pageTitle} />;
+  return <UserViewPageClient user={user} pageTitle={pageTitle} />;
 }

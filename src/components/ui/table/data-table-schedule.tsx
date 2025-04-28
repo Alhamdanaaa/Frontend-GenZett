@@ -18,7 +18,6 @@ interface DataTableProps<TData> extends React.ComponentProps<'div'> {
 
 export function DataTableSchedule<TData>({
   table,
-  actionBar,
   children
 }: DataTableProps<TData>) {
   return (
