@@ -1,22 +1,17 @@
-import { Location } from '@/constants/data';
 import { fakeLocations } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
-import { LocationTable } from './location-tables';
-import { columns } from './location-tables/columns';
+import LocationTableWrapper from './location-table-wrapper';
 
-type LocationListingPage = {};
+const getColumns = async () => {
+  const { columns } = await import('./location-tables/columns');
+  return columns;
+};
 
-export default async function LocationListingPage({}: LocationListingPage) {
-  // Penggunaan cache search params di Render Server Components
+export default async function LocationListingPage() {
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
   const sports = searchParamsCache.get('sport');
-  
-  // // Gunakan query string asli untuk sports
-  // const sports = typeof window !== 'undefined' 
-  //   ? new URLSearchParams(window.location.search).get('sports') 
-  //   : null;
 
   const filters = {
     page,
@@ -26,13 +21,12 @@ export default async function LocationListingPage({}: LocationListingPage) {
   };
 
   const data = await fakeLocations.getLocations(filters);
-  const totalLocations = data.total_locations;
-  const locations: Location[] = data.locations;
+  const columns = await getColumns();
 
   return (
-    <LocationTable
-      data={locations}
-      totalItems={totalLocations}
+    <LocationTableWrapper
+      data={data.locations}
+      totalItems={data.totalLocations}
       columns={columns}
     />
   );

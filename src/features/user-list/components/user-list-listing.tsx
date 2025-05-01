@@ -1,13 +1,13 @@
-import { User } from '@/constants/data';
 import { fakeUsers } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
-import { UserTable } from './user-list-tables';
-import { columns } from './user-list-tables/columns';
+import UserTableWrapper from './user-list-table-wrapper';
 
-type UserListListingPage = {};
+const getColumns = async () => {
+  const { columns } = await import('./user-list-tables/columns');
+  return columns;
+};
 
-export default async function UserListListingPage({}: UserListListingPage) {
-  // Penggunaan cache search params di Render Server Components
+export default async function UserListListingPage() {
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
@@ -19,13 +19,12 @@ export default async function UserListListingPage({}: UserListListingPage) {
   };
 
   const data = await fakeUsers.getUsers(filters);
-  const totalUsers = data.total_users;
-  const users: User[] = data.users;
+  const columns = await getColumns();
 
   return (
-    <UserTable
-      data={users}
-      totalItems={totalUsers}
+    <UserTableWrapper
+      data={data.users}
+      totalItems={data.totalUsers}
       columns={columns}
     />
   );

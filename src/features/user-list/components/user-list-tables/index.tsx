@@ -2,9 +2,7 @@
 
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-
 import { useDataTable } from '@/hooks/use-data-table';
-
 import { ColumnDef } from '@tanstack/react-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
 
@@ -24,10 +22,10 @@ export function UserTable<TData, TValue>({
   const pageCount = Math.ceil(totalItems / pageSize);
 
   const { table } = useDataTable({
-    data, // User data
-    columns, // User columns
+    data,
+    columns,
     pageCount: pageCount,
-    shallow: false // Setting to false triggers a network request with the updated querystring
+    shallow: false
   });
 
   return (
@@ -36,3 +34,5 @@ export function UserTable<TData, TValue>({
     </DataTable>
   );
 }
+
+export default { UserTable };
