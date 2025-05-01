@@ -1,13 +1,13 @@
-import { Field } from '@/constants/data';
 import { fakeFields } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
-import { FieldTable } from './field-tables';
-import { columns } from './field-tables/columns';
+import FieldTableWrapper from './field-table-wrapper';
 
-type FieldListingPage = {};
+const getColumns = async () => {
+  const { columns } = await import('./field-tables/columns');
+  return columns;
+};
 
-export default async function FieldListingPage({}: FieldListingPage) {
-  // Penggunaan cache search params di Render Server Components
+export default async function FieldListingPage() {
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
@@ -23,13 +23,12 @@ export default async function FieldListingPage({}: FieldListingPage) {
   };
 
   const data = await fakeFields.getFields(filters);
-  const totalFields = data.total_fields;
-  const fields: Field[] = data.fields;
+  const columns = await getColumns();
 
   return (
-    <FieldTable
-      data={fields}
-      totalItems={totalFields}
+    <FieldTableWrapper
+      data={data.fields}
+      totalItems={data.totalFields}
       columns={columns}
     />
   );

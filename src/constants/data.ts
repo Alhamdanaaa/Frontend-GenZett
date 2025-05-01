@@ -50,6 +50,7 @@ export type Field = {
 export type User = {
   userId: number;
   username: string;
+  password: string;
   name: string;
   email: string;
   phone: string;
@@ -60,7 +61,10 @@ export type User = {
 // Tipe data Admin
 export type Admin = {
   adminId: number;
+  username: string;
+  password: string;
   name: string;
+  email: string;
   phone: string;
   location: string;
   created_at: string;

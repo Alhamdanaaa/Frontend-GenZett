@@ -1,35 +1,52 @@
-import { Reservation } from '@/constants/data';
 import { fakeReservations } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
-import { ReservationTable } from './reservation-tables';
-import { columns } from './reservation-tables/columns';
+import ReservationTableWrapper from './reservation-table-wrapper';
 
-type ReservationListingPage = {};
+const getColumns = async () => {
+  const { columns } = await import('./reservation-tables/columns');
+  return columns;
+};
 
-export default async function ReservationListingPage({}: ReservationListingPage) {
-  // Penggunaan cache search params di Render Server Components
+export default async function ReservationListingPage() {
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
-  const date = searchParamsCache.get('date');
+  const rawDate = searchParamsCache.get('date'); // timestamp as string
   const paymentStatus = searchParamsCache.get('paymentStatus');
-  
+
+  // Convert timestamp to local YYYY-MM-DD
+  let formattedDate: string | undefined;
+  if (rawDate) {
+    const timestamp = Number(rawDate);
+    if (!isNaN(timestamp)) {
+      const dateObj = new Date(timestamp);
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      formattedDate = `${year}-${month}-${day}`;
+    }
+  }
+
+  console.log({
+    original: rawDate,
+    formattedDate
+  });
+
   const filters = {
     page,
     limit: pageLimit,
     ...(search && { search }),
-    ...(paymentStatus && { paymentStatus: paymentStatus }),
-    ...(date && { date: date }),
+    ...(paymentStatus && { paymentStatus }),
+    ...(formattedDate && { date: formattedDate }),
   };
 
   const data = await fakeReservations.getReservations(filters);
-  const totalReservations = data.total_reservations;
-  const reservations: Reservation[] = data.reservations;
+  const columns = await getColumns();
 
   return (
-    <ReservationTable
-      data={reservations}
-      totalItems={totalReservations}
+    <ReservationTableWrapper
+      data={data.reservations}
+      totalItems={data.total_reservations}
       columns={columns}
     />
   );

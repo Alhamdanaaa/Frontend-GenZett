@@ -36,3 +36,5 @@ export function FieldTable<TData, TValue>({
     </DataTable>
   );
 }
+
+export default { FieldTable };

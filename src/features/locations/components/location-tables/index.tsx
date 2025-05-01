@@ -20,14 +20,13 @@ export function LocationTable<TData, TValue>({
 }: LocationTableParams<TData, TValue>) {
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
 
-  // Memoize values to prevent unnecessary re-renders
   const pageCount = useMemo(() => Math.ceil(totalItems / pageSize), [totalItems, pageSize]);
   
   const { table } = useDataTable({
-    data, // location data
-    columns, // location columns
+    data,
+    columns,
     pageCount,
-    shallow: false // Setting to false triggers a network request with the updated querystring
+    shallow: false
   });
 
   return (
@@ -36,3 +35,5 @@ export function LocationTable<TData, TValue>({
     </DataTable>
   );
 }
+
+export default { LocationTable };
