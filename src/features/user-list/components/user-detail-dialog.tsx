@@ -13,11 +13,18 @@ import { User } from '@/constants/data';
 type UserDetailDialogProps = {
   data: User;
   trigger: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export default function UserDetailDialog({ data, trigger }: UserDetailDialogProps) {
+export default function UserDetailDialog({
+  data, 
+  trigger, 
+  open, 
+  onOpenChange 
+}: UserDetailDialogProps) {
   return (
-    <Dialog>
+    <Dialog  open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>

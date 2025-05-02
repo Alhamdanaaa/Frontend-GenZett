@@ -1,6 +1,5 @@
 'use client';
 
-import { FileUploader } from '@/components/file-uploader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -23,8 +22,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Location } from '@/constants/data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { SPORTS_OPTIONS } from './location-tables/options';
 import * as z from 'zod';
+import dynamic from 'next/dynamic';
+
+const FileUploader = dynamic(
+  () => import('@/components/file-uploader').then((mod) => mod.FileUploader),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-32 w-full" />
+  }
+);
+
+
+import { SPORTS_OPTIONS } from './location-tables/options';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [
@@ -33,16 +44,6 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/png',
   'image/webp'
 ];
-
-// const SPORTS_OPTIONS = [
-//   'Futsal',
-//   'Badminton', 
-//   'Basketball', 
-//   'Volleyball', 
-//   'Tennis', 
-//   'Sepak Bola', 
-//   'Handball'
-// ];
 
 const formSchema = z.object({
   img: z
@@ -56,21 +57,11 @@ const formSchema = z.object({
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       'Hanya menerima file .jpg, .jpeg, .png dan .webp.'
     ),
-  name: z.string().min(2, {
-    message: 'Nama lokasi minimal 2 karakter.'
-  }),
-  sports: z.array(z.string()).min(1, {
-    message: 'Pilih minimal satu cabang olahraga.'
-  }),
-  countLap: z.number().min(1, {
-    message: 'Jumlah lapangan minimal 1.'
-  }),
-  address: z.string().min(5, {
-    message: 'Alamat minimal 5 karakter.'
-  }),
-  desc: z.string().min(10, {
-    message: 'Deskripsi minimal 10 karakter.'
-  })
+  name: z.string().min(2, { message: 'Nama lokasi minimal 2 karakter.' }),
+  sports: z.array(z.string()).min(1, { message: 'Pilih minimal satu cabang olahraga.' }),
+  countLap: z.number().min(1, { message: 'Jumlah lapangan minimal 1.' }),
+  address: z.string().min(5, { message: 'Alamat minimal 5 karakter.' }),
+  desc: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' })
 });
 
 export default function LocationForm({
@@ -90,20 +81,18 @@ export default function LocationForm({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    values: defaultValues
+    values: defaultValues,
+    mode: 'onBlur'
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Logika submit form akan diimplementasikan di sini
     console.log('Form submitted:', values);
   }
 
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
-          {pageTitle}
-        </CardTitle>
+        <CardTitle className='text-left text-2xl font-bold'>{pageTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -112,20 +101,18 @@ export default function LocationForm({
               control={form.control}
               name='img'
               render={({ field }) => (
-                <div className='space-y-6'>
-                  <FormItem className='w-full'>
-                    <FormLabel>Gambar Lokasi</FormLabel>
-                    <FormControl>
-                      <FileUploader
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        maxFiles={4}
-                        maxSize={4 * 1024 * 1024}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                </div>
+                <FormItem className='w-full'>
+                  <FormLabel>Gambar Lokasi</FormLabel>
+                  <FormControl>
+                    <FileUploader
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      maxFiles={4}
+                      maxSize={4 * 1024 * 1024}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
 
@@ -153,7 +140,7 @@ export default function LocationForm({
                       onValueChange={(value) => {
                         const currentSports = field.value || [];
                         const newSports = currentSports.includes(value)
-                          ? currentSports.filter(sport => sport !== value)
+                          ? currentSports.filter((sport) => sport !== value)
                           : [...currentSports, value];
                         field.onChange(newSports);
                       }}
@@ -174,15 +161,15 @@ export default function LocationForm({
                     </Select>
                     <div className='flex flex-wrap gap-2 mt-2'>
                       {field.value?.map((sport) => (
-                        <div 
-                          key={sport} 
+                        <div
+                          key={sport}
                           className='bg-primary/10 px-2 py-1 rounded-md text-sm flex items-center'
                         >
                           {sport}
                           <button
                             type='button'
                             onClick={() => {
-                              const newSports = field.value.filter(s => s !== sport);
+                              const newSports = field.value.filter((s) => s !== sport);
                               field.onChange(newSports);
                             }}
                             className='ml-2 text-destructive'

@@ -36,3 +36,5 @@ export function SportTable<TData, TValue>({
     </DataTable>
   );
 }
+
+export default { SportTable };

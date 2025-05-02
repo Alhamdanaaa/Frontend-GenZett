@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -8,17 +9,23 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Reservation } from '@/constants/data';
 
 type ReservationDetailDialogProps = {
   data: Reservation;
   trigger: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export default function ReservationDetailDialog({ data, trigger }: ReservationDetailDialogProps) {
+export default function ReservationDetailDialog({ 
+  data, 
+  trigger, 
+  open, 
+  onOpenChange 
+}: ReservationDetailDialogProps) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>

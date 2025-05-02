@@ -13,11 +13,18 @@ import { Field } from '@/constants/data';
 type FieldDetailDialogProps = {
   data: Field;
   trigger: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export default function FieldDetailDialog({ data, trigger }: FieldDetailDialogProps) {
+export default function FieldDetailDialog({  
+  data, 
+  trigger, 
+  open, 
+  onOpenChange 
+}: FieldDetailDialogProps) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>

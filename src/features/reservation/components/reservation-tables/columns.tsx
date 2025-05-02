@@ -4,8 +4,14 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Reservation } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
-import { CellAction } from './cell-action';
-import { PAYMENT_STATUS_OPTIONS, RESERVATION_STATUS_OPTIONS } from './options';
+import dynamic from 'next/dynamic';
+import { PAYMENT_STATUS_OPTIONS } from './options';
+
+// Lazy load the cell action component - only loaded when table is rendered
+const CellAction = dynamic(
+  () => import('./cell-action').then(mod => mod.CellAction),
+  { ssr: false, loading: () => <div>Loading...</div> }
+);
 
 export const columns: ColumnDef<Reservation>[] = [
   {
@@ -30,6 +36,7 @@ export const columns: ColumnDef<Reservation>[] = [
     }
   },
   {
+    id: 'date',
     accessorKey: 'date',
     header: 'Tanggal Main',
     cell: ({ cell }) => {

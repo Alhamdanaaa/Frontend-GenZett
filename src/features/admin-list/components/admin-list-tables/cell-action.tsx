@@ -9,9 +9,13 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Admin } from '@/constants/data';
-import { IconEdit, IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconDotsVertical, IconTrash, IconListDetails } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { lazy, useState,Suspense } from 'react';
+
+const AdminDetailDialog = lazy(() => 
+  import('../admin-list-detail-dialog')
+);
 
 interface CellActionProps {
   data: Admin;
@@ -20,6 +24,7 @@ interface CellActionProps {
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const router = useRouter();
 
   const onConfirm = async () => {};
@@ -41,7 +46,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setShowDetail(true);
+            }}
+          >
+            <IconListDetails className='mr-2 h-4 w-4' /> Detail
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => router.push(`/dashboard/admin/${data.adminId}`)}
           >
@@ -52,6 +64,17 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {showDetail && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <AdminDetailDialog
+            data={data}
+            trigger={<div style={{display: 'none'}} />}
+            open={showDetail}
+            onOpenChange={setShowDetail}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

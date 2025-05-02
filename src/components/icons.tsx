@@ -34,9 +34,7 @@ import {
   IconMapPin,
   IconBallBasketball,
   IconSoccerField,
-  IconReservedLine,
   IconBrandBooking,
-  IconTimeline,
   IconTimelineEvent
 } from '@tabler/icons-react';
 

@@ -1,19 +1,30 @@
-import { Sport } from '@/constants/data';
 import { fakeSports } from '@/constants/mock-api';
-import { SportTable } from './sport-tables';
-import { columns } from './sport-tables/columns';
+import { searchParamsCache } from '@/lib/searchparams';
+import SportTableWrapper from './sport-table-wrapper';
 
-type SportListingPage = {};
+const getColumns = async () => {
+  const { columns } = await import('./sport-tables/columns');
+  return columns;
+};
 
-export default async function SportListingPage({}: SportListingPage) {
-  const data = await fakeSports.getSports(); // Ambil semua data sport
-  const totalSports = data.length;
-  const Sports: Sport[] = data;
+export default async function SportListingPage() {
+  const page = searchParamsCache.get('page');
+  const search = searchParamsCache.get('name');
+  const pageLimit = searchParamsCache.get('perPage');
+  
+  const filters = {
+    page,
+    limit: pageLimit,
+    ...(search && { search })
+  };
+
+  const data = await fakeSports.getSports(filters); // Ambil semua data sport
+  const columns = await getColumns();
 
   return (
-    <SportTable
-      data={Sports}
-      totalItems={totalSports}
+    <SportTableWrapper
+      data={data.sports}
+      totalItems={data.totalSports}
       columns={columns}
     />
   );
