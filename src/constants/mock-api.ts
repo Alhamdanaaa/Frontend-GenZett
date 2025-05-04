@@ -266,7 +266,7 @@ export const fakeLocations = {
       success: true,
       time: new Date().toISOString(),
       message: 'Data lokasi untuk keperluan testing',
-      total_locations: totalLocations,
+      totalLocations: totalLocations,
       offset,
       limit,
       locations: paginatedLocations
@@ -326,18 +326,61 @@ export const fakeSports = {
     this.records = sports;
   },
 
-  async getSports() {
+  async getSports({
+    page = 1,
+    limit = 10,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
-    return this.records;
+  
+    let filteredSports = this.records;
+  
+    // Tambahkan logika pencarian
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      filteredSports = filteredSports.filter(sport =>
+        sport.name.toLowerCase().includes(lowerSearch) ||
+        sport.description.toLowerCase().includes(lowerSearch)
+      );
+    }
+  
+    const totalSports = filteredSports.length;
+  
+    const offset = (page - 1) * limit;
+    const paginatedSports = filteredSports.slice(offset, offset + limit);
+  
+    const currentTime = new Date().toISOString();
+  
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data olahraga untuk keperluan testing',
+      totalSports: totalSports,
+      offset,
+      limit,
+      sports: paginatedSports
+    };
   },
 
   async getSportById(id: number) {
     await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
     const sport = this.records.find((s) => s.id === id);
     if (!sport) {
-      return { success: false, message: `Sport dengan ID ${id} tidak ditemukan` };
+      return {
+        success: false,
+        time: new Date().toISOString(),
+        message: `Sport dengan ID ${id} tidak ditemukan`
+      };
     }
-    return { success: true, sport };
+    return {
+      success: true,
+      time: new Date().toISOString(),
+      sport
+    };
   }
 };
 
@@ -474,7 +517,7 @@ export const fakeFields = {
       success: true,
       time: currentTime,
       message: 'Data lapangan untuk keperluan testing',
-      total_fields: totalFields,
+      totalFields: totalFields,
       offset,
       limit,
       fields: paginatedFields
@@ -531,6 +574,7 @@ export const fakeUsers = {
           firstName: firstName, 
           lastName: lastName 
         }),
+        password: '12345678',
         name: `${firstName} ${lastName}`,
         email: faker.internet.email({ 
           firstName: firstName, 
@@ -556,7 +600,6 @@ export const fakeUsers = {
   async getAll({
     search
   }: {
-    memberStatus?: string[];
     search?: string;
   }) {
     let users = [...this.records];
@@ -575,7 +618,6 @@ export const fakeUsers = {
   async getUsers({
     page = 1,
     limit = 10,
-    memberStatus,
     search
   }: {
     page?: number;
@@ -585,9 +627,7 @@ export const fakeUsers = {
   }) {
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const memberStatusArray = memberStatus ? memberStatus.split('.') : [];
     const allUsers = await this.getAll({
-      memberStatus: memberStatusArray,
       search
     });
     const totalUsers = allUsers.length;
@@ -604,7 +644,7 @@ export const fakeUsers = {
       success: true,
       time: currentTime,
       message: 'Data user untuk keperluan testing',
-      total_users: totalUsers,
+      totalUsers: totalUsers,
       offset,
       limit,
       users: paginatedUsers
@@ -665,7 +705,16 @@ export const fakeAdmins = {
 
       return {
         adminId,
+        username: faker.internet.username({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
+        password: '12345678',
         name: `${firstName} ${lastName}`,
+        email: faker.internet.email({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
         phone: `+62 8${faker.string.numeric(9)}`,
         location: faker.helpers.arrayElement(locationsList),
         created_at: faker.date
@@ -688,7 +737,6 @@ export const fakeAdmins = {
     location = [],
     search
   }: {
-    accountStatus?: string[];
     location?: string[];
     search?: string;
   }) {
@@ -704,7 +752,7 @@ export const fakeAdmins = {
     // Pencarian di berbagai field
     if (search) {
       admins = matchSorter(admins, search, {
-        keys: ['name', 'phone', 'location']
+        keys: ['username','name', 'phone', 'location']
       });
     }
 
@@ -728,11 +776,9 @@ export const fakeAdmins = {
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const locationArray = location ? location.split('.') : [];
-    const accountStatusArray = accountStatus ? accountStatus.split('.') : [];
-
+   
     const allAdmins = await this.getAll({
       location: locationArray,
-      accountStatus: accountStatusArray,
       search
     });
 
@@ -750,7 +796,7 @@ export const fakeAdmins = {
       success: true,
       time: currentTime,
       message: 'Data admin untuk keperluan testing',
-      total_admins: totalAdmins,
+      totalAdmins: totalAdmins,
       offset,
       limit,
       admins: paginatedAdmins
@@ -894,20 +940,14 @@ export const fakeReservations = {
     date?: string;
   }) {
     let reservations = [...this.records];
-
+    console.log('Filter date from query:', date);
+    console.log('Sample dates from data:', reservations.slice(0, 5).map(r => r.date));
     // Filter berdasarkan status pembayaran
     if (paymentStatus.length > 0) {
       reservations = reservations.filter((reservation) =>
         paymentStatus.includes(reservation.paymentStatus)
       );
     }
-
-    // // Filter berdasarkan status reservasi
-    // if (status.length > 0) {
-    //   reservations = reservations.filter((reservation) =>
-    //     status.includes(reservation.status)
-    //   );
-    // }
 
     // Filter tanggal
     if (date) {
@@ -922,7 +962,7 @@ export const fakeReservations = {
         keys: ['name', 'fieldTime', 'date']
       });
     }
-
+    
     return reservations;
   },
 
@@ -931,14 +971,12 @@ export const fakeReservations = {
     page = 1,
     limit = 10,
     paymentStatus,
-    // status,
     search,
     date,
   }: {
     page?: number;
     limit?: number;
     paymentStatus?: string;
-    // status?: string;
     search?: string;
     date?: string;
   }) {
@@ -948,7 +986,6 @@ export const fakeReservations = {
     // const statusArray = status ? status.split('.') : [];
     const allReservations = await this.getAll({
       paymentStatus: paymentStatusArray,
-      // status: statusArray,
       search,
       date
     });
@@ -973,11 +1010,9 @@ export const fakeReservations = {
     };
   },
 
-  // Ambil reservasi berdasarkan ID
   async getReservationById(id: number) {
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    // Cari reservasi berdasarkan ID
     const reservation = this.records.find((reservation) => reservation.reservationId === id);
 
     if (!reservation) {

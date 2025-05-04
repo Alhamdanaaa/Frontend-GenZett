@@ -24,10 +24,10 @@ export function AdminTable<TData, TValue>({
   const pageCount = Math.ceil(totalItems / pageSize);
 
   const { table } = useDataTable({
-    data, // Admin data
-    columns, // Admin columns
+    data,
+    columns,
     pageCount: pageCount,
-    shallow: false // Setting to false triggers a network request with the updated querystring
+    shallow: false
   });
 
   return (
@@ -36,3 +36,5 @@ export function AdminTable<TData, TValue>({
     </DataTable>
   );
 }
+
+export default { AdminTable };

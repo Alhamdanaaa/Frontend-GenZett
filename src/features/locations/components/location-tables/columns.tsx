@@ -5,8 +5,13 @@ import { Location } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
 import Image from 'next/image';
-import { CellAction } from './cell-action';
 import { SPORTS_OPTIONS } from './options';
+import dynamic from 'next/dynamic';
+
+const CellAction = dynamic(
+  () => import('./cell-action').then(mod => mod.CellAction),
+  { ssr: false, loading: () => <div>Loading...</div> }
+);
 
 export const columns: ColumnDef<Location>[] = [
   {
@@ -44,7 +49,7 @@ export const columns: ColumnDef<Location>[] = [
     enableColumnFilter: true
   },
   {
-    id: 'sports',
+    id: 'sport',
     accessorKey: 'sports',
     header: ({ column }: { column: Column<Location, unknown> }) => (
       <DataTableColumnHeader column={column} title='Cabang Olahraga' />

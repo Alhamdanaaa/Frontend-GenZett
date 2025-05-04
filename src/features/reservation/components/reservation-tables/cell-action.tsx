@@ -11,8 +11,12 @@ import {
 import { Reservation } from '@/constants/data';
 import { IconEdit, IconDotsVertical, IconTrash, IconListDetails } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import ReservationDetailDialog from '../reservation-detail-dialog';
+import { useState, lazy, Suspense } from 'react';
+
+// Lazy load the detail dialog component
+const ReservationDetailDialog = lazy(() => 
+  import('../reservation-detail-dialog')
+);
 
 interface CellActionProps {
   data: Reservation;
@@ -21,6 +25,7 @@ interface CellActionProps {
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const router = useRouter();
 
   const onConfirm = async () => {};
@@ -42,18 +47,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-          <ReservationDetailDialog
-            data={data}
-            trigger={
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <IconListDetails className='mr-2 h-4 w-4' /> Detail
-              </DropdownMenuItem>
-            }
-          />
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setShowDetail(true);
+            }}
+          >
+            <IconListDetails className='mr-2 h-4 w-4' /> Detail
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() =>
               router.push(`/dashboard/reservation/${data.reservationId}`)
@@ -66,6 +67,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      
+      {/* Only load detail dialog when needed */}
+      {showDetail && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <ReservationDetailDialog
+            data={data}
+            trigger={<div style={{display: 'none'}} />}
+            open={showDetail}
+            onOpenChange={setShowDetail}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

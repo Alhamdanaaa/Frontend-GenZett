@@ -8,21 +8,21 @@ import {
   DialogDescription,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { User } from '@/constants/data';
+import { Admin } from '@/constants/data';
 
-type UserDetailDialogProps = {
-  data: User;
+type AdminDetailDialogProps = {
+  data: Admin;
   trigger: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
-export default function UserDetailDialog({
+export default function AdminDetailDialog({
   data, 
   trigger, 
   open, 
   onOpenChange 
-}: UserDetailDialogProps) {
+}: AdminDetailDialogProps) {
   return (
     <Dialog  open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -30,11 +30,12 @@ export default function UserDetailDialog({
       </DialogTrigger>
       <DialogContent className='sm:max-w-lg'>
         <DialogHeader>
-          <DialogTitle>Detail Pengguna</DialogTitle>
-          <DialogDescription>Informasi lengkap dari pengguna yang dipilih.</DialogDescription>
+          <DialogTitle>Detail Admin</DialogTitle>
+          <DialogDescription>Informasi lengkap dari admin yang dipilih.</DialogDescription>
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
-          <DetailRow label='ID Pengguna' value={String(data.userId)} />
+          <DetailRow label='ID Pengguna' value={String(data.adminId)} />
+          <DetailRow label='Cabang' value={String(data.location)} />
           <DetailRow label='Username' value={data.username} />
           <DetailRow label='Nama Lengkap' value={data.name} />
           <DetailRow label='Email' value={data.email} />

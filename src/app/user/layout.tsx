@@ -1,6 +1,7 @@
 import React from 'react'
-import { Metadata } from 'next'
+// import { Metadata } from 'next'
 import NavbarUser from '@/components/user/navbar-user'
+import FooterUser from '@/components/user/footer-user'
 
 // export const metadata: Metadata = {
 //   title: 'Beranda User',
@@ -12,6 +13,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     <div>
       <NavbarUser /> 
       <main className="pt-4 px-6">{children}</main>
+      <FooterUser />
     </div>
   )
 }

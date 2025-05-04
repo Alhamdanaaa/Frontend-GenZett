@@ -55,16 +55,21 @@ export default function PaymentDetailsSection() {
       pricePerSlot: 60000,
     },
     {
-      field: 'Lapangan 2',
+      field: 'Lapangan 1',
       date: 'Minggu, 10 Maret 2025',
       times: ['19.00', '20.00'],
-      pricePerSlot: 60000,
+      pricePerSlot: 50000,
     },
     {
       field: 'Lapangan 2',
       date: 'Minggu, 10 Maret 2025',
       times: ['19.00', '20.00'],
       pricePerSlot: 60000,
+    },{
+      field: 'Lapangan 1',
+      date: 'Minggu, 10 Maret 2025',
+      times: ['19.00', '20.00'],
+      pricePerSlot: 50000,
     },
     {
       field: 'Lapangan 2',
@@ -112,18 +117,18 @@ export default function PaymentDetailsSection() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col justify-between min-h-screen overflow-y-auto space-y-6"
+      className="flex flex-col justify-between space-y-6 mx-auto"
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-24 md:px-48">
         {/* Ringkasan Pemesanan */}
-        <div className="md:col-span-2 space-y-6 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit overflow-y-auto border-2 border-gray-200 border-opacity-75">
+        <div className="md:col-span-2 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit overflow-y-auto border-2 border-gray-200 border-opacity-75">
           <h2 className="font-semibold text-lg text-center">Ringkasan Pemesanan</h2>
           <BookingSummary bookings={bookings} location={location} />
           <PaymentTotal name="Harga" amount={subtotal} />
         </div>
 
         {/* Informasi Pembayaran */}
-        <div className="md:col-span-1 space-y-6 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit border-2 border-gray-200 border-opacity-75 justify-between">
+        <div className="md:col-span-1 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit border-2 border-gray-200 border-opacity-75 justify-between">
           <PayerInfo register={register} errors={errors} />
 
           <Controller

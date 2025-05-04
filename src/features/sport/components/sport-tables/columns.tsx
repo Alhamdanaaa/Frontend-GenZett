@@ -3,7 +3,12 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Sport } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
-import { CellAction } from './cell-action';
+import dynamic from 'next/dynamic';
+
+const CellAction = dynamic(
+  () => import('./cell-action').then(mod => mod.CellAction),
+  { ssr: false, loading: () => <div>Loading...</div> }
+);
 
 export const columns: ColumnDef<Sport>[] = [
   {
