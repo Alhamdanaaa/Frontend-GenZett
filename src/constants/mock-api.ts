@@ -764,13 +764,11 @@ export const fakeAdmins = {
     page = 1,
     limit = 10,
     location,
-    accountStatus,
     search
   }: {
     page?: number;
     limit?: number;
     location?: string;
-    accountStatus?: string;
     search?: string;
   }) {
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
