@@ -28,13 +28,13 @@ export default function SportsLocationPage() {
         setIsOpen(false);
       }
     }
-  
+
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsOpen(false);
       }
     }
-  
+
     if (isOpen) {
       window.addEventListener('mousedown', handleClickOutside);
       window.addEventListener('keydown', handleEscape);
@@ -42,12 +42,12 @@ export default function SportsLocationPage() {
       window.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('keydown', handleEscape);
     }
-  
+
     return () => {
       window.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('keydown', handleEscape);
     };
-  }, [isOpen]);  
+  }, [isOpen]);
 
   const handleCardClick = (item: any) => {
     router.push('/reservation/schedule');

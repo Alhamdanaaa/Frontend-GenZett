@@ -5,6 +5,18 @@
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
 import { Location, Sport, Field, User, Admin, Reservation, Member, Schedule } from '@/constants/data';
+import { generateBookingData } from './booking-data-faker';
+
+export function fetchBookingMock() {
+  // Menghasilkan 1 data booking mock
+  return generateBookingData()
+}
+
+// Jika kamu ingin menghasilkan banyak data sekaligus (opsional):
+export function fetchBookingMockList(count = 5) {
+  return Array.from({ length: count }, () => generateBookingData())
+}
+
 faker.seed(123);
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
