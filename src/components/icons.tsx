@@ -34,10 +34,9 @@ import {
   IconMapPin,
   IconBallBasketball,
   IconSoccerField,
-  IconReservedLine,
   IconBrandBooking,
-  IconTimeline,
-  IconTimelineEvent
+  IconTimelineEvent,
+  IconDiscount2
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -49,6 +48,7 @@ export const Icons = {
   sport: IconBallBasketball,
   location: IconMapPin,
   dashboard: IconLayoutDashboard,
+  member: IconDiscount2,
   logo: IconCommand,
   login: IconLogin,
   close: IconX,

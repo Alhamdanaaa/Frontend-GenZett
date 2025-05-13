@@ -4,8 +4,13 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Field } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
-import { CellAction } from './cell-action';
+import dynamic from 'next/dynamic';
 import { LOCATION_OPTIONS, SPORTS_OPTIONS } from './options';
+
+const CellAction = dynamic(
+  () => import('./cell-action').then(mod => mod.CellAction),
+  { ssr: false, loading: () => <div>Loading...</div> }
+);
 
 export const columns: ColumnDef<Field>[] = [
   {
@@ -63,26 +68,11 @@ export const columns: ColumnDef<Field>[] = [
   },
   {
     accessorKey: 'jamMulai',
-    header: 'Jam Mulai',
-    cell: ({ cell }) => {
-      const jamMulai = cell.getValue<Field['jamMulai']>();
-      return <div>{jamMulai}</div>;
-    }
-  },
-  {
-    accessorKey: 'jamTutup',
-    header: 'Jam Tutup',
-    cell: ({ cell }) => {
-      const jamTutup = cell.getValue<Field['jamTutup']>();
-      return <div>{jamTutup}</div>;
-    }
-  },
-  {
-    accessorKey: 'description',
-    header: 'Deskripsi',
-    cell: ({ cell }) => {
-      const description = cell.getValue<Field['description']>();
-      return <div className='max-w-[200px] truncate'>{description}</div>;
+    header: 'Jam Operasi',
+    cell: ({ row }) => {
+      const jamMulai = row.original.jamMulai;
+      const jamTutup = row.original.jamTutup;
+      return <div>{jamMulai} - {jamTutup}</div>;
     }
   },
   {

@@ -15,11 +15,11 @@ export const RESERVATION_STATUS_OPTIONS = [
 
 // Opsi lapangan
 export const FIELD_OPTIONS = [
-  'Lapangan Futsal Utama',
-  'Lapangan Badminton A',
-  'Lapangan Basket Kota',
-  'Lapangan Voli Stadion',
-  'Lapangan Tennis Center',
-  'Lapangan Sepak Bola Mini',
-  'Lapangan Handball Profesional'
+  { value: 'Lapangan Futsal Utama', label: 'Lapangan Futsal Utama' },
+  { value: 'Lapangan Badminton A', label: 'Lapangan Badminton A' },
+  { value: 'Lapangan Basket Kota', label: 'Lapangan Basket Kota' },
+  { value: 'Lapangan Voli Stadion', label: 'Lapangan Voli Stadion' },
+  { value: 'Lapangan Tennis Center', label: 'Lapangan Tennis Center' },
+  { value: 'Lapangan Sepak Bola Mini', label: 'Lapangan Sepak Bola Mini' },
+  { value: 'Lapangan Handball Profesional', label: 'Lapangan Handball Profesional' }
 ];

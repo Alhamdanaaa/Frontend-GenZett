@@ -1,5 +1,4 @@
 import { NavItem } from '@/types';
-// import { MapPin } from 'lucide-react';
 
 export type Product = {
   photo_url: string;
@@ -51,10 +50,10 @@ export type Field = {
 export type User = {
   userId: number;
   username: string;
+  password: string;
   name: string;
   email: string;
   phone: string;
-  memberStatus: 'Member' | 'Non-Member';
   created_at: string;
   updated_at: string;
 };
@@ -62,10 +61,12 @@ export type User = {
 // Tipe data Admin
 export type Admin = {
   adminId: number;
+  username: string;
+  password: string;
   name: string;
+  email: string;
   phone: string;
   location: string;
-  accountStatus: 'Active' | 'Inactive' | 'Suspended';
   created_at: string;
   updated_at: string;
 };
@@ -86,17 +87,26 @@ export type Reservation = {
   updated_at: string;
 };
 
-// Tipe data Member
-export type Member = {
-  memberId: number;
-  username: string;
+// Tipe data Schedule
+export type Schedule = {
+  reservationId: number;
   name: string;
-  email: string;
-  phone: string;
-  day: string;
-  validUntil: string;
   fieldTime: string;
-  create_at: string;
+  field: string;
+  sport: string;
+  date: string;
+  paymentStatus: 'pending' | 'down payment' | 'complete';
+};
+
+// Tipe data Member
+export type Membership = {
+  membershipId: number;
+  location: string;
+  sport: string;
+  name: string;
+  description: string;
+  discount: string;
+  weeks: string;
 };
 
 
@@ -135,6 +145,14 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
+    title: 'Paket Langganan',
+    url: '/dashboard/membership',
+    icon: 'member',
+    shortcut: ['m', 'm'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
     title: 'Pengguna',
     url: '#', // Placeholder as there is no direct link for the parent
     icon: 'userPen',
@@ -153,43 +171,6 @@ export const navItems: NavItem[] = [
       }
     ]
   },
-  // {
-  //   title: 'Product',
-  //   url: '/dashboard/product',
-  //   icon: 'product',
-  //   shortcut: ['p', 'p'],
-  //   isActive: false,
-  //   items: [] // No child items
-  // },
-  // {
-  //   title: 'Account',
-  //   url: '#', // Placeholder as there is no direct link for the parent
-  //   icon: 'billing',
-  //   isActive: true,
-
-  //   items: [
-  //     {
-  //       title: 'Profile',
-  //       url: '/dashboard/profile',
-  //       icon: 'userPen',
-  //       shortcut: ['m', 'm']
-  //     },
-  //     {
-  //       title: 'Login',
-  //       shortcut: ['l', 'l'],
-  //       url: '/',
-  //       icon: 'login'
-  //     }
-  //   ]
-  // },
-  // {
-  //   title: 'Kanban',
-  //   url: '/dashboard/kanban',
-  //   icon: 'kanban',
-  //   shortcut: ['k', 'k'],
-  //   isActive: false,
-  //   items: [] // No child items
-  // },
   {
     title: 'Dashboard admin',
     url: '/dashboard/overview',
@@ -199,18 +180,18 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Jadwal Lapangan',
-    url: '/dashboard/schedule',
-    icon: 'timeline',
-    shortcut: ['l', 'l'],
+    title: 'Reservasi Lapangan',
+    url: '/dashboard/reservation',
+    icon: 'reservation',
+    shortcut: ['r', 'r'],
     isActive: false,
     items: [] // No child items
   },
   {
-    title: 'Anggota Member',
-    url: '/dashboard/member',
-    icon: 'user',
-    shortcut: ['m', 'm'],
+    title: 'Jadwal Lapangan',
+    url: '/dashboard/schedule',
+    icon: 'timeline',
+    shortcut: ['l', 'l'],
     isActive: false,
     items: [] // No child items
   },
@@ -222,14 +203,14 @@ export const navItems: NavItem[] = [
     isActive: false,
     items: [] // No child items
   },
-  {
-    title: 'Reservasi Lapangan',
-    url: '/dashboard/reservation',
-    icon: 'reservation',
-    shortcut: ['r', 'r'],
-    isActive: false,
-    items: [] // No child items
-  },
+  // {
+  //   title: 'Anggota Member',
+  //   url: '/dashboard/member',
+  //   icon: 'user',
+  //   shortcut: ['m', 'm'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
 ];
 
 export interface SaleUser {

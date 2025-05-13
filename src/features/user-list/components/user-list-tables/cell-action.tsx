@@ -9,9 +9,13 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { User } from '@/constants/data';
-import { IconEdit, IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconDotsVertical, IconTrash, IconListDetails } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
+
+const UserDetailDialog = lazy(() => 
+  import('../user-detail-dialog')
+);
 
 interface CellActionProps {
   data: User;
@@ -20,6 +24,7 @@ interface CellActionProps {
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const router = useRouter();
 
   const onConfirm = async () => {};
@@ -41,7 +46,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setShowDetail(true);
+            }}
+          >
+            <IconListDetails className='mr-2 h-4 w-4' /> Detail
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => router.push(`/dashboard/user/${data.userId}`)}
           >
@@ -52,6 +64,17 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {showDetail && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <UserDetailDialog
+            data={data}
+            trigger={<div style={{display: 'none'}} />}
+            open={showDetail}
+            onOpenChange={setShowDetail}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

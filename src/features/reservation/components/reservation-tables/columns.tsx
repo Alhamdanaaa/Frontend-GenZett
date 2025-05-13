@@ -4,23 +4,16 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Reservation } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
-import { CellAction } from './cell-action';
-import { PAYMENT_STATUS_OPTIONS, RESERVATION_STATUS_OPTIONS } from './options';
+import dynamic from 'next/dynamic';
+import { PAYMENT_STATUS_OPTIONS } from './options';
+
+// Lazy load the cell action component - only loaded when table is rendered
+const CellAction = dynamic(
+  () => import('./cell-action').then(mod => mod.CellAction),
+  { ssr: false, loading: () => <div>Loading...</div> }
+);
 
 export const columns: ColumnDef<Reservation>[] = [
-  {
-    accessorKey: 'createTime',
-    header: ({ column }: { column: Column<Reservation, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Waktu Pesanan' />
-    ),
-    cell: ({ cell }) => {
-      const createTime = cell.getValue<Reservation['createTime']>();
-      return <div>{createTime}</div>;
-    },
-    meta: {
-      label: 'Waktu Pesanan'
-    }
-  },
   {
     id: 'name',
     accessorKey: 'name',
@@ -43,19 +36,17 @@ export const columns: ColumnDef<Reservation>[] = [
     }
   },
   {
+    id: 'date',
     accessorKey: 'date',
     header: 'Tanggal Main',
     cell: ({ cell }) => {
       const date = cell.getValue<Reservation['date']>();
       return <div>{date}</div>;
-    }
-  },
-  {
-    accessorKey: 'totalPayment',
-    header: 'Total Pembayaran',
-    cell: ({ cell }) => {
-      const totalPayment = cell.getValue<Reservation['totalPayment']>();
-      return <div>Rp {totalPayment.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</div>;
+    },
+    enableColumnFilter: true,
+    meta: {
+      label: 'Tanggal Main',
+      variant: 'date'
     }
   },
   {
@@ -103,44 +94,6 @@ export const columns: ColumnDef<Reservation>[] = [
       label: 'Status Pembayaran',
       variant: 'multiSelect',
       options: PAYMENT_STATUS_OPTIONS
-    }
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: ({ column }: { column: Column<Reservation, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Status Reservasi' />
-    ),
-    cell: ({ cell }) => {
-      const status = cell.getValue<Reservation['status']>();
-      
-      const label = status === 'upcoming'
-        ? 'Mendatang'
-        : status === 'ongoing'
-        ? 'Berlangsung'
-        : status === 'completed'
-        ? 'Selesai'
-        : status;
-    
-      return (
-        <Badge 
-          variant='outline' 
-          className={`
-            capitalize 
-            ${status === 'upcoming' ? 'bg-blue-300 text-black' : ''}
-            ${status === 'ongoing' ? 'bg-yellow-300 text-black' : ''}
-            ${status === 'completed' ? 'bg-green-300 text-black' : ''}
-          `}
-        >
-          {label}
-        </Badge>
-      );
-    },
-    enableColumnFilter: true,
-    meta: {
-      label: 'Status Reservasi',
-      variant: 'multiSelect',
-      options: RESERVATION_STATUS_OPTIONS
     }
   },
   {

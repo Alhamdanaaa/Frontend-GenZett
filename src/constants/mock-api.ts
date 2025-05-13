@@ -4,10 +4,22 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport, Field, User, Admin, Reservation, Member } from '@/constants/data';
+import { Location, Sport, Field, User, Admin, Reservation, Membership, Schedule } from '@/constants/data';
+import { generateBookingData } from './booking-data-faker';
+
+export function fetchBookingMock() {
+  // Menghasilkan 1 data booking mock
+  return generateBookingData()
+}
+
+// Jika kamu ingin menghasilkan banyak data sekaligus (opsional):
+export function fetchBookingMockList(count = 5) {
+  return Array.from({ length: count }, () => generateBookingData())
+}
+
 faker.seed(123);
-export const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+// export const delay = (ms: number) =>
+  // new Promise((resolve) => setTimeout(resolve, ms));
 
 // Define the shape of Product data
 export type Product = {
@@ -101,7 +113,7 @@ export const fakeProducts = {
     categories?: string;
     search?: string;
   }) {
-    await delay(1000);
+    // await delay(1000);
     const categoriesArray = categories ? categories.split('.') : [];
     const allProducts = await this.getAll({
       categories: categoriesArray,
@@ -130,7 +142,7 @@ export const fakeProducts = {
 
   // Get a specific product by its ID
   async getProductById(id: number) {
-    await delay(1000); // Simulate a delay
+    // await delay(1000); // Simulate a delay
 
     // Find the product by its ID
     const product = this.records.find((product) => product.id === id);
@@ -205,6 +217,7 @@ export const fakeLocations = {
   },
 
   // Ambil semua lokasi dengan filter opsional
+  // Optimized getAll method
   async getAll({
     sports = [],
     search
@@ -214,24 +227,28 @@ export const fakeLocations = {
   }) {
     let locations = [...this.records];
 
-    // Filter berdasarkan cabang olahraga
+    // Filter based on sports efficiently
     if (sports.length > 0) {
+      const sportsSet = new Set(sports);
       locations = locations.filter((location) =>
-        location.sports.some(sport => sports.includes(sport))
+        location.sports.some(sport => sportsSet.has(sport))
       );
     }
 
-    // Pencarian di berbagai field
+    // Optimize search by checking direct matches first
     if (search) {
-      locations = matchSorter(locations, search, {
-        keys: ['name', 'desc', 'sports']
-      });
+      const searchLower = search.toLowerCase();
+      locations = locations.filter(location => 
+        location.name.toLowerCase().includes(searchLower) ||
+        location.desc.toLowerCase().includes(searchLower) ||
+        location.sports.some(sport => sport.toLowerCase().includes(searchLower))
+      );
     }
 
     return locations;
   },
 
-  // Ambil lokasi dengan pagination
+  // Optimized getLocations method - remove artificial delay
   async getLocations({
     page = 1,
     limit = 10,
@@ -243,7 +260,8 @@ export const fakeLocations = {
     sports?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // Remove the artificial delay
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     const sportsArray = sports ? sports.split('.') : [];
     const allLocations = await this.getAll({
@@ -252,30 +270,26 @@ export const fakeLocations = {
     });
     const totalLocations = allLocations.length;
 
-    // Logika pagination
+    // Pagination logic
     const offset = (page - 1) * limit;
     const paginatedLocations = allLocations.slice(offset, offset + limit);
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
-    // Kembalikan respons dengan pagination
     return {
       success: true,
-      time: currentTime,
+      time: new Date().toISOString(),
       message: 'Data lokasi untuk keperluan testing',
-      total_locations: totalLocations,
+      totalLocations: totalLocations,
       offset,
       limit,
       locations: paginatedLocations
     };
   },
 
-  // Ambil lokasi berdasarkan ID
+  // Optimized getLocationById - remove artificial delay
   async getLocationById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // Remove the artificial delay
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Cari lokasi berdasarkan ID
     const location = this.records.find((location) => location.id === id);
 
     if (!location) {
@@ -285,19 +299,16 @@ export const fakeLocations = {
       };
     }
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
     return {
       success: true,
-      time: currentTime,
+      time: new Date().toISOString(),
       message: `Lokasi dengan ID ${id} ditemukan`,
       location
     };
   }
 };
 
-// Inisialisasi lokasi contoh
+// Initialize example locations
 fakeLocations.initialize();
 
 // Data sport
@@ -327,18 +338,61 @@ export const fakeSports = {
     this.records = sports;
   },
 
-  async getSports() {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
-    return this.records;
+  async getSports({
+    page = 1,
+    limit = 10,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) {
+    // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
+  
+    let filteredSports = this.records;
+  
+    // Tambahkan logika pencarian
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      filteredSports = filteredSports.filter(sport =>
+        sport.name.toLowerCase().includes(lowerSearch) ||
+        sport.description.toLowerCase().includes(lowerSearch)
+      );
+    }
+  
+    const totalSports = filteredSports.length;
+  
+    const offset = (page - 1) * limit;
+    const paginatedSports = filteredSports.slice(offset, offset + limit);
+  
+    const currentTime = new Date().toISOString();
+  
+    return {
+      success: true,
+      time: currentTime,
+      message: 'Data olahraga untuk keperluan testing',
+      totalSports: totalSports,
+      offset,
+      limit,
+      sports: paginatedSports
+    };
   },
 
   async getSportById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
     const sport = this.records.find((s) => s.id === id);
     if (!sport) {
-      return { success: false, message: `Sport dengan ID ${id} tidak ditemukan` };
+      return {
+        success: false,
+        time: new Date().toISOString(),
+        message: `Sport dengan ID ${id} tidak ditemukan`
+      };
     }
-    return { success: true, sport };
+    return {
+      success: true,
+      time: new Date().toISOString(),
+      sport
+    };
   }
 };
 
@@ -450,7 +504,7 @@ export const fakeFields = {
     sports?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const locationArray = locations ? locations.split('.') : [];
     const sportArray = sports ? sports.split('.') : [];
@@ -475,7 +529,7 @@ export const fakeFields = {
       success: true,
       time: currentTime,
       message: 'Data lapangan untuk keperluan testing',
-      total_fields: totalFields,
+      totalFields: totalFields,
       offset,
       limit,
       fields: paginatedFields
@@ -484,7 +538,7 @@ export const fakeFields = {
 
   // Ambil lapangan berdasarkan ID
   async getFieldById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     // Cari lapangan berdasarkan ID
     const field = this.records.find((field) => field.id === id);
@@ -521,12 +575,6 @@ export const fakeUsers = {
   // Inisialisasi dengan data contoh
   initialize() {
     const sampleUsers: User[] = [];
-    
-    // Status member
-    const memberStatuses: User['memberStatus'][] = [
-      'Member', 
-      'Non-Member'
-    ];
 
     function generateRandomUserData(userId: number): User {
       const firstName = faker.person.firstName();
@@ -538,13 +586,13 @@ export const fakeUsers = {
           firstName: firstName, 
           lastName: lastName 
         }),
+        password: '12345678',
         name: `${firstName} ${lastName}`,
         email: faker.internet.email({ 
           firstName: firstName, 
           lastName: lastName 
         }),
         phone: `+62 8${faker.string.numeric(9)}`,
-        memberStatus: faker.helpers.arrayElement(memberStatuses),
         created_at: faker.date
           .between({ from: '2022-01-01', to: '2023-12-31' })
           .toISOString(),
@@ -562,20 +610,11 @@ export const fakeUsers = {
 
   // Ambil semua users dengan filter opsional
   async getAll({
-    memberStatus = [],
     search
   }: {
-    memberStatus?: string[];
     search?: string;
   }) {
     let users = [...this.records];
-
-    // Filter berdasarkan status member
-    if (memberStatus.length > 0) {
-      users = users.filter((user) =>
-        memberStatus.includes(user.memberStatus)
-      );
-    }
 
     // Pencarian di berbagai field
     if (search) {
@@ -591,7 +630,6 @@ export const fakeUsers = {
   async getUsers({
     page = 1,
     limit = 10,
-    memberStatus,
     search
   }: {
     page?: number;
@@ -599,11 +637,9 @@ export const fakeUsers = {
     memberStatus?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const memberStatusArray = memberStatus ? memberStatus.split('.') : [];
     const allUsers = await this.getAll({
-      memberStatus: memberStatusArray,
       search
     });
     const totalUsers = allUsers.length;
@@ -620,7 +656,7 @@ export const fakeUsers = {
       success: true,
       time: currentTime,
       message: 'Data user untuk keperluan testing',
-      total_users: totalUsers,
+      totalUsers: totalUsers,
       offset,
       limit,
       users: paginatedUsers
@@ -629,7 +665,7 @@ export const fakeUsers = {
 
   // Ambil user berdasarkan ID
   async getUserById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     // Cari user berdasarkan ID
     const user = this.records.find((user) => user.userId === id);
@@ -675,23 +711,24 @@ export const fakeAdmins = {
       'Lapangan Terpadu'
     ];
 
-    // Status akun
-    const accountStatuses: Admin['accountStatus'][] = [
-      'Active',
-      'Inactive',
-      'Suspended'
-    ];
-
     function generateRandomAdminData(adminId: number): Admin {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
 
       return {
         adminId,
+        username: faker.internet.username({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
+        password: '12345678',
         name: `${firstName} ${lastName}`,
+        email: faker.internet.email({ 
+          firstName: firstName, 
+          lastName: lastName 
+        }),
         phone: `+62 8${faker.string.numeric(9)}`,
         location: faker.helpers.arrayElement(locationsList),
-        accountStatus: faker.helpers.arrayElement(accountStatuses),
         created_at: faker.date
           .between({ from: '2022-01-01', to: '2023-12-31' })
           .toISOString(),
@@ -709,22 +746,13 @@ export const fakeAdmins = {
 
   // Ambil semua admin dengan filter opsional
   async getAll({
-    accountStatus = [],
     location = [],
     search
   }: {
-    accountStatus?: string[];
     location?: string[];
     search?: string;
   }) {
     let admins = [...this.records];
-
-    // Filter berdasarkan status akun
-    if (accountStatus.length > 0) {
-      admins = admins.filter((admin) =>
-        accountStatus.includes(admin.accountStatus)
-      );
-    }
 
     // Filter berdasarkan location
     if (location.length > 0) {
@@ -736,7 +764,7 @@ export const fakeAdmins = {
     // Pencarian di berbagai field
     if (search) {
       admins = matchSorter(admins, search, {
-        keys: ['name', 'phone', 'location']
+        keys: ['username','name', 'phone', 'location']
       });
     }
 
@@ -748,23 +776,19 @@ export const fakeAdmins = {
     page = 1,
     limit = 10,
     location,
-    accountStatus,
     search
   }: {
     page?: number;
     limit?: number;
     location?: string;
-    accountStatus?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const locationArray = location ? location.split('.') : [];
-    const accountStatusArray = accountStatus ? accountStatus.split('.') : [];
-
+   
     const allAdmins = await this.getAll({
       location: locationArray,
-      accountStatus: accountStatusArray,
       search
     });
 
@@ -782,7 +806,7 @@ export const fakeAdmins = {
       success: true,
       time: currentTime,
       message: 'Data admin untuk keperluan testing',
-      total_admins: totalAdmins,
+      totalAdmins: totalAdmins,
       offset,
       limit,
       admins: paginatedAdmins
@@ -791,7 +815,7 @@ export const fakeAdmins = {
 
   // Ambil admin berdasarkan ID
   async getAdminById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     // Cari admin berdasarkan ID
     const admin = this.records.find((admin) => admin.adminId === id);
@@ -848,10 +872,6 @@ export const fakeReservations = {
       const startTime = new Date();
       startTime.setHours(startHour, 0, 0, 0);
       const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
-      // Format waktu menjadi string seperti "8.00", "12.00"
-      const formatTime = (date: Date) => {
-        return `${date.getHours()}.00`;
-      };
 
       // Total dan sisa pembayaran
       const totalPayment = faker.number.int({ min: 50000, max: 500000 });
@@ -920,15 +940,18 @@ export const fakeReservations = {
   // Ambil semua reservasi dengan filter opsional
   async getAll({
     paymentStatus = [],
-    status = [],
-    search
+    // status = [],
+    search,
+    date,
   }: {
     paymentStatus?: string[];
-    status?: string[];
+    // status?: string[];
     search?: string;
+    date?: string;
   }) {
     let reservations = [...this.records];
-
+    console.log('Filter date from query:', date);
+    console.log('Sample dates from data:', reservations.slice(0, 5).map(r => r.date));
     // Filter berdasarkan status pembayaran
     if (paymentStatus.length > 0) {
       reservations = reservations.filter((reservation) =>
@@ -936,10 +959,10 @@ export const fakeReservations = {
       );
     }
 
-    // Filter berdasarkan status reservasi
-    if (status.length > 0) {
-      reservations = reservations.filter((reservation) =>
-        status.includes(reservation.status)
+    // Filter tanggal
+    if (date) {
+      reservations = reservations.filter(
+        (r) => r.date === date
       );
     }
 
@@ -949,7 +972,7 @@ export const fakeReservations = {
         keys: ['name', 'fieldTime', 'date']
       });
     }
-
+    
     return reservations;
   },
 
@@ -958,23 +981,23 @@ export const fakeReservations = {
     page = 1,
     limit = 10,
     paymentStatus,
-    status,
-    search
+    search,
+    date,
   }: {
     page?: number;
     limit?: number;
     paymentStatus?: string;
-    status?: string;
     search?: string;
+    date?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const paymentStatusArray = paymentStatus ? paymentStatus.split('.') : [];
-    const statusArray = status ? status.split('.') : [];
+    // const statusArray = status ? status.split('.') : [];
     const allReservations = await this.getAll({
       paymentStatus: paymentStatusArray,
-      status: statusArray,
-      search
+      search,
+      date
     });
     const totalReservations = allReservations.length;
 
@@ -997,11 +1020,9 @@ export const fakeReservations = {
     };
   },
 
-  // Ambil reservasi berdasarkan ID
   async getReservationById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    // Cari reservasi berdasarkan ID
     const reservation = this.records.find((reservation) => reservation.reservationId === id);
 
     if (!reservation) {
@@ -1030,173 +1051,281 @@ fakeReservations.initialize();
 faker.seed(123);
 
 
-// Mock member data store
-export const fakeMembers = {
-  records: [] as Member[], // Menyimpan daftar objek member
+// Mock data store untuk membership
+export const fakeMemberships = {
+  records: [] as Membership[],
 
-  // Inisialisasi dengan data contoh
+  // Inisialisasi data membership secara manual
   initialize() {
-    const sampleMembers: Member[] = [];
-    
-    // Daftar nama lapangan
-    const fieldNames = [
-      'Lapangan Futsal Utama',
-      'Lapangan Badminton A',
-      'Lapangan Basket Kota',
-      'Lapangan Voli Stadion',
-      'Lapangan Tennis Center',
-      'Lapangan Sepak Bola Mini',
-      'Lapangan Handball Profesional'
-    ];
-
-    // Daftar hari
-    const dayNames = [
-      'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'
-    ];
-
-    function generateRandomMemberData(memberId: number): Member {
-      // Generate tanggal dasar
-      const createDate = new Date('2024-01-01');
-      createDate.setDate(createDate.getDate() + (memberId * 3)); // Variasi tanggal
-
-      // Hitung tanggal valid until (30 hari setelah create)
-      const validUntilDate = new Date(createDate);
-      validUntilDate.setDate(validUntilDate.getDate() + 30);
-
-      // Format tanggal
-      function formatDate(date: Date): string {
-        const pad = (num: number) => num.toString().padStart(2, '0');
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    this.records = [
+      {
+        membershipId: 1,
+        location: 'GOR Utama',
+        sport: 'Futsal',
+        name: 'Paket Futsal Mingguan',
+        description: 'Paket bermain futsal setiap hari Senin, Rabu, dan Jumat pukul 18.00 - 20.00 selama 4 minggu.',
+        discount: '10%',
+        weeks: '4'
+      },
+      {
+        membershipId: 2,
+        location: 'Sport Center Kota',
+        sport: 'Badminton',
+        name: 'Paket Badminton Akhir Pekan',
+        description: 'Akses lapangan badminton setiap Sabtu dan Minggu pagi selama 6 minggu.',
+        discount: '15%',
+        weeks: '6'
+      },
+      {
+        membershipId: 3,
+        location: 'Stadion Olahraga',
+        sport: 'Basket',
+        name: 'Paket Latihan Basket Rutin',
+        description: 'Paket latihan intensif 3 kali seminggu selama 8 minggu. Cocok untuk tim sekolah atau komunitas.',
+        discount: '20%',
+        weeks: '8'
+      },
+      {
+        membershipId: 4,
+        location: 'Pusat Kebugaran',
+        sport: 'Volleyball',
+        name: 'Membership Voli Pro',
+        description: 'Akses eksklusif ke lapangan voli setiap sore hari Senin-Jumat selama 5 minggu.',
+        discount: '12%',
+        weeks: '5'
+      },
+      {
+        membershipId: 5,
+        location: 'Arena Olahraga',
+        sport: 'Tennis',
+        name: 'Paket Tennis Premium',
+        description: 'Reservasi otomatis setiap Selasa dan Kamis pagi selama 6 minggu dengan pelatih pendamping.',
+        discount: '25%',
+        weeks: '6'
+      },
+      {
+        membershipId: 6,
+        location: 'Kompleks Olahraga',
+        sport: 'Sepak Bola',
+        name: 'Paket Mini Soccer Bulanan',
+        description: 'Paket latihan dan permainan setiap akhir pekan selama 4 minggu untuk kelompok usia 12-18 tahun.',
+        discount: '10%',
+        weeks: '4'
+      },
+      {
+        membershipId: 7,
+        location: 'Lapangan Terpadu',
+        sport: 'Handball',
+        name: 'Paket Handball Komunitas',
+        description: 'Akses terjadwal untuk komunitas handball lokal selama 6 minggu dengan jadwal fleksibel.',
+        discount: '18%',
+        weeks: '6'
       }
-
-      // Generate nama dan data pribadi
-      const firstName = faker.person.firstName();
-      const lastName = faker.person.lastName();
-
-      // Pilih lapangan dan jam secara deterministik
-      const selectedField = fieldNames[memberId % fieldNames.length];
-      const startHour = 9 + (memberId % 10); // Jam mulai antara 9-18
-      const endHour = startHour + 2;
-
-      return {
-        memberId,
-        username: faker.internet.username({
-          firstName: firstName,
-          lastName: lastName
-        }),
-        name: `${firstName} ${lastName}`,
-        email: faker.internet.email({
-          firstName: firstName,
-          lastName: lastName
-        }),
-        phone: `+62 8${faker.string.numeric(9)}`,
-        day: dayNames[memberId % dayNames.length],
-        validUntil: formatDate(validUntilDate),
-        fieldTime: `${selectedField} (${startHour}.00 - ${endHour}.00)`,
-        create_at: formatDate(createDate)
-      };
-    }
-
-    // Generate 50 member
-    for (let i = 1; i <= 50; i++) {
-      sampleMembers.push(generateRandomMemberData(i));
-    }
-
-    this.records = sampleMembers;
+    ];
   },
 
-  // Ambil semua member dengan filter opsional
+  // Ambil semua membership
   async getAll({
-    day = [],
+    locations = [],
+    sports = [],
     search
   }: {
-    day?: string[];
+    locations?: string[];
+    sports?: string[];
     search?: string;
   }) {
-    let members = [...this.records];
+    let memberships = [...this.records];
 
-    // Filter berdasarkan hari
-    if (day.length > 0) {
-      members = members.filter((member) =>
-        day.includes(member.day)
+    // Filter berdasarkan location
+    if (locations.length > 0) {
+      memberships = memberships.filter((field) =>
+        locations.includes(field.location)
       );
     }
 
-    // Pencarian di berbagai field
+    // Filter berdasarkan cabang olahraga
+    if (sports.length > 0) {
+      memberships = memberships.filter((membership) =>
+        sports.includes(membership.sport)
+      );
+    }
+
+    // Pencarian di berbagai membership
     if (search) {
-      members = matchSorter(members, search, {
-        keys: ['username', 'name', 'email', 'phone']
+      memberships = matchSorter(memberships, search, {
+        keys: ['name', 'location', 'sport', 'description']
       });
     }
 
-    return members;
+    return memberships;
   },
 
-  // Ambil member dengan pagination
-  async getMembers({
+  async getMemberships({
     page = 1,
     limit = 10,
-    day,
+    locations,
+    sports,
     search
   }: {
     page?: number;
     limit?: number;
-    day?: string;
+    locations?: string;
+    sports?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const dayArray = day ? day.split('.') : [];
-    const allMembers = await this.getAll({
-      day: dayArray,
+    const locationArray = locations ? locations.split('.') : [];
+    const sportArray = sports ? sports.split('.') : [];
+
+    const allMemberships = await this.getAll({
+      locations: locationArray,
+      sports: sportArray,
       search
     });
-    const totalMembers = allMembers.length;
 
-    // Logika pagination
+    const totalMemberships = allMemberships.length;
+
     const offset = (page - 1) * limit;
-    const paginatedMembers = allMembers.slice(offset, offset + limit);
+    const paginatedMemberships = allMemberships.slice(offset, offset + limit);
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
-    // Kembalikan respons dengan pagination
     return {
       success: true,
-      time: currentTime,
-      message: 'Data member untuk keperluan testing',
-      total_members: totalMembers,
+      time: new Date().toISOString(),
+      message: 'Data membership untuk keperluan testing',
+      total_memberships: totalMemberships,
       offset,
       limit,
-      members: paginatedMembers
+      memberships: paginatedMemberships
     };
   },
 
-  // Ambil member berdasarkan ID
-  async getMemberById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+  // Ambil membership berdasarkan ID
+  async getMembershipById(id: number) {
+    // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
 
-    // Cari member berdasarkan ID
-    const member = this.records.find((member) => member.memberId === id);
-
-    if (!member) {
+    const found = this.records.find(item => item.membershipId === id);
+    if (!found) {
       return {
         success: false,
-        message: `Member dengan ID ${id} tidak ditemukan`
+        message: `Membership dengan ID ${id} tidak ditemukan`
       };
     }
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
     return {
       success: true,
-      time: currentTime,
-      message: `Member dengan ID ${id} ditemukan`,
-      member
+      membership: found
     };
   }
 };
 
-// Inisialisasi member contoh
-fakeMembers.initialize();
+// Inisialisasi data
+fakeMemberships.initialize();
+
+
+export const fakeSchedules = {
+  records: [] as Schedule[],
+
+  initialize() {
+    const sports: Schedule['sport'][] = ['Futsal', 'Badminton', 'Basketball', 'Volleyball', 'Tennis', 'Sepak Bola', 'Handball'];
+    const paymentStatuses: Schedule['paymentStatus'][] = ['pending', 'down payment', 'complete'];
+
+    const generateRandomScheduleData = (reservationId: number): Schedule => {
+      const startDate = faker.date.between({ from: '2024-01-01', to: '2024-12-31' });
+
+      return {
+        reservationId,
+        name: `${faker.person.firstName()} ${faker.person.lastName()}`,
+        fieldTime: faker.helpers.arrayElement([
+          '08:00', '09:00', '10:00', '11:00',
+          '13:00', '14:00', '15:00', '16:00',
+          '17:00', '18:00', '19:00', '20:00'
+        ]),
+        field: `Field ${faker.number.int({ min: 1, max: 5 })}`,
+        sport: faker.helpers.arrayElement(sports),
+        date: startDate.toISOString().split('T')[0],
+        paymentStatus: faker.helpers.arrayElement(paymentStatuses)
+      };
+    };
+
+    this.records = Array.from({ length: 100 }, (_, i) => generateRandomScheduleData(i + 1));
+  },
+
+  async getAll({
+    sport = [],
+    dateStart,
+    dateEnd,
+    paymentStatus = []
+  }: {
+    sport?: string[];
+    dateStart?: string;
+    dateEnd?: string;
+    paymentStatus?: string[];
+  }) {
+    let schedules = [...this.records];
+
+    if (sport.length > 0) {
+      schedules = schedules.filter(schedule => sport.includes(schedule.sport));
+    }
+
+    if (dateStart && dateEnd) {
+      const start = new Date(dateStart);
+      const end = new Date(dateEnd);
+      schedules = schedules.filter(schedule => {
+        const scheduleDate = new Date(schedule.date);
+        return scheduleDate >= start && scheduleDate <= end;
+      });
+    }
+
+    if (paymentStatus.length > 0) {
+      schedules = schedules.filter(schedule => paymentStatus.includes(schedule.paymentStatus));
+    }
+
+    return schedules;
+  },
+
+  async getSchedules({
+    page = 1,
+    limit = 10,
+    sport,
+    dateStart,
+    dateEnd,
+    paymentStatus
+  }: {
+    page?: number;
+    limit?: number;
+    sport?: string;
+    dateStart?: string;
+    dateEnd?: string;
+    paymentStatus?: string;
+  }) {
+    // await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const sportArray = sport ? sport.split(',') : [];
+    const paymentStatusArray = paymentStatus ? paymentStatus.split(',') : [];
+
+    const allSchedules = await this.getAll({
+      sport: sportArray,
+      dateStart,
+      dateEnd,
+      paymentStatus: paymentStatusArray
+    });
+
+    const totalSchedules = allSchedules.length;
+    const offset = Math.max((page - 1) * limit, 0);
+    const paginatedSchedules = allSchedules.slice(offset, offset + limit);
+
+    return {
+      success: true,
+      time: new Date().toISOString(),
+      message: 'Data jadwal untuk keperluan testing',
+      total_schedules: totalSchedules,
+      offset,
+      limit,
+      schedules: paginatedSchedules
+    };
+  }
+};
+
+// Inisialisasi data palsu
+fakeSchedules.initialize();

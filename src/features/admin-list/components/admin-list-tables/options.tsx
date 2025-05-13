@@ -1,8 +1,3 @@
-export const ACCOUNT_STATUS_OPTIONS = [
-  { label: 'Aktif', value: 'Active' },
-  { label: 'Tidak Aktif', value: 'Inactive' },
-  { label: 'Ditangguhkan', value: 'Suspended' }
-];
 export const LOCATION_OPTIONS = [
   { label: 'GOR Utama', value: 'GOR Utama' },
   { label: 'Sport Center Kota', value: 'Sport Center Kota' },

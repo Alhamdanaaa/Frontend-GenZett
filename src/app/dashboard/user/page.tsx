@@ -3,13 +3,16 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import UserListListingPage from '@/features/user-list/components/user-list-listing';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
-import { Suspense } from 'react';
+import { lazy, Suspense } from 'react';
+
+const UserListListingPage = lazy(() => 
+  import('@/features/user-list/components/user-list-listing')
+);
 
 export const metadata = {
   title: 'Dashboard: User'
@@ -21,10 +24,7 @@ type pageProps = {
 
 export default async function Page(props: pageProps) {
   const searchParams = await props.searchParams;
-  // Allow nested RSCs to access the search params (in a type-safe way)
   searchParamsCache.parse(searchParams);
-
-  // This key is used for invoke suspense if any of the search params changed (used for filters).
   const key = serialize({ ...searchParams });
 
   return (
@@ -35,12 +35,12 @@ export default async function Page(props: pageProps) {
             title='Data User'
             description='Kelola data user'
           />
-          <Link
+          {/* <Link
             href='/dashboard/user/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Tambah
-          </Link>
+          </Link> */}
         </div>
         <Separator />
         <Suspense
