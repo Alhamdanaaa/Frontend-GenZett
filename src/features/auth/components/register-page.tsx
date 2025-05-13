@@ -1,46 +1,53 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useSignUp } from "@clerk/nextjs";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "axios";
 
-export default function RegisterPage({ stars }: { stars: number }) {
-  const { signUp, isLoaded } = useSignUp();
+export default function RegisterPage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
     name: "",
-    dob: "",
     email: "",
+    phone: "",
     password: "",
+    password_confirmation: "",
   });
+
   const [show, setShow] = useState(false);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ [key: string]: string[] }>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
-
     setPending(true);
-    setError(null);
+    setError({});
+
+    // Validasi konfirmasi password di frontend
+    if (form.password !== form.password_confirmation) {
+      setError({ password_confirmation: ["Konfirmasi kata sandi tidak cocok."] });
+      setPending(false);
+      return;
+    }
 
     try {
-      await signUp.create({
-        emailAddress: form.email,
-        password: form.password,
-        unsafeMetadata: {
-          name: form.name,
-          dateOfBirth: form.dob,
-        },
-      });
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      router.push("/register/verify-email");
-    } catch (err: any) {
-      console.error(err);
-      setError(err.errors?.[0]?.message || "Terjadi kesalahan saat mendaftar");
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BACKEND}/api/register`,
+        form
+      );
+
+      // Jika berhasil, redirect ke login
+      router.push("/login");
+    } catch (error: any) {
+      console.error(error);
+      if (error.response && error.response.status === 422) {
+        setError(error.response.data.errors); // Validasi dari Laravel
+      } else {
+        setError({ general: ["Terjadi kesalahan saat mendaftar."] });
+      }
     } finally {
       setPending(false);
     }
@@ -49,71 +56,82 @@ export default function RegisterPage({ stars }: { stars: number }) {
   return (
     <div className="min-h-[300px] flex flex-col justify-center items-center bg-gray-50 p-4">
       <div className="flex w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
-        {/* Form - Kiri */}
+        {/* Form Kiri */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
           <div className="w-full bg-white p-8 rounded-xl shadow-2xl border-2">
             <h1 className="text-2xl font-bold text-center mb-4">Daftar Akun</h1>
             <p className="text-sm text-gray-500 text-center mb-4">
               Daftar untuk mulai reservasi lapangan favoritmu!
             </p>
-  
+
             <form onSubmit={handleSubmit} className="w-full space-y-6">
-              {/* Nama Lengkap */}
+              {/* Nama */}
               <div className="relative">
-                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10 transition-all ease-in-out duration-300 transform hover:scale-105">
+                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10">
                   Nama Lengkap
                 </label>
                 <input
                   type="text"
                   placeholder="Masukkan nama lengkap"
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, name: e.target.value });
+                    setError({});
+                  }}
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
                   required
                 />
               </div>
-  
-              {/* Tanggal Lahir */}
+
+              {/* Nomor HP */}
               <div className="relative">
-                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10 transition-all ease-in-out duration-300 transform hover:scale-105">
-                  Tanggal Lahir
+                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10">
+                  Nomor HP
                 </label>
                 <input
-                  type="date"
-                  value={form.dob}
-                  onChange={(e) => setForm({ ...form, dob: e.target.value })}
-                  className={`w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                    form.dob ? "text-gray-900" : "text-gray-400"
-                  } transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105`}
+                  type="tel"
+                  placeholder="Contoh: 081234567890"
+                  value={form.phone}
+                  onChange={(e) => {
+                    setForm({ ...form, phone: e.target.value });
+                    setError({});
+                  }}
+                  className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
                   required
                 />
               </div>
-  
+
               {/* Email */}
               <div className="relative">
-                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10 transition-all ease-in-out duration-300 transform hover:scale-105">
+                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10">
                   Email
                 </label>
                 <input
                   type="email"
                   placeholder="Masukkan email aktif"
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, email: e.target.value });
+                    setError({});
+                  }}
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
                   required
                 />
               </div>
-  
+
               {/* Password */}
               <div className="relative">
-                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10 transition-all ease-in-out duration-300 transform hover:scale-105">
+                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10">
                   Kata Sandi
                 </label>
                 <input
                   type={show ? "text" : "password"}
                   placeholder="Buat kata sandi"
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, password: e.target.value });
+                    setError({});
+                  }}
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
                   required
                 />
@@ -125,15 +143,34 @@ export default function RegisterPage({ stars }: { stars: number }) {
                   {show ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-  
+
+              {/* Konfirmasi Password */}
+              <div className="relative">
+                <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10">
+                  Konfirmasi Kata Sandi
+                </label>
+                <input
+                  type={show ? "text" : "password"}
+                  placeholder="Ulangi kata sandi"
+                  value={form.password_confirmation}
+                  onChange={(e) =>
+                    setForm({ ...form, password_confirmation: e.target.value })
+                  }
+                  className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
+                  required
+                />
+              </div>
+
               {/* Error Message */}
               {error && (
-                <p className="text-red-500 text-sm text-center animate-pulse">{error}</p>
+                <p className="text-red-500 text-sm text-center animate-pulse">
+                  {error.general || error.password_confirmation}
+                </p>
               )}
-  
+
               {/* CAPTCHA */}
               <div id="clerk-captcha" />
-  
+
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -150,7 +187,7 @@ export default function RegisterPage({ stars }: { stars: number }) {
                 )}
               </Button>
             </form>
-  
+
             <p className="text-center text-sm text-gray-500 mt-4">
               Sudah punya akun?{" "}
               <Link
@@ -162,7 +199,7 @@ export default function RegisterPage({ stars }: { stars: number }) {
             </p>
           </div>
         </div>
-  
+
         {/* Gambar - Kanan */}
         <div className="hidden lg:block w-1/2">
           <img
