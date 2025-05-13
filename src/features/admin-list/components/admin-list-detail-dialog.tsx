@@ -34,7 +34,6 @@ export default function AdminDetailDialog({
           <DialogDescription>Informasi lengkap dari admin yang dipilih.</DialogDescription>
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
-          <DetailRow label='ID Pengguna' value={String(data.adminId)} />
           <DetailRow label='Cabang' value={String(data.location)} />
           <DetailRow label='Username' value={data.username} />
           <DetailRow label='Nama Lengkap' value={data.name} />

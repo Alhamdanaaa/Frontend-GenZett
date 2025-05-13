@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-import { Location, Sport, Field, User, Admin, Reservation, Member, Schedule } from '@/constants/data';
+import { Location, Sport, Field, User, Admin, Reservation, Membership, Schedule } from '@/constants/data';
 import { generateBookingData } from './booking-data-faker';
 
 export function fetchBookingMock() {
@@ -18,8 +18,8 @@ export function fetchBookingMockList(count = 5) {
 }
 
 faker.seed(123);
-export const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+// export const delay = (ms: number) =>
+  // new Promise((resolve) => setTimeout(resolve, ms));
 
 // Define the shape of Product data
 export type Product = {
@@ -113,7 +113,7 @@ export const fakeProducts = {
     categories?: string;
     search?: string;
   }) {
-    await delay(1000);
+    // await delay(1000);
     const categoriesArray = categories ? categories.split('.') : [];
     const allProducts = await this.getAll({
       categories: categoriesArray,
@@ -142,7 +142,7 @@ export const fakeProducts = {
 
   // Get a specific product by its ID
   async getProductById(id: number) {
-    await delay(1000); // Simulate a delay
+    // await delay(1000); // Simulate a delay
 
     // Find the product by its ID
     const product = this.records.find((product) => product.id === id);
@@ -347,7 +347,7 @@ export const fakeSports = {
     limit?: number;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
   
     let filteredSports = this.records;
   
@@ -379,7 +379,7 @@ export const fakeSports = {
   },
 
   async getSportById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
     const sport = this.records.find((s) => s.id === id);
     if (!sport) {
       return {
@@ -504,7 +504,7 @@ export const fakeFields = {
     sports?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const locationArray = locations ? locations.split('.') : [];
     const sportArray = sports ? sports.split('.') : [];
@@ -538,7 +538,7 @@ export const fakeFields = {
 
   // Ambil lapangan berdasarkan ID
   async getFieldById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     // Cari lapangan berdasarkan ID
     const field = this.records.find((field) => field.id === id);
@@ -637,7 +637,7 @@ export const fakeUsers = {
     memberStatus?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const allUsers = await this.getAll({
       search
@@ -665,7 +665,7 @@ export const fakeUsers = {
 
   // Ambil user berdasarkan ID
   async getUserById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     // Cari user berdasarkan ID
     const user = this.records.find((user) => user.userId === id);
@@ -776,16 +776,14 @@ export const fakeAdmins = {
     page = 1,
     limit = 10,
     location,
-    accountStatus,
     search
   }: {
     page?: number;
     limit?: number;
     location?: string;
-    accountStatus?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const locationArray = location ? location.split('.') : [];
    
@@ -817,7 +815,7 @@ export const fakeAdmins = {
 
   // Ambil admin berdasarkan ID
   async getAdminById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     // Cari admin berdasarkan ID
     const admin = this.records.find((admin) => admin.adminId === id);
@@ -992,7 +990,7 @@ export const fakeReservations = {
     search?: string;
     date?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const paymentStatusArray = paymentStatus ? paymentStatus.split('.') : [];
     // const statusArray = status ? status.split('.') : [];
@@ -1023,7 +1021,7 @@ export const fakeReservations = {
   },
 
   async getReservationById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
     const reservation = this.records.find((reservation) => reservation.reservationId === id);
 
@@ -1053,176 +1051,176 @@ fakeReservations.initialize();
 faker.seed(123);
 
 
-// Mock member data store
-export const fakeMembers = {
-  records: [] as Member[], // Menyimpan daftar objek member
+// Mock data store untuk membership
+export const fakeMemberships = {
+  records: [] as Membership[],
 
-  // Inisialisasi dengan data contoh
+  // Inisialisasi data membership secara manual
   initialize() {
-    const sampleMembers: Member[] = [];
-    
-    // Daftar nama lapangan
-    const fieldNames = [
-      'Lapangan Futsal Utama',
-      'Lapangan Badminton A',
-      'Lapangan Basket Kota',
-      'Lapangan Voli Stadion',
-      'Lapangan Tennis Center',
-      'Lapangan Sepak Bola Mini',
-      'Lapangan Handball Profesional'
-    ];
-
-    // Daftar hari
-    const dayNames = [
-      'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'
-    ];
-
-    function generateRandomMemberData(memberId: number): Member {
-      // Generate tanggal dasar
-      const createDate = new Date('2024-01-01');
-      createDate.setDate(createDate.getDate() + (memberId * 3)); // Variasi tanggal
-
-      // Hitung tanggal valid until (30 hari setelah create)
-      const validUntilDate = new Date(createDate);
-      validUntilDate.setDate(validUntilDate.getDate() + 30);
-
-      // Format tanggal
-      function formatDate(date: Date): string {
-        const pad = (num: number) => num.toString().padStart(2, '0');
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    this.records = [
+      {
+        membershipId: 1,
+        location: 'GOR Utama',
+        sport: 'Futsal',
+        name: 'Paket Futsal Mingguan',
+        description: 'Paket bermain futsal setiap hari Senin, Rabu, dan Jumat pukul 18.00 - 20.00 selama 4 minggu.',
+        discount: '10%',
+        weeks: '4'
+      },
+      {
+        membershipId: 2,
+        location: 'Sport Center Kota',
+        sport: 'Badminton',
+        name: 'Paket Badminton Akhir Pekan',
+        description: 'Akses lapangan badminton setiap Sabtu dan Minggu pagi selama 6 minggu.',
+        discount: '15%',
+        weeks: '6'
+      },
+      {
+        membershipId: 3,
+        location: 'Stadion Olahraga',
+        sport: 'Basket',
+        name: 'Paket Latihan Basket Rutin',
+        description: 'Paket latihan intensif 3 kali seminggu selama 8 minggu. Cocok untuk tim sekolah atau komunitas.',
+        discount: '20%',
+        weeks: '8'
+      },
+      {
+        membershipId: 4,
+        location: 'Pusat Kebugaran',
+        sport: 'Volleyball',
+        name: 'Membership Voli Pro',
+        description: 'Akses eksklusif ke lapangan voli setiap sore hari Senin-Jumat selama 5 minggu.',
+        discount: '12%',
+        weeks: '5'
+      },
+      {
+        membershipId: 5,
+        location: 'Arena Olahraga',
+        sport: 'Tennis',
+        name: 'Paket Tennis Premium',
+        description: 'Reservasi otomatis setiap Selasa dan Kamis pagi selama 6 minggu dengan pelatih pendamping.',
+        discount: '25%',
+        weeks: '6'
+      },
+      {
+        membershipId: 6,
+        location: 'Kompleks Olahraga',
+        sport: 'Sepak Bola',
+        name: 'Paket Mini Soccer Bulanan',
+        description: 'Paket latihan dan permainan setiap akhir pekan selama 4 minggu untuk kelompok usia 12-18 tahun.',
+        discount: '10%',
+        weeks: '4'
+      },
+      {
+        membershipId: 7,
+        location: 'Lapangan Terpadu',
+        sport: 'Handball',
+        name: 'Paket Handball Komunitas',
+        description: 'Akses terjadwal untuk komunitas handball lokal selama 6 minggu dengan jadwal fleksibel.',
+        discount: '18%',
+        weeks: '6'
       }
-
-      // Generate nama dan data pribadi
-      const firstName = faker.person.firstName();
-      const lastName = faker.person.lastName();
-
-      // Pilih lapangan dan jam secara deterministik
-      const selectedField = fieldNames[memberId % fieldNames.length];
-      const startHour = 9 + (memberId % 10); // Jam mulai antara 9-18
-      const endHour = startHour + 2;
-
-      return {
-        memberId,
-        username: faker.internet.username({
-          firstName: firstName,
-          lastName: lastName
-        }),
-        name: `${firstName} ${lastName}`,
-        email: faker.internet.email({
-          firstName: firstName,
-          lastName: lastName
-        }),
-        phone: `+62 8${faker.string.numeric(9)}`,
-        day: dayNames[memberId % dayNames.length],
-        validUntil: formatDate(validUntilDate),
-        fieldTime: `${selectedField} (${startHour}.00 - ${endHour}.00)`,
-        create_at: formatDate(createDate)
-      };
-    }
-
-    // Generate 50 member
-    for (let i = 1; i <= 50; i++) {
-      sampleMembers.push(generateRandomMemberData(i));
-    }
-
-    this.records = sampleMembers;
+    ];
   },
 
-  // Ambil semua member dengan filter opsional
+  // Ambil semua membership
   async getAll({
-    day = [],
+    locations = [],
+    sports = [],
     search
   }: {
-    day?: string[];
+    locations?: string[];
+    sports?: string[];
     search?: string;
   }) {
-    let members = [...this.records];
+    let memberships = [...this.records];
 
-    // Filter berdasarkan hari
-    if (day.length > 0) {
-      members = members.filter((member) =>
-        day.includes(member.day)
+    // Filter berdasarkan location
+    if (locations.length > 0) {
+      memberships = memberships.filter((field) =>
+        locations.includes(field.location)
       );
     }
 
-    // Pencarian di berbagai field
+    // Filter berdasarkan cabang olahraga
+    if (sports.length > 0) {
+      memberships = memberships.filter((membership) =>
+        sports.includes(membership.sport)
+      );
+    }
+
+    // Pencarian di berbagai membership
     if (search) {
-      members = matchSorter(members, search, {
-        keys: ['username', 'name', 'email', 'phone']
+      memberships = matchSorter(memberships, search, {
+        keys: ['name', 'location', 'sport', 'description']
       });
     }
 
-    return members;
+    return memberships;
   },
 
-  // Ambil member dengan pagination
-  async getMembers({
+  async getMemberships({
     page = 1,
     limit = 10,
-    day,
+    locations,
+    sports,
     search
   }: {
     page?: number;
     limit?: number;
-    day?: string;
+    locations?: string;
+    sports?: string;
     search?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const dayArray = day ? day.split('.') : [];
-    const allMembers = await this.getAll({
-      day: dayArray,
+    const locationArray = locations ? locations.split('.') : [];
+    const sportArray = sports ? sports.split('.') : [];
+
+    const allMemberships = await this.getAll({
+      locations: locationArray,
+      sports: sportArray,
       search
     });
-    const totalMembers = allMembers.length;
 
-    // Logika pagination
+    const totalMemberships = allMemberships.length;
+
     const offset = (page - 1) * limit;
-    const paginatedMembers = allMembers.slice(offset, offset + limit);
+    const paginatedMemberships = allMemberships.slice(offset, offset + limit);
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
-    // Kembalikan respons dengan pagination
     return {
       success: true,
-      time: currentTime,
-      message: 'Data member untuk keperluan testing',
-      total_members: totalMembers,
+      time: new Date().toISOString(),
+      message: 'Data membership untuk keperluan testing',
+      total_memberships: totalMemberships,
       offset,
       limit,
-      members: paginatedMembers
+      memberships: paginatedMemberships
     };
   },
 
-  // Ambil member berdasarkan ID
-  async getMemberById(id: number) {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+  // Ambil membership berdasarkan ID
+  async getMembershipById(id: number) {
+    // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
 
-    // Cari member berdasarkan ID
-    const member = this.records.find((member) => member.memberId === id);
-
-    if (!member) {
+    const found = this.records.find(item => item.membershipId === id);
+    if (!found) {
       return {
         success: false,
-        message: `Member dengan ID ${id} tidak ditemukan`
+        message: `Membership dengan ID ${id} tidak ditemukan`
       };
     }
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
-
     return {
       success: true,
-      time: currentTime,
-      message: `Member dengan ID ${id} ditemukan`,
-      member
+      membership: found
     };
   }
 };
 
-// Inisialisasi member contoh
-fakeMembers.initialize();
+// Inisialisasi data
+fakeMemberships.initialize();
 
 
 export const fakeSchedules = {
@@ -1301,7 +1299,7 @@ export const fakeSchedules = {
     dateEnd?: string;
     paymentStatus?: string;
   }) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     const sportArray = sport ? sport.split(',') : [];
     const paymentStatusArray = paymentStatus ? paymentStatus.split(',') : [];
