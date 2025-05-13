@@ -17,25 +17,25 @@ export default function FooterUser() {
           <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Useful Links</h4>
           <ul className='space-y-2 text-sm'>
             <li>
-              <a href='#' className='hover:underline'>
-                Home
+                <a href='/' className='hover:underline'>
+                Beranda
+                </a>
+            </li>
+            <li>
+              <a href='/reservation' className='hover:underline'>
+                Reservasi
               </a>
             </li>
             <li>
-              <a href='#' className='hover:underline'>
-                About Us
+              <a href='/history' className='hover:underline'>
+                Riwayat
               </a>
             </li>
-            <li>
+            {/* <li>
               <a href='#' className='hover:underline'>
-                Booking
+                Paket Langganan
               </a>
-            </li>
-            <li>
-              <a href='#' className='hover:underline'>
-                FAQ
-              </a>
-            </li>
+            </li> */}
           </ul>
         </div>
 
