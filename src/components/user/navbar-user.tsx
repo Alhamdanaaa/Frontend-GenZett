@@ -14,7 +14,7 @@ export default function NavbarUser() {
   const navItems = [
     { label: 'Beranda', href: '/' },
     { label: 'Reservasi', href: '/reservation' },
-    { label: 'Riwayat', href: '/riwayat' },
+    { label: 'Riwayat', href: '/history' },
   ]
 
   return (
