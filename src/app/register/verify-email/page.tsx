@@ -1,22 +1,22 @@
-"use client";
-import { useSignUp } from "@clerk/nextjs";
-import { useEffect, useRef, useState } from "react";
+"use client"
+
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 
 export default function VerifyEmailPage() {
-  const { signUp, isLoaded } = useSignUp();
-  const router = useRouter();
   const [otpCode, setOtpCode] = useState("");
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [verifyStatus, setVerifyStatus] = useState<string | null>(null);
   const [pendingVerify, setPendingVerify] = useState(false);
   const [pendingResend, setPendingResend] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number>(0)
+  const [timeLeft, setTimeLeft] = useState<number>(0);
   const inputRefs = useRef<HTMLInputElement[]>([]);
+  const router = useRouter();
 
+  // Start the countdown for resend OTP
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => {
@@ -28,7 +28,6 @@ export default function VerifyEmailPage() {
           return prevTime - 1;
         });
       }, 1000);
-
       return () => clearInterval(timer);
     }
   }, [timeLeft]);
@@ -45,9 +44,8 @@ export default function VerifyEmailPage() {
       inputRefs.current[index + 1]?.focus();
     }
 
-
     if (newOtp.length === 6) {
-      handleVerify(newOtp); 
+      handleVerify(newOtp);
     }
   };
 
@@ -60,8 +58,8 @@ export default function VerifyEmailPage() {
     }
   };
 
+  // Handle OTP verification with backend
   const handleVerify = async (code: string) => {
-    if (!isLoaded) return;
     if (code.length < 6) {
       setVerifyStatus("Lengkapi semua angka OTP.");
       return;
@@ -69,31 +67,52 @@ export default function VerifyEmailPage() {
 
     setPendingVerify(true);
     try {
-      const result = await signUp.attemptEmailAddressVerification({ code });
-      if (result.status === "complete") {
-        router.push("/");
+      const response = await fetch('/register/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ otp: code, email: 'user@example.com' }) // Ganti dengan email yang sesuai
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        router.push("/"); // Redirect ke halaman sukses
       } else {
-        setVerifyStatus("Verifikasi gagal. Coba cek kembali kodenya.");
+        setVerifyStatus(data.message || "Verifikasi gagal. Coba cek kembali kodenya.");
       }
     } catch (err) {
       console.error(err);
-      setVerifyStatus("Kode salah atau expired. Coba lagi.");
+      setVerifyStatus("Terjadi kesalahan. Coba lagi.");
     } finally {
       setPendingVerify(false);
     }
   };
 
+  // Resend OTP
   const handleResend = async () => {
-    if (!isLoaded || timeLeft > 0) return;
+    if (timeLeft > 0 || pendingResend) return;
 
     setPendingResend(true);
     try {
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      setResendStatus("Berhasil mengirim ulang email!");
-      setTimeLeft(60);
+      const response = await fetch('/register/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: 'user@example.com' }) // Ganti dengan email yang sesuai
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setResendStatus("Berhasil mengirim ulang email!");
+        setTimeLeft(60);
+      } else {
+        setResendStatus(data.message || "Gagal mengirim ulang email.");
+      }
     } catch (err) {
       console.error(err);
-      setResendStatus("Gagal mengirim ulang email.");
+      setResendStatus("Terjadi kesalahan saat mengirim email.");
     } finally {
       setPendingResend(false);
     }
@@ -102,7 +121,6 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center space-y-6 bg-gray-100 p-4 lg:p-8 overflow-hidden">
       <div className="flex w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
-        {/* Form */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
           <div className="w-full bg-white p-8 rounded-xl shadow-2xl border-2">
             <h1 className="text-2xl font-bold text-center mb-4">Verifikasi Email Kamu</h1>
@@ -110,7 +128,6 @@ export default function VerifyEmailPage() {
               Masukkan kode OTP yang dikirim ke email kamu.
             </p>
 
-            {/* OTP Input */}
             <div className="flex space-x-2 mb-4 w-full max-w-[72rem]">
               {Array.from({ length: 6 }).map((_, index) => (
                 <Input
@@ -129,9 +146,8 @@ export default function VerifyEmailPage() {
               ))}
             </div>
 
-            {/* Verification Button */}
             <Button
-              onClick={() => handleVerify(otpCode)} 
+              onClick={() => handleVerify(otpCode)}
               className="w-full max-w-[72rem] mb-4 bg-orange-500 hover:bg-orange-600 text-white transition-all duration-300 ease-in-out transform hover:scale-110 focus:scale-110 hover:shadow-xl focus:shadow-xl"
               disabled={pendingVerify}
             >
@@ -142,10 +158,8 @@ export default function VerifyEmailPage() {
               )}
             </Button>
 
-            {/* Status Messages */}
             {verifyStatus && <p className="text-sm text-red-500 text-center animate-pulse">{verifyStatus}</p>}
 
-            {/* Resend Button */}
             <Button
               variant="outline"
               onClick={handleResend}
@@ -165,7 +179,6 @@ export default function VerifyEmailPage() {
           </div>
         </div>
 
-        {/* Gambar - Kanan */}
         <div className="hidden lg:block w-1/2">
           <img
             src="/images/login-image.png"
