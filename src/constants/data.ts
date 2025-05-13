@@ -99,16 +99,14 @@ export type Schedule = {
 };
 
 // Tipe data Member
-export type Member = {
-  memberId: number;
-  username: string;
+export type Membership = {
+  membershipId: number;
+  location: string;
+  sport: string;
   name: string;
-  email: string;
-  phone: string;
-  day: string;
-  validUntil: string;
-  fieldTime: string;
-  create_at: string;
+  description: string;
+  discount: string;
+  weeks: string;
 };
 
 
@@ -143,6 +141,14 @@ export const navItems: NavItem[] = [
     url: '/dashboard/sport',
     icon: 'sport',
     shortcut: ['s', 's'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Paket Langganan',
+    url: '/dashboard/membership',
+    icon: 'member',
+    shortcut: ['m', 'm'],
     isActive: false,
     items: [] // No child items
   },

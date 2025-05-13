@@ -19,7 +19,7 @@ export async function getScheduleData(): Promise<Schedule[]> {
   cachedSchedules = fakeSchedules.records.slice(0, 50);
   
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300));
+  // await new Promise(resolve => setTimeout(resolve, 300));
   
   return cachedSchedules;
 }
