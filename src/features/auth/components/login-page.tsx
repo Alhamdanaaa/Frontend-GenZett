@@ -31,7 +31,16 @@ export default function LoginPage() {
       );
 
       Cookies.set("token", response.data.token);
-      router.push("/");
+      
+    
+      const userRole = response.data.user.role;
+      Cookies.set("role", userRole);
+
+      if (userRole === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
@@ -42,6 +51,7 @@ export default function LoginPage() {
       setPending(false);
     }
   };
+
 
   useEffect(() => {
     if (Cookies.get("token")) {
