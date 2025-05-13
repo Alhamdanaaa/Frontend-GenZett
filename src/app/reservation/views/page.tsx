@@ -56,7 +56,7 @@ export default function SportsLocationPage() {
   return (
     <>
       <UserLayout>
-        <main className="bg-white text-gray-800">
+        <main className="text-gray-800">
           <div className="px-4 py-5 md:py-10 flex flex-col items-center max-w-6xl mx-auto gap-8">
             {/* Filter */}
             <div className="flex justify-center mb-6">
@@ -65,7 +65,7 @@ export default function SportsLocationPage() {
                 <div className="relative w-full sm:w-[28rem]" ref={dropdownRef}>
                   <label
                     htmlFor="sport-type"
-                    className="absolute -top-2 left-3 text-sm bg-white px-1 text-gray-600"
+                    className="absolute -top-2 left-3 text-sm bg-[#f8f8f8] px-1 text-gray-600"
                   >
                     Cabang Olahraga
                   </label>
@@ -73,13 +73,13 @@ export default function SportsLocationPage() {
                   <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
-                    className="w-full border border-gray-300 rounded-lg px-4 pt-3 pb-2 text-gray-600 text-base text-left bg-white appearance-none focus:outline-none"
+                    className="w-full border border-gray-300 rounded-lg px-4 pt-3 pb-2 text-gray-600 text-base text-left bg-[#f8f8f8] appearance-none focus:outline-none"
                   >
                     {selectedSport || "Pilih Olahraga"}
                   </button>
 
                   {isOpen && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-md max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 mt-1 w-full bg-[#f8f8f8] border border-gray-300 rounded-lg shadow-md max-h-60 overflow-y-auto">
                       {sports.map((sport, idx) => (
                         <div
                           key={idx}

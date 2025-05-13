@@ -12,7 +12,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   return (
     <div>
       <NavbarUser /> 
-      <main>{children}</main>
+      <main className="bg-[#f8f8f8]">{children}</main>
       <FooterUser />
     </div>
   )
