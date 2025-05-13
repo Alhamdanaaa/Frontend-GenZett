@@ -302,7 +302,7 @@ export default function HomePage() {
                     Ikuti langkah-langkah sederhana untuk menemukan, memesan, dan menikmati fasilitas olahraga tanpa ribet.
                     </p>
                 </div>
-                <Link href="/reservasi" passHref>
+                <Link href="/reservation" passHref>
                     <motion.button
                     className="bg-[#F67403] hover:bg-[#D26201] text-white font-medium py-3 px-8 rounded-lg shadow-md transition-all w-fit mt-6"
                     whileHover={{ scale: 1.05 }}
