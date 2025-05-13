@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
-import Navbar from "@/components/user/navbar-user";
+import { MoveRight } from "lucide-react";
 import FAQItem from "@/components/user/FAQItem";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
@@ -37,7 +36,7 @@ export default function HomePage() {
   return (
     <div className="overflow-hidden">
       <UserLayout>
-        <main className="bg-white text-gray-800">
+        <main className="text-gray-800">
             {/* Hero Section */}
             <section 
             ref={heroRef}
@@ -51,20 +50,20 @@ export default function HomePage() {
                 transition={{ delay: 0.2 }}
             >
                 <h1 className="text-3xl md:text-4xl font-bold transition-all duration-500 hover:text-[#2C473A] hover:translate-x-1">
-                MAIN TANPA DRAMA, <br /> BOOKING TANPA RIBET!
+                    MAIN TANPA DRAMA, <br /> BOOKING TANPA RIBET!
                 </h1>
-                <p className="text-gray-600 transition-all duration-500 hover:text-gray-800">
-                Atur jadwal olahraga dengan mudah dan praktis. Pesan lapangan favoritmu hanya dalam beberapa klik!
+                <p className="text-gray-600 text-base transition-all duration-500 hover:text-gray-800">
+                    Atur jadwal olahraga dengan mudah dan praktis. Pesan lapangan favoritmu hanya dalam beberapa klik!
                 </p>
                 <Button
-                onClick={() => {
-                    document
-                    .getElementById("about")
-                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
-                }}
-                className="bg-orange-500 hover:bg-orange-600 text-white transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95"
-                >
-                Selengkapnya <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    onClick={() => {
+                        document
+                        .getElementById("about")
+                        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-base transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 rounded-full px-6 py-2 w-full sm:w-auto min-w-[180px] flex items-center justify-center"
+                    >
+                    Selengkapnya <MoveRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Button>
             </motion.div>
             <motion.div 
@@ -85,21 +84,21 @@ export default function HomePage() {
 
 
             {/* About Us */}
-            <section id="about" className="pt-1 pb-[1px] px-4">
+            <section id="about" className="pt-1 pb-[1px]">
             <motion.div 
-                className="max-w-4xl mx-auto text-center border-2 border-dashed border-[#2C473A] rounded-xl p-8 space-y-4 hover:shadow-lg transition-all duration-500"
+                className="max-w-6xl mx-auto text-center border-2 border-dashed border-[#2C473A] rounded-xl p-8 space-y-4 hover:shadow-lg transition-all duration-500"
                 whileHover={{ y: -5 }}
             >
-                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-4 py-1 rounded-full transition-all duration-300 hover:scale-105">
-                ABOUT US
+                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-5 py-1.5 rounded-full transition-all duration-300 hover:scale-105">
+                    ABOUT US
                 </span>
                 <h2 className="text-2xl font-bold transition-all duration-500 hover:text-[#2C473A] hover:scale-105">
-                Solusi Reservasi Lapangan yang Cepat & Praktis
+                    Solusi Reservasi Lapangan yang Cepat & Praktis
                 </h2>
-                <p className="text-gray-600 transition-all duration-300 hover:text-gray-800">
-                Kami menawarkan kemudahan reservasi lapangan olahraga secara online. Dengan sistem terintegrasi, Anda dapat
-                mencari sport center terdekat, memilih jadwal, dan melakukan pemesanan dengan cepat serta aman.
-                Nikmati fleksibilitas pembayaran dan pengalaman reservasi yang lebih praktis.
+                <p className="text-gray-600 text-base transition-all duration-300 hover:text-gray-800">
+                    Kami menawarkan kemudahan reservasi lapangan olahraga secara online. Dengan sistem terintegrasi, Anda dapat
+                    mencari sport center terdekat, memilih jadwal, dan melakukan pemesanan dengan cepat serta aman.
+                    Nikmati fleksibilitas pembayaran dan pengalaman reservasi yang lebih praktis.
                 </p>
             </motion.div>
             </section>
@@ -107,17 +106,17 @@ export default function HomePage() {
             {/* Our Benefits */}
             <section ref={benefitsRef} className="pt-10 pb-[10px] px-4 max-w-6xl mx-auto space-y-10">
             <motion.div 
-                className="text-center space-y-2"
+                className="text-left space-y-2"
                 initial="hidden"
                 animate={benefitsInView ? "visible" : "hidden"}
                 variants={fadeInUp}
             >
-                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-3 py-1 rounded-full transition-all duration-300 hover:scale-105">
-                OUR BENEFITS
+                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-5 py-1.5 rounded-full transition-all duration-300 hover:scale-105">
+                    OUR BENEFITS
                 </span>
                 <h2 className="text-2xl font-bold transition-all duration-300 hover:text-[#2C473A]">Mengapa memilih layanan kami?</h2>
-                <p className="text-gray-500 transition-all duration-300 hover:text-gray-700">
-                Temukan berbagai keunggulan yang membuat reservasi lebih mudah dan nyaman.
+                <p className="text-gray-500 text-base transition-all duration-300 hover:text-gray-700">
+                    Temukan berbagai keunggulan yang membuat reservasi lebih mudah dan nyaman.
                 </p>
             </motion.div>
             <motion.div 
@@ -149,12 +148,12 @@ export default function HomePage() {
                     variants={fadeInUp}
                     className="flex items-start gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
                 >
-                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#D1F12F] text-black font-bold text-sm mt-1 transition-transform duration-300 group-hover:scale-110 aspect-square">
-                    <CircleArrowRight className="w-4 h-4" /> {/* Ukuran icon lebih kecil */}
+                    <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#D1F12F] text-black transition-transform duration-300 group-hover:scale-110 flex-shrink-0 my-auto">
+                        <CircleArrowRight className="w-6 h-6" />
                     </div>
                     <div>
-                    <h3 className="font-semibold mb-1 transition-all duration-300 hover:text-[#2C473A]">{item.title}</h3>
-                    <p className="text-sm text-gray-600 transition-all duration-300 hover:text-gray-800">{item.desc}</p>
+                        <h3 className="font-semibold mb-1 text-base transition-all duration-300 hover:text-[#2C473A]">{item.title}</h3>
+                        <p className="text-sm text-gray-600 transition-all duration-300 hover:text-gray-800">{item.desc}</p>
                     </div>
                 </motion.div>
                 ))}
@@ -171,17 +170,17 @@ export default function HomePage() {
             >
                 {/* Images */}
                 <motion.div 
-                className="relative w-full md:w-1/2"
-                variants={fadeInUp}
+                    className="relative w-full md:w-1/2"
+                    variants={fadeInUp}
                 >
                 <motion.div 
                     className="w-64 h-auto rounded-xl overflow-hidden shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-xl"
                     whileHover={{ zIndex: 10 }}
                 >
                     <img 
-                    src="/images/fasilitas.png" 
-                    alt="Futsal Court" 
-                    className="object-cover w-full h-full transition-transform duration-500 hover:scale-110" 
+                        src="/images/fasilitas.png" 
+                        alt="Futsal Court" 
+                        className="object-cover w-full h-full transition-transform duration-500 hover:scale-110" 
                     />
                 </motion.div>
                 <motion.div 
@@ -189,26 +188,26 @@ export default function HomePage() {
                     whileHover={{ zIndex: 10 }}
                 >
                     <img 
-                    src="/images/fasilitas2.png" 
-                    alt="Badminton Court" 
-                    className="object-cover w-full h-full transition-transform duration-500 hover:scale-110" 
+                        src="/images/fasilitas2.png" 
+                        alt="Badminton Court" 
+                        className="object-cover w-full h-full transition-transform duration-500 hover:scale-110" 
                     />
                 </motion.div>
                 </motion.div>
 
                 {/* Text */}
                 <motion.div 
-                className="w-full md:w-1/2 space-y-4"
-                variants={fadeInUp}
-                transition={{ delay: 0.2 }}
+                    className="w-full md:w-1/2 space-y-4"
+                    variants={fadeInUp}
+                    transition={{ delay: 0.2 }}
                 >
-                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-3 py-1 rounded-full transition-all duration-300 hover:scale-105">
+                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-5 py-1.5 rounded-full transition-all duration-300 hover:scale-105">
                     OUR FACILITIES
                 </span>
                 <h2 className="text-2xl font-bold transition-all duration-500 hover:text-[#2C473A] hover:translate-x-1">
                     Fasilitas Lengkap untuk<br />Kemudahan dan Kenyamanan
                 </h2>
-                <p className="text-gray-500 transition-all duration-300 hover:text-gray-700">
+                <p className="text-gray-500 text-base transition-all duration-300 hover:text-gray-700">
                     Nikmati berbagai fasilitas unggulan yang kami sediakan untuk memastikan kenyamanan dan kemudahan dalam setiap reservasi.
                 </p>
                 </motion.div>
@@ -223,14 +222,14 @@ export default function HomePage() {
                 animate={sportsInView ? "visible" : "hidden"}
                 variants={fadeInUp}
             >
-                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-3 py-1 rounded-full transition-all duration-300 hover:scale-105">
-                OUR SPORTS
+                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-5 py-1.5 rounded-full transition-all duration-300 hover:scale-105">
+                    OUR SPORTS
                 </span>
-                <h2 className="text-3xl font-bold text-gray-800 transition-all duration-500 hover:text-[#2C473A] hover:scale-105">
-                Temukan berbagai pilihan olahraga yang tersedia di sport center kami
+                <h2 className="text-2xl font-bold text-gray-800 transition-all duration-500 hover:text-[#2C473A] hover:scale-105">
+                    Temukan berbagai pilihan olahraga yang tersedia di sport center kami
                 </h2>
                 <p className="text-gray-500 max-w-2xl mx-auto text-base transition-all duration-300 hover:text-gray-700">
-                Dari badminton, tenis, basket, hingga futsal, pilih cabang olahraga favoritmu dan nikmati pengalaman berolahraga dengan fasilitas terbaik.
+                    Dari badminton, tenis, basket, hingga futsal, pilih cabang olahraga favoritmu dan nikmati pengalaman berolahraga dengan fasilitas terbaik.
                 </p>
             </motion.div>
 
@@ -241,38 +240,26 @@ export default function HomePage() {
                 variants={staggerContainer}
             >
                 {[
-                { name: "Badminton", count: "18 lapangan", icon: "/icons/badminton.png" },
-                { name: "Tenis", count: "4 lapangan", icon: "/icons/tennis.png" },
-                { name: "Basket", count: "7 lapangan", icon: "/icons/basket.png" },
                 { name: "Futsal", count: "10 lapangan", icon: "/icons/futsal.png" },
+                { name: "Badminton", count: "18 lapangan", icon: "/icons/badminton.png" },
+                { name: "Basketball", count: "7 lapangan", icon: "/icons/basket.png" },
+                { name: "Volleyball", count: "5 lapangan", icon: "/icons/volleyball.png" },
+                { name: "Tenis", count: "4 lapangan", icon: "/icons/tennis.png" },
+                { name: "sepakbola", count: "3 lapangan", icon: "/icons/sepakbola.png" },
+                { name: "Handball", count: "2 lapangan", icon: "/icons/handball.png" },
                 ].map((sport, i) => (
-                <motion.div
-                    key={i}
-                    variants={fadeInUp}
-                    className="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-b from-white to-[#C5FC40]/30 hover:to-[#C5FC40] transition-all duration-300 hover:shadow-lg active:scale-95 cursor-pointer"
-                    whileHover={{ y: -5 }}
-                    whileTap={{ scale: 0.95 }}
+                <motion.div 
+                  key={i}
+                  variants={fadeInUp}
+                  className="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-b from-white to-[#C5FC40]/30 hover:to-[#C5FC40] transition-all duration-300 hover:shadow-lg active:scale-95 cursor-pointer border border-transparent hover:border-[#6CC28F] h-[250px] flex flex-col justify-center"
                 >
-                    {/* Tap Animation Effect */}
-                    <span className="absolute inset-0 bg-[#C5FC40] opacity-0 group-hover:opacity-10 group-active:opacity-20 transition-opacity duration-200"></span>
-
-                    <div className="relative z-10">
-                    <div className="flex justify-center mb-3">
-                        <motion.img
-                        src={sport.icon}
-                        alt={sport.name}
-                        className="w-12 h-12 object-contain"
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                        />
-                    </div>
-                    <h3 className="text-gray-800 font-bold text-lg mb-1 group-hover:text-[#2C473A] transition-colors">
-                        {sport.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm group-hover:text-gray-700 transition-colors">
-                        {sport.count}
-                    </p>
-                    </div>
+                  <img 
+                    src={sport.icon} 
+                    alt={sport.name} 
+                    className="w-28 h-28 mx-auto mb-4 transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <h3 className="text-lg font-semibold text-gray-800">{sport.name}</h3>
+                  <p className="text-sm text-gray-600">{sport.count}</p>
                 </motion.div>
                 ))}
             </motion.div>
@@ -288,73 +275,75 @@ export default function HomePage() {
             >
                 {/* Left Column - Text */}
                 <motion.div 
-                className="md:w-1/2 flex flex-col justify-between"
-                variants={fadeInUp}
+                    className="md:w-1/2 flex flex-col justify-between space-y-6 mb-8 md:mb-0"
+                    variants={fadeInUp}
                 >
-                <div className="space-y-4">
-                    <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-3 py-1 rounded-full transition-all duration-300 hover:scale-105">
-                    HOW IT WORKS
-                    </span>
-                    <h3 className="text-3xl font-bold text-gray-900 transition-all duration-500 hover:text-[#2C473A] hover:translate-x-1">
-                    Proses reservasi lapangan kini lebih mudah dan cepat.
-                    </h3>
-                    <p className="text-gray-600 transition-all duration-300 hover:text-gray-800">
-                    Ikuti langkah-langkah sederhana untuk menemukan, memesan, dan menikmati fasilitas olahraga tanpa ribet.
-                    </p>
-                </div>
-                <Link href="/reservasi" passHref>
-                    <motion.button
-                    className="bg-[#F67403] hover:bg-[#D26201] text-white font-medium py-3 px-8 rounded-lg shadow-md transition-all w-fit mt-6"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    >
-                    Reservasi Sekarang
-                    </motion.button>
-                </Link>
+                    <div className="space-y-4">
+                        <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-5 py-1.5 rounded-full transition-all duration-300 hover:scale-105">
+                            HOW IT WORKS
+                        </span>
+                        <h2 className="text-2xl font-bold transition-all duration-500 hover:text-[#2C473A] hover:translate-x-1">
+                            Proses reservasi lapangan kini lebih mudah dan cepat.
+                        </h2>
+                        <p className="text-gray-600 text-base transition-all duration-300 hover:text-gray-800">
+                            Ikuti langkah-langkah sederhana untuk menemukan, memesan, dan menikmati fasilitas olahraga tanpa ribet.
+                        </p>
+                    </div>
+                    <Link href="/reservation" passHref className="block w-full sm:w-auto">
+                        <motion.button
+                            className="bg-[#F67403] hover:bg-[#D26201] text-white font-medium text-base py-2 px-6 rounded-full shadow-md transition-all w-full sm:w-auto mb-30"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            Reservasi Sekarang
+                        </motion.button>
+                    </Link>
                 </motion.div>
 
                 {/* Right Column - Steps Grid */}
                 <motion.div 
-                className="md:w-1/2 grid grid-cols-2 gap-2 h-full"
-                variants={staggerContainer}
+                    className="md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 h-full"
+                    variants={staggerContainer}
                 >
                 {[
                     {
-                    number: "1",
+                    number: "1.",
                     title: "Pilih Lokasi & Lapangan",
-                    description: "Temukan cabang dan lapangan tersedia",
+                    description: "Temukan lokasi cabang, cabang olahraga dan lapangan yang tersedia.",
                     },
                     {
-                    number: "2",
+                    number: "2.",
                     title: "Pilih Tanggal & Waktu",
-                    description: "Pilih slot jadwal yang tersedia",
+                    description: "Pilih tanggal, waktu sesuai dengan slot jadwal yang tersedia.",
                     },
                     {
-                    number: "3",
+                    number: "3.",
                     title: "Konfirmasi Pembayaran",
-                    description: "Lihat detail dan lakukan pembayaran",
+                    description: "Lihat detail pesanan dan lakukan pembayaran.",
                     },
                     {
-                    number: "4",
+                    number: "4.",
                     title: "Cek Status Pesanan",
-                    description: "Pantau di menu riwayat",
+                    description: "Cek status pesanan pada menu riwayat.",
                     },
                 ].map((step, index) => (
                     <motion.div
-                    key={index}
-                    variants={fadeInUp}
-                    className="bg-[#CBE2D4] p-5 rounded-lg flex flex-row h-full items-center gap-4 min-h-[120px] hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-                    whileHover={{ scale: 1.02 }}
+                        key={index}
+                        variants={fadeInUp}
+                        className="bg-[#CBE2D4] p-5 rounded-lg flex flex-col items-start text-left h-full min-h-[150px] hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                        whileHover={{ scale: 1.02 }}
                     >
-                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-[#2C473A] text-white rounded-full text-lg font-bold transition-transform duration-300 group-hover:scale-110">
-                        {step.number}
-                    </div>
-                    <div className="flex flex-col">
-                        <h4 className="text-md font-semibold text-gray-800 transition-all duration-300 hover:text-[#2C473A]">
-                        {step.title}
-                        </h4>
-                        <p className="text-gray-600 text-sm mt-1 transition-all duration-300 hover:text-gray-800">{step.description}</p>
-                    </div>
+                        <div className="text-sm w-8 h-8 mb-3 flex items-center justify-center bg-[#2C473A] text-white font-bold rounded-md transition-transform duration-300 hover:scale-110">
+                            {step.number}
+                        </div>
+                        <div className="flex flex-col">
+                            <h4 className="text-md font-semibold text-gray-800 transition-all duration-300 hover:text-[#2C473A]">
+                                {step.title}
+                            </h4>
+                            <p className="text-gray-600 text-sm mt-1 transition-all duration-300 hover:text-gray-800">
+                                {step.description}
+                            </p>
+                        </div>
                     </motion.div>
                 ))}
                 </motion.div>
@@ -378,24 +367,24 @@ export default function HomePage() {
                     className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
                 />
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-[#71847B]/60 to-[#2C473A]/80 transition-all duration-500 group-hover:opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#2C473A] via-[#2C473A]/80 to-white transition-all duration-500 group-hover:opacity-90"></div>
 
                 {/* Content */}
                 <div className="relative py-16 px-8 sm:px-12 text-center">
                     <div className="space-y-6 max-w-2xl mx-auto">
-                    <h2 className="text-3xl font-bold text-white transition-all duration-500 group-hover:scale-105">
-                        Gabung Sekarang & Dapatkan Keuntungan Eksklusif!
+                    <h2 className="text-2xl font-bold text-white transition-all duration-500 group-hover:scale-105">
+                        Langganan Sekarang & Nikmati Banyak Keuntungan!
                     </h2>
-                    <p className="text-white/90 transition-all duration-300 group-hover:text-white">
-                        Jadilah member untuk menikmati akses prioritas, promo spesial, dan kemudahan dalam melakukan reservasi. Bergabung sekarang dan nikmati pengalaman olahraga yang lebih nyaman!
+                    <p className="text-white/90 text-base transition-all duration-300 group-hover:text-white">
+                        Dapatkan akses mudah ke reservasi, harga spesial, dan promo menarik dengan paket langganan terjangkau. Mulai langganan sekarang dan rasakan kenyamanan berolahraga tanpa ribet!
                     </p>
                     <Link href="/membership" passHref>
                         <motion.button
-                        className="bg-white text-[#2C473A] font-bold py-3 px-8 rounded-lg text-lg hover:bg-gray-100 transition-all mt-6"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                            className="bg-[#2C473A] text-white text-base font-medium py-2 px-6 rounded-full transition-all mt-6 hover:bg-[#1A2D24] shadow-md"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                         >
-                        Bergabung Sekarang
+                            Langganan Sekarang
                         </motion.button>
                     </Link>
                     </div>
@@ -407,17 +396,17 @@ export default function HomePage() {
             {/* FAQ */}
             <section className="py-1 px-4 max-w-6xl mx-auto">
             <motion.div 
-                className="text-center space-y-4"
+                className="text-left space-y-2"
                 whileInView={{ y: [20, 0], opacity: [0, 1] }}
                 transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
             >
-                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-3 py-1 rounded-full transition-all duration-300 hover:scale-105">
-                FAQ
+                <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-5 py-1.5 rounded-full transition-all duration-300 hover:scale-105">
+                    FAQ
                 </span>
                 <h2 className="text-2xl font-bold text-gray-800 transition-all duration-300 hover:text-[#2C473A]">Pertanyaan yang Sering Diajukan</h2>
-                <p className="text-gray-500 transition-all duration-300 hover:text-gray-700">
-                Temukan jawaban untuk berbagai pertanyaan yang sering ditanyakan seputar layanan reservasi lapangan olahraga.
+                <p className="text-gray-500 text-base transition-all duration-300 hover:text-gray-700">
+                    Temukan jawaban untuk berbagai pertanyaan yang sering ditanyakan seputar layanan reservasi lapangan olahraga.
                 </p>
             </motion.div>
             <motion.div 
