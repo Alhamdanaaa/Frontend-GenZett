@@ -57,7 +57,7 @@ export default function SportsLocationPage() {
     <>
       <UserLayout>
         <main className="text-gray-800">
-          <div className="px-4 py-5 md:py-10 flex flex-col items-center max-w-6xl mx-auto gap-8">
+          <div className="px-4 py-5 md:py-10 flex flex-col items-center max-w-6xl mx-auto gap-4">
             {/* Filter */}
             <div className="flex justify-center mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">

@@ -92,7 +92,7 @@ export default function SchedulesPage() {
   return (
     <UserLayout>
       {/* <div className='min-h-screen bg-[#f8f8f8]' suppressHydrationWarning> */}
-      <div className='mx-auto max-w-6xl px-4 py-6'>
+      <div className='mx-auto max-w-6xl px-4 py-5'>
         {/* Image & Price */}
         <div className='grid grid-cols-1 gap-4 md:grid-cols-12'>
           <div className='md:col-span-6'>
