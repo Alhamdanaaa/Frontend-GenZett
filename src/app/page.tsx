@@ -3,13 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, MoveRight } from "lucide-react";
 import Navbar from "@/components/user/navbar-user";
 import FAQItem from "@/components/user/FAQItem";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { CircleArrowRight } from "lucide-react";
 import UserLayout from "./user/layout";
+import { useState } from "react";
 
 // Animation variants
 const fadeInUp = {
@@ -30,9 +31,26 @@ const staggerContainer = {
 export default function HomePage() {
   const [heroRef, heroInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [benefitsRef, benefitsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [aboutRef, aboutInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [facilitiesRef, facilitiesInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [sportsRef, sportsInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [worksRef, worksInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [activeFAQIndex, setActiveFAQIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setActiveFAQIndex(prev => (prev === index ? null : index));
+  };
+
+  const faqData = [
+    { question: "Bagaimana cara melakukan reservasi lapangan?", answer: "Kamu bisa melakukan reservasi melalui website kami dengan login terlebih dahulu, memilih cabang, tanggal, dan slot waktu yang tersedia." },
+    { question: "Bagaimana cara mengetahui lapangan yang tersedia?", answer: "Kamu dapat melihat ketersediaan lapangan setelah memilih tanggal dan cabang olahraga yang diinginkan. Jika ada slot waktu yang tersedia, kamu bisa memilihnya untuk dimasukkan ke dalam keranjang." },
+    { question: "Apakah saya bisa memilih lebih dari satu slot waktu?", answer: "Ya, kamu bisa memilih beberapa slot waktu dari lapangan yang sama maupun berbeda, semuanya akan masuk ke dalam keranjang." },
+    { question: "Metode pembayaran apa saja yang tersedia?", answer: "Untuk pelunasan atau DP, kami hanya menerima pembayaran melalui QRIS. Anda dapat melakukan pelunasan langsung di tempat setelah membayar DP." },
+    { question: "Bagaimana cara mendapatkan promo atau diskon?", answer: "Dapatkan diskon dengan memilih paket membership. Semakin banyak pertemuan, semakin besar potongan harga yang kamu dapat!" },  
+    { question: "Apa yang terjadi jika saya tidak melakukan pembayaran setelah memilih slot waktu?", answer: "Jika pembayaran tidak dilakukan dalam waktu yang ditentukan, slot waktu yang dipilih akan dibatalkan dan lapangan dapat digunakan oleh orang lain." },
+    { question: "Apakah saya perlu membayar di muka untuk melakukan reservasi?", answer: "Kamu bisa melakukan pembayaran penuh secara online untuk reservasi, atau membayar DP terlebih dahulu secara online. Sisa pembayaran dapat dilakukan secara online atau langsung di tempat saat datang." },
+    { question: "Apakah saya bisa membatalkan reservasi?", answer: "Sementara ini, pembatalan atau perubahan jadwal belum tersedia melalui aplikasi. Silakan hubungi admin untuk bantuan lebih lanjut." },
+];
 
   return (
     <div className="overflow-hidden">
@@ -64,7 +82,7 @@ export default function HomePage() {
                 }}
                 className="bg-orange-500 hover:bg-orange-600 text-white transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95"
                 >
-                Selengkapnya <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                Selengkapnya <MoveRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Button>
             </motion.div>
             <motion.div 
@@ -85,9 +103,12 @@ export default function HomePage() {
 
 
             {/* About Us */}
-            <section id="about" className="pt-1 pb-[1px] px-4">
+            <section id="about" ref={aboutRef} className="pt-1 pb-[1px] px-4">
             <motion.div 
                 className="max-w-4xl mx-auto text-center border-2 border-dashed border-[#2C473A] rounded-xl p-8 space-y-4 hover:shadow-lg transition-all duration-500"
+                initial="hidden"
+                animate={aboutInView ? "visible" : "hidden"}
+                variants={fadeInUp}
                 whileHover={{ y: -5 }}
             >
                 <span className="inline-block text-xs font-semibold tracking-widest bg-[#2C473A] text-white px-4 py-1 rounded-full transition-all duration-300 hover:scale-105">
@@ -150,7 +171,7 @@ export default function HomePage() {
                     className="flex items-start gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
                 >
                     <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#D1F12F] text-black font-bold text-sm mt-1 transition-transform duration-300 group-hover:scale-110 aspect-square">
-                    <CircleArrowRight className="w-4 h-4" /> {/* Ukuran icon lebih kecil */}
+                    <CircleArrowRight className="w-4 h-4" />
                     </div>
                     <div>
                     <h3 className="font-semibold mb-1 transition-all duration-300 hover:text-[#2C473A]">{item.title}</h3>
@@ -371,7 +392,6 @@ export default function HomePage() {
             >
                 {/* Background Container */}
                 <div className="relative rounded-xl overflow-hidden group">
-                {/* Background Image - Replace with your image */}
                 <img
                     src="/images/member.png"
                     alt="Sports background"
@@ -427,28 +447,17 @@ export default function HomePage() {
                 variants={staggerContainer}
             >
                 <motion.div variants={fadeInUp}>
-                <FAQItem
-                    question="Apa saja metode pembayaran yang tersedia?"
-                    answer="Untuk pelunasan atau DP, kami hanya menerima pembayaran melalui QRIS. Anda dapat melakukan pelunasan langsung di tempat setelah membayar DP."
-                />
-                </motion.div>
-                <motion.div variants={fadeInUp}>
-                <FAQItem
-                    question="Bisakah saya membatalkan atau mengubah jadwal reservasi?"
-                    answer="Sementara ini, pembatalan atau perubahan jadwal belum tersedia melalui aplikasi. Silakan hubungi admin untuk bantuan lebih lanjut."
-                />
-                </motion.div>
-                <motion.div variants={fadeInUp}>
-                <FAQItem
-                    question="Apakah ada biaya tambahan untuk reservasi online?"
-                    answer="Tidak ada biaya tambahan untuk reservasi online. Harga yang tertera sudah termasuk biaya layanan."
-                />
-                </motion.div>
-                <motion.div variants={fadeInUp}>
-                <FAQItem
-                    question="Apakah saya harus menjadi member untuk melakukan reservasi?"
-                    answer="Tidak, Anda tetap bisa melakukan reservasi tanpa menjadi member. Namun, member mendapatkan keuntungan eksklusif seperti promo dan akses prioritas."
-                />
+                <div className="space-y-1">
+                    {faqData.map((item, index) => (
+                    <FAQItem
+                        key={index}
+                        question={item.question}
+                        answer={item.answer}
+                        isOpen={activeFAQIndex === index}
+                        onToggle={() => toggleFAQ(index)}
+                    />
+                    ))}
+                </div>
                 </motion.div>
             </motion.div>
             </section>
