@@ -1,15 +1,9 @@
 'use client';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Reservation } from '@/constants/data';
-import { IconEdit, IconDotsVertical, IconTrash, IconListDetails } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState, lazy, Suspense } from 'react';
 
@@ -38,35 +32,49 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         onConfirm={onConfirm}
         loading={loading}
       />
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
-            <IconDotsVertical className='h-4 w-4' />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setShowDetail(true);
-            }}
-          >
-            <IconListDetails className='mr-2 h-4 w-4' /> Detail
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() =>
-              router.push(`/dashboard/reservation/${data.reservationId}`)
-            }
-          >
-            <IconEdit className='mr-2 h-4 w-4' /> Ubah
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <IconTrash className='mr-2 h-4 w-4' /> Hapus
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex flex-row gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className='shadow-md'
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDetail(true)}
+              >
+                <IconEye className="h-4 w-4 stroke-blue-600" />
+                {/* <IconListDetails className="h-4 w-4 stroke-blue-600" /> */}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Detail</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className='shadow-md'
+                variant="outline"
+                size="sm"
+                onClick={() => router.push(`/dashboard/reservation/${data.reservationId}`)}
+              >
+                <IconEdit className="h-4 w-4 stroke-amber-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Ubah</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className='shadow-md'
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(true)}
+              >
+                <IconTrash className="h-4 w-4 stroke-red-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Hapus</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
       
       {/* Only load detail dialog when needed */}
       {showDetail && (
