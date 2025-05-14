@@ -28,9 +28,9 @@ import { useState } from 'react';
 
 const getFormSchema = (isEdit: boolean) =>
   z.object({
-    username: z.string().min(3, {
-      message: 'Username minimal 3 karakter.'
-    }),
+    // username: z.string().min(3, {
+    //   message: 'Username minimal 3 karakter.'
+    // }),
     password: isEdit
       ? z.string().min(8, {
           message: 'Password minimal 8 karakter.'
@@ -59,10 +59,10 @@ export default function AdminForm({
   pageTitle: string;
 }) {
   const defaultValues = {
-    username: initialData?.username || '',
-    password: '',
+    // username: initialData?.username || '',
     name: initialData?.name || '',
     email: initialData?.email || '',
+    password: '',
     phone: initialData?.phone || '+62 8',
     location: initialData?.location || ''
   };
@@ -91,7 +91,7 @@ export default function AdminForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name='username'
                 render={({ field }) => (
@@ -99,6 +99,36 @@ export default function AdminForm({
                     <FormLabel>Username</FormLabel>
                     <FormControl>
                       <Input placeholder='Masukkan username' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+              <FormField
+                control={form.control}
+                name='name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama Lengkap</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Masukkan nama lengkap' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='email'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type='email'
+                        placeholder='Masukkan email' 
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -132,37 +162,6 @@ export default function AdminForm({
                     </FormItem>
                   );
                 }}
-              />
-
-              <FormField
-                control={form.control}
-                name='name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nama Lengkap</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Masukkan nama lengkap' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='email'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type='email'
-                        placeholder='Masukkan email' 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
               />
               <FormField
                 control={form.control}
