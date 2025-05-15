@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { UserButton, SignedIn,SignedOut } from '@clerk/nextjs'
+import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs'
 
 export default function NavbarUser() {
   const pathname = usePathname()
@@ -17,91 +17,86 @@ export default function NavbarUser() {
     { label: 'Riwayat', href: '/history' },
   ]
 
+  const isActive = (href: string) => {
+    return href === '/'
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`)
+  }
+
   return (
-    <nav className="w-full h-20 bg-[#2C473A] text-white shadow">
-      <div className="max-w-7xl mx-auto px-4 w-full h-full flex items-center justify-between">
-        {/* LOGO */}
-        <Link href="/" className="text-white font-bold text-lg flex items-center h-full">
+    <nav className="bg-[#2C473A] text-white shadow">
+      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-20">
+        {/* Logo */}
+        <Link href="/" className="font-bold text-lg">
           ReSports
         </Link>
 
-        {/* HAMBURGER (Mobile only) */}
-        <button
-          className="md:hidden flex items-center"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle Menu"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-
-        {/* NAVIGATION (Desktop) */}
-        <div className="hidden md:flex gap-10 items-center h-full">
-          {navItems.map((item) => {
-            // Check if current path is the item's path or a subpath (for reservation)
-            const isActive = item.href === '/' 
-              ? pathname === item.href 
-              : pathname === item.href || (item.href === '/reservation' && pathname.startsWith('/reservation/'));
-              
-            return (
-              <div key={item.href} className="flex flex-col items-center justify-center space-y-1 h-full">
-          <Link
-            href={item.href}
-            className={cn(
-              'text-sm font-semibold transition-colors tracking-wide',
-              isActive ? 'text-white' : 'text-white/70 hover:text-white'
-            )}
-          >
-            {item.label}
-          </Link>
-          <div
-            className={cn(
-              'w-1.5 h-1.5 rounded-full',
-              isActive ? 'bg-[#C5FC40]' : 'bg-transparent'
-            )}
-          />
-              </div>
-            )
-          })}
+        {/* Desktop Menu */}
+        <div className="hidden md:flex gap-10 items-center">
+          {navItems.map((item) => (
+            <div key={item.href} className="flex flex-col items-center space-y-1">
+              <Link
+                href={item.href}
+                className={cn(
+                  'text-sm font-semibold transition-colors tracking-wide',
+                  isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
+                )}
+              >
+                {item.label}
+              </Link>
+              <div
+                className={cn(
+                  'w-1.5 h-1.5 rounded-full',
+                  isActive(item.href) ? 'bg-[#C5FC40]' : 'bg-transparent'
+                )}
+              />
+            </div>
+          ))}
         </div>
 
-        {/* CONDITIONAL ACCOUNT/LOGIN BUTTON */}
-        <SignedIn>
-            {/* Kalau sudah login, tampilkan user menu */}
+        {/* Auth Buttons - Desktop */}
+        <div className="hidden md:flex items-center gap-3">
+          <SignedIn>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
-            {/* Kalau belum login, tampilkan tombol login */}
             <Link
               href="/login"
-              className="hidden md:flex items-center justify-center h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition"
+              className="px-5 h-10 bg-[#C5FC40] text-black font-semibold rounded-full text-sm flex items-center justify-center hover:bg-lime-300 transition"
             >
               Login
             </Link>
           </SignedOut>
+        </div>
+
+        {/* Hamburger - Mobile */}
+        <button
+          className="md:hidden"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-[#2C473A] px-4 pb-4">
-          <div className="flex flex-col gap-4">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'text-sm font-semibold transition-colors',
-                    isActive ? 'text-white' : 'text-white/70 hover:text-white'
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              )
-            })}
+          <div className="flex flex-col space-y-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'text-sm font-semibold transition-colors',
+                  isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
+                )}
+                onClick={() => setIsOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
 
-            {/* CONDITIONAL ACCOUNT/LOGIN (Mobile) */}
             <SignedIn>
               <div className="flex justify-center">
                 <UserButton afterSignOutUrl="/" />
