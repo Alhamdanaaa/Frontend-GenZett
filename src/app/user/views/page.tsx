@@ -307,7 +307,7 @@ export default function HomePage() {
                 { name: "Basketball", count: "7 lapangan", icon: "/icons/basketball.png", iconSize: "w-30 h-30" },
                 { name: "Volleyball", count: "5 lapangan", icon: "/icons/volleyball.png", iconSize: "w-24 h-24" },
                 { name: "Tenis", count: "4 lapangan", icon: "/icons/tennisball.png", iconSize: "w-25 h-25" },
-                { name: "sepakbola", count: "3 lapangan", icon: "/icons/football.png", iconSize: "w-24 h-24" },
+                { name: "Football", count: "3 lapangan", icon: "/icons/football.png", iconSize: "w-24 h-24" },
                 { name: "Handball", count: "2 lapangan", icon: "/icons/handball.png", iconSize: "w-50 h-50" },
               ].map((sport, i) => (
                 <motion.div
