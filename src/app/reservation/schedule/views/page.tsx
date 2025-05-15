@@ -516,16 +516,16 @@ export default function SchedulesPage() {
                   onClick={() => setShowDetails((prev) => !prev)}
                 >
                   <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform ${showDetails ? 'rotate-180' : ''}`}
-                    stroke="white"
+                  className={`h-5 w-5 transition-transform ${showDetails || selectedTimes.length > 0 ? 'rotate-180' : ''}`}
+                  stroke="white"
                   />
-                </button>
+                </button>                           
               </div>
               <div className='flex items-center gap-4'>
                 {/* <div className='text-right'>
-                    <p className='text-lg font-semibold text-white'>
-                      Rp. {selectedTimes.length * 60000}
-                    </p>
+                  <p className='text-lg font-semibold text-white'>
+                    Rp. {selectedTimes.length * 60000}
+                  </p>
                   </div> */}
                 <Button
                   onClick={() => router.push('./payment')}
@@ -536,22 +536,19 @@ export default function SchedulesPage() {
               </div>
             </div>
 
-            {/* Dropdown details */}
-            {showDetails && (
+            {/* Dropdown details - show by default if any time slots are selected */}
+            {(showDetails || selectedTimes.length > 0) && (
               <div className='mt-2 border-t pt-3'>
                 <div className='space-y-2'>
                   {selectedTimes.map((timeKey, idx) => {
                     const [court, timeSlot] = timeKey.split('|');
                     return (
-                      <div
-                        key={idx}
-                        className='flex items-center justify-between text-sm'
-                      >
+                      <div key={idx} className='flex items-center justify-between text-sm'>
                         <div>
                           <p className='font-medium text-white'>{court}</p>
                           <p className='text-white'>{timeSlot}</p>
                         </div>
-                        <p className='text-white'>Rp60.000</p>
+                          <p className='text-white'>Rp60.000</p>
                       </div>
                     );
                   })}
@@ -560,7 +557,7 @@ export default function SchedulesPage() {
                 <div className='mt-3 flex justify-between border-t pt-3 text-white'>
                   <p className='font-bold'>Total</p>
                   <p className='font-bold'>
-                    Rp. {selectedTimes.length * 60000}
+                  Rp. {selectedTimes.length * 60000}
                   </p>
                 </div>
               </div>
