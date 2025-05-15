@@ -1,7 +1,7 @@
-import NavUser from "@/components/user/navbar-user"
 import PaymentDetailsSection from "@/components/payment/PaymentDetailSection"
 import { Metadata } from "next"
 import { fetchBookingMockList } from "@/constants/mock-api" // IMPORT FUNGSI MOCK
+import UserLayout from "@/app/user/layout"
 
 export const metadata: Metadata = {
   title: "Reservasi | Pembayaran",
@@ -27,12 +27,13 @@ const subtotal = bookings.reduce(
 export default function PaymentPage() {
   return (
     <div>
-      <NavUser />
-      <div className="p-4 space-y-4 bg-white px-4">
-        <div className="space-y-4">
-          <PaymentDetailsSection data={{ bookings, location, subtotal }} />
+      <UserLayout>
+        <div className="p-4 space-y-4 px-4">
+          <div className="space-y-4">
+            <PaymentDetailsSection data={{ bookings, location, subtotal }} />
+          </div>
         </div>
-      </div>
+      </UserLayout>
     </div>
   )
 }

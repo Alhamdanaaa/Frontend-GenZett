@@ -19,9 +19,15 @@ export default function NavbarUser() {
   const navItems = [
     { label: 'Beranda', href: '/' },
     { label: 'Reservasi', href: '/reservation' },
-    { label: 'Riwayat', href: '/riwayat' },
+    { label: 'Riwayat', href: '/history' },
   ]
 
+  const isActive = (href: string) => {
+    return href === '/'
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`)
+  }
+  
   useEffect(() => {
     const token = localStorage.getItem('token') || document.cookie
       .split('; ')
@@ -66,46 +72,43 @@ export default function NavbarUser() {
   }
 
   return (
-    <nav className="w-full h-20 bg-[#2C473A] text-white shadow">
-      <div className="max-w-7xl mx-auto px-4 w-full h-full flex items-center justify-between">
-        {/* LOGO */}
-        <Link href="/" className="text-white font-bold text-lg flex items-center h-full">
+    <nav className="bg-[#2C473A] text-white shadow">
+      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-20">
+        {/* Logo */}
+        <Link href="/" className="font-bold text-lg">
           ReSports
         </Link>
 
-        {/* HAMBURGER (Mobile only) */}
+        {/* Hamburger - Mobile */}
         <button
-          className="md:hidden flex items-center"
-          onClick={toggleMobileDropdown}
-          aria-label="Toggle Menu"
+          className="md:hidden"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle menu"
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        {/* NAVIGATION (Desktop) */}
-        <div className="hidden md:flex gap-10 items-center h-full">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <div key={item.href} className="flex flex-col items-center justify-center space-y-1 h-full">
-                <Link
-                  href={item.href}
-                  className={cn(
-                    'text-sm font-semibold transition-colors tracking-wide',
-                    isActive ? 'text-white' : 'text-white/70 hover:text-white'
-                  )}
-                >
-                  {item.label}
-                </Link>
-                <div
-                  className={cn(
-                    'w-1.5 h-1.5 rounded-full',
-                    isActive ? 'bg-[#C5FC40]' : 'bg-transparent'
-                  )}
-                />
-              </div>
-            )
-          })}
+        {/* Desktop Menu */}
+        <div className="hidden md:flex gap-10 items-center">
+          {navItems.map((item) => (
+            <div key={item.href} className="flex flex-col items-center space-y-1">
+              <Link
+                href={item.href}
+                className={cn(
+                  'text-sm font-semibold transition-colors tracking-wide',
+                  isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
+                )}
+              >
+                {item.label}
+              </Link>
+              <div
+                className={cn(
+                  'w-1.5 h-1.5 rounded-full',
+                  isActive(item.href) ? 'bg-[#C5FC40]' : 'bg-transparent'
+                )}
+              />
+            </div>
+          ))}
         </div>
 
         {/* CONDITIONAL ACCOUNT/LOGIN BUTTON */}
@@ -157,33 +160,23 @@ export default function NavbarUser() {
         )}
       </div>
 
-      {/* MOBILE MENU */}
+      {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-[#2C473A] px-4 pb-4 border-t border-[#3a5a4a]" ref={mobileDropdownRef}>
-          <div className="flex flex-col gap-6 pt-6">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <div key={item.href} className="flex flex-col items-start space-y-1">
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      'text-sm font-semibold transition-colors tracking-wide',
-                      isActive ? 'text-white' : 'text-white/70 hover:text-white'
-                    )}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                  <div
-                    className={cn(
-                      'w-1.5 h-1.5 rounded-full',
-                      isActive ? 'bg-[#C5FC40]' : 'bg-transparent'
-                    )}
-                  />
-                </div>
-              )
-            })}
+        <div className="md:hidden bg-[#2C473A] px-4 pb-4">
+          <div className="flex flex-col space-y-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'text-sm font-semibold transition-colors',
+                  isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
+                )}
+                onClick={() => setIsOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
 
             {/* CONDITIONAL ACCOUNT/LOGIN (Mobile)*/}
             {isAuthenticated ? (
