@@ -17,9 +17,9 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  username: z.string().min(3, {
-    message: 'Username minimal 3 karakter.'
-  }),
+  // username: z.string().min(3, {
+  //   message: 'Username minimal 3 karakter.'
+  // }),
   name: z.string().min(2, {
     message: 'Nama minimal 2 karakter.'
   }),
@@ -39,7 +39,7 @@ export default function UserForm({
   pageTitle: string;
 }) {
   const defaultValues = {
-    username: initialData?.username || '',
+    // username: initialData?.username || '',
     name: initialData?.name || '',
     email: initialData?.email || '',
     phone: initialData?.phone || '+62 8'
@@ -66,7 +66,7 @@ export default function UserForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name='username'
                 render={({ field }) => (
@@ -78,7 +78,7 @@ export default function UserForm({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               <FormField
                 control={form.control}
                 name='name'

@@ -35,7 +35,7 @@ export default function AdminDetailDialog({
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
           <DetailRow label='Cabang' value={String(data.location)} />
-          <DetailRow label='Username' value={data.username} />
+          {/* <DetailRow label='Username' value={data.username} /> */}
           <DetailRow label='Nama Lengkap' value={data.name} />
           <DetailRow label='Email' value={data.email} />
           <DetailRow label='Nomor Telepon' value={data.phone} />
