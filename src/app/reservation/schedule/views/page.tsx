@@ -521,12 +521,43 @@ export default function SchedulesPage() {
                   />
                 </button>                           
               </div>
-              <div className='flex items-center gap-4'>
-                {/* <div className='text-right'>
-                  <p className='text-lg font-semibold text-white'>
-                    Rp. {selectedTimes.length * 60000}
-                  </p>
-                  </div> */}
+              <div className='flex items-center font-medium gap-4'>
+                <div className="relative">
+                  <button
+                  onClick={() => setOpenDropdown(openDropdown === 'paymentType' ? null : 'paymentType')}
+                  className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                  >
+                  {selectedCategory === 'Langganan' ? 'Langganan' : 'Reguler'}
+                  <ChevronDownCircle
+                    className={`h-4 w-4 transition-transform ${openDropdown === 'paymentType' ? 'rotate-180' : ''}`}
+                    stroke="currentColor"
+                  />
+                  </button>
+                  
+                  {openDropdown === 'paymentType' && (
+                  <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
+                    style={{ width: '100%' }}>
+                    <button 
+                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                      onClick={() => {
+                        setSelectedCategory('Reguler');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Reguler
+                    </button>
+                    <button 
+                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                      onClick={() => {
+                        setSelectedCategory('Langganan');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Langganan
+                    </button>
+                  </div>
+                  )}
+                </div>
                 <Button
                   onClick={() => router.push('./payment')}
                   className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'
