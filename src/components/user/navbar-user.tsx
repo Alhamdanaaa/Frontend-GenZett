@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { UserButton, useUser, SignedIn,SignedOut } from '@clerk/nextjs'
+import { UserButton, SignedIn,SignedOut } from '@clerk/nextjs'
 
 export default function NavbarUser() {
   const pathname = usePathname()
@@ -37,24 +37,28 @@ export default function NavbarUser() {
         {/* NAVIGATION (Desktop) */}
         <div className="hidden md:flex gap-10 items-center h-full">
           {navItems.map((item) => {
-            const isActive = pathname === item.href
+            // Check if current path is the item's path or a subpath (for reservation)
+            const isActive = item.href === '/' 
+              ? pathname === item.href 
+              : pathname === item.href || (item.href === '/reservation' && pathname.startsWith('/reservation/'));
+              
             return (
               <div key={item.href} className="flex flex-col items-center justify-center space-y-1 h-full">
-                <Link
-                  href={item.href}
-                  className={cn(
-                    'text-sm font-semibold transition-colors tracking-wide',
-                    isActive ? 'text-white' : 'text-white/70 hover:text-white'
-                  )}
-                >
-                  {item.label}
-                </Link>
-                <div
-                  className={cn(
-                    'w-1.5 h-1.5 rounded-full',
-                    isActive ? 'bg-[#C5FC40]' : 'bg-transparent'
-                  )}
-                />
+          <Link
+            href={item.href}
+            className={cn(
+              'text-sm font-semibold transition-colors tracking-wide',
+              isActive ? 'text-white' : 'text-white/70 hover:text-white'
+            )}
+          >
+            {item.label}
+          </Link>
+          <div
+            className={cn(
+              'w-1.5 h-1.5 rounded-full',
+              isActive ? 'bg-[#C5FC40]' : 'bg-transparent'
+            )}
+          />
               </div>
             )
           })}
