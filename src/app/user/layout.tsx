@@ -10,9 +10,9 @@ import FooterUser from '@/components/user/footer-user'
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <NavbarUser /> 
-      <main className="bg-[#f8f8f8]">{children}</main>
+      <main className="flex-1 bg-[#f8f8f8] px-4 py-10">{children}</main>
       <FooterUser />
     </div>
   )

@@ -40,7 +40,7 @@ export default function HomePage() {
             {/* Hero Section */}
             <section 
             ref={heroRef}
-            className="px-4 pt-1 pb-[1px] md:py-10 flex flex-col-reverse md:flex-row items-center max-w-6xl mx-auto gap-8"
+            className="px-4 md:py-10 flex flex-col-reverse md:flex-row items-center max-w-6xl mx-auto gap-8"
             >
             <motion.div 
                 className="md:w-1/2 space-y-6"
@@ -84,7 +84,7 @@ export default function HomePage() {
 
 
             {/* About Us */}
-            <section id="about" className="pt-1 pb-[1px]">
+            <section id="about" className="mt-10 pt-1 pb-[1px]">
             <motion.div 
                 className="max-w-6xl mx-auto text-center border-2 border-dashed border-[#2C473A] rounded-xl p-8 space-y-4 hover:shadow-lg transition-all duration-500"
                 whileHover={{ y: -5 }}
@@ -104,7 +104,7 @@ export default function HomePage() {
             </section>
 
             {/* Our Benefits */}
-            <section ref={benefitsRef} className="pt-10 pb-[10px] px-4 max-w-6xl mx-auto space-y-10">
+            <section ref={benefitsRef} className="pt-10 pb-[10px] px-4 max-w-6xl mx-auto space-y-6">
             <motion.div 
                 className="text-left space-y-2"
                 initial="hidden"
@@ -410,7 +410,7 @@ export default function HomePage() {
                 </p>
             </motion.div>
             <motion.div 
-                className="mt-8"
+                className="mt-4"
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}
