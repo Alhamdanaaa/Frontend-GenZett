@@ -34,8 +34,7 @@ export default function UserDetailDialog({
           <DialogDescription>Informasi lengkap dari pengguna yang dipilih.</DialogDescription>
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
-          <DetailRow label='ID Pengguna' value={String(data.userId)} />
-          <DetailRow label='Username' value={data.username} />
+          {/* <DetailRow label='Username' value={data.username} /> */}
           <DetailRow label='Nama Lengkap' value={data.name} />
           <DetailRow label='Email' value={data.email} />
           <DetailRow label='Nomor Telepon' value={data.phone} />

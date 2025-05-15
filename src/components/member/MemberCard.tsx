@@ -1,4 +1,9 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+
 export default function MemberCard() {
+    const router = useRouter();
     const packages = [
         {
             name: 'PAKET BRONZE',
@@ -50,7 +55,12 @@ export default function MemberCard() {
                             Rp {pkg.price.toLocaleString('id-ID')}
                         </p>
                     </div>
-                    <button className="bg-lime-400 text-black font-semibold py-2 rounded hover:bg-lime-500 transition border-2 border-lime-500 hover:border-lime-600 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-opacity-50">
+                    <button 
+                    onClick={() =>
+                        router.push('../reservation/schedule')
+                    }
+                    className="bg-lime-400 text-black font-semibold py-2 rounded hover:bg-lime-500 transition border-2 border-lime-500 hover:border-lime-600 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-opacity-50"
+                    >
                         Pilih Paket
                     </button>
                 </div>

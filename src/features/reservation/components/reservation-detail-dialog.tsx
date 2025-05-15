@@ -35,7 +35,6 @@ export default function ReservationDetailDialog({
           <DialogDescription>Informasi lengkap dari reservasi yang dipilih.</DialogDescription>
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
-          <DetailRow label='ID Reservasi' value={String(data.reservationId)} />
           <DetailRow label='Waktu Pemesanan' value={parseCustomDate(data.createTime)} />
           <DetailRow label='Nama Pemesan' value={data.name} />
           <DetailRow label='Waktu Lapangan' value={data.fieldTime} />

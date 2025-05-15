@@ -30,6 +30,10 @@ const routeMapping: Record<string, BreadcrumbItem[]> = {
     { title: 'Dashboard', link: '/dashboard' },
     { title: 'Lapangan', link: '/dashboard/field' }
   ],
+  '/dashboard/membership': [
+    { title: 'Dashboard', link: '/dashboard' },
+    { title: 'Paket Langganan', link: '/dashboard/mambership' }
+  ],
   '/dashboard/reservation': [
     { title: 'Dashboard', link: '/dashboard' },
     { title: 'Reservasi', link: '/dashboard/reservation' }

@@ -32,7 +32,7 @@ const PaymentPolicy = ({ control, errors }: Props) => {
         </DialogTrigger>
 
         {/* Modal */}
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           <DialogTitle className="text-lg font-semibold text-center">
             Kebijakan Sewa Lapangan
           </DialogTitle>

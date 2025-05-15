@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Loader } from "lucide-react";
-import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false); // for loader state
-  const { signIn, isLoaded } = useSignIn();
+  const [pending, setPending] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -20,26 +20,44 @@ export default function LoginPage() {
     setError(null);
     setPending(true);
 
-    if (!isLoaded) return;
-
     try {
-      const result = await signIn.create({
-        identifier: email,
-        password: password,
-      });
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
 
-      if (result.status === "complete") {
-        window.location.href = "/"
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BACKEND}/api/login`,
+        formData
+      );
+
+      Cookies.set("token", response.data.token);
+      
+    
+      const userRole = response.data.user.role;
+      Cookies.set("role", userRole);
+
+      if (userRole === "admin") {
+        router.push("/dashboard");
       } else {
-        setError("Gagal login. Coba lagi.");
+        router.push("/");
       }
     } catch (err: any) {
-      console.error(err);
-      setError(err.errors?.[0]?.message || "Gagal login. Coba cek email/password.");
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Gagal login. Coba periksa email dan password.";
+      setError(msg);
     } finally {
-      setPending(false); // Reset pending state regardless of success or failure
+      setPending(false);
     }
   };
+
+
+  useEffect(() => {
+    if (Cookies.get("token")) {
+      router.push("/");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 p-4">
