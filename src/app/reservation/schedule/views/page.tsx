@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronDownCircle } from 'lucide-react';
 import UserLayout from '@/app/user/layout';
+import { useRef } from 'react';
 
 export default function SchedulesPage() {
+  const scheduleRef = useRef<HTMLDivElement>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [timeSlots, setTimeSlots] = useState<
     Array<{ time: string; booked: boolean }>
@@ -111,12 +113,20 @@ export default function SchedulesPage() {
                 <p className='text-xl font-semibold text-black'>Rp 60,000</p>
                 <span className='ml-1 text-sm text-gray-500'>/sesi</span>
               </div>
-              <Button className='mt-3 w-full bg-orange-500 hover:bg-orange-600'>
+                <Button 
+                  className='mt-3 w-full bg-orange-500 hover:bg-orange-600'
+                  onClick={() => {
+                    scheduleRef.current?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                 }}
+                >
                 Cek Ketersediaan
-              </Button>
+                </Button>
             </div>
 
-            <div className='flex flex-1 flex-col rounded-xl bg-white p-4 shadow-md'>
+            <div id="schedule-section" ref={scheduleRef} className='flex flex-1 flex-col rounded-xl bg-white p-4 shadow-md'>
               <div className='mb-2 flex items-center gap-2'>
                 {/* <span className="inline-block rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600">
                       Paket Langganan
