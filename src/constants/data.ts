@@ -26,8 +26,8 @@ export type Location = {
 
 // Tipe data untuk sport
 export type Sport = {
-  id: number;
-  name: string;
+  sportId: number;
+  sportName: string;
   countLocation: number;
   description: string;
   created_at: string;

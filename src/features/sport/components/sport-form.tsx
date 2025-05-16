@@ -15,28 +15,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Sport } from '@/constants/data';
-
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp'
-];
+import { useRouter } from 'next/navigation';
+import { createSport, updateSport } from '@/lib/api/sports';
 
 const formSchema = z.object({
-  img: z
-    .any()
-    .refine((files) => files?.length == 1, 'Gambar lokasi diperlukan.')
-    .refine(
-      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Ukuran file maksimal 5MB.`
-    )
-    .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      'Hanya menerima file .jpg, .jpeg, .png dan .webp.'
-    ),
-  name: z.string().min(2, {
+  sportName: z.string().min(2, {
     message: 'Nama olahraga minimal 2 karakter.'
   }),
   description: z.string().min(10, {
@@ -52,9 +35,8 @@ export default function SportForm({
   pageTitle: string;
 }) {
   const defaultValues = {
-    name: initialData?.name || '',
-    description: initialData?.description || '',
-    img: []
+    sportName: initialData?.sportName || '',
+    description: initialData?.description || ''
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -62,9 +44,26 @@ export default function SportForm({
     defaultValues
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('Form submitted:', values);
+  const router = useRouter();
+  const isEdit = !!initialData;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      if (isEdit) {
+        await updateSport(initialData!.sportId, values);
+      } else {
+        const res = await createSport(values);
+        router.push(`/sports/${res.sport.sportId}`);
+      }
+
+      // Redirect kembali ke halaman daftar olahraga
+      router.push('/dashboard/sport');
+    } catch (error) {
+      console.error('Gagal menyimpan olahraga:', error);
+      // Tambahkan penanganan error atau toast di sini jika mau
+    }
   }
+
 
   return (
     <Card className='mx-auto w-full'>
@@ -78,7 +77,7 @@ export default function SportForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <FormField
               control={form.control}
-              name='name'
+              name='sportName'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nama Olahraga</FormLabel>
