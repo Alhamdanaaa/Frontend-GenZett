@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronDownCircle } from 'lucide-react';
 import UserLayout from '@/app/user/layout';
+import { useRef } from 'react';
 
 export default function SchedulesPage() {
+  const scheduleRef = useRef<HTMLDivElement>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [timeSlots, setTimeSlots] = useState<
     Array<{ time: string; booked: boolean }>
@@ -92,7 +94,7 @@ export default function SchedulesPage() {
   return (
     <UserLayout>
       {/* <div className='min-h-screen bg-[#f8f8f8]' suppressHydrationWarning> */}
-      <div className='mx-auto max-w-6xl px-4 py-6'>
+      <div className='mx-auto max-w-6xl px-4 py-5'>
         {/* Image & Price */}
         <div className='grid grid-cols-1 gap-4 md:grid-cols-12'>
           <div className='md:col-span-6'>
@@ -111,12 +113,20 @@ export default function SchedulesPage() {
                 <p className='text-xl font-semibold text-black'>Rp 60,000</p>
                 <span className='ml-1 text-sm text-gray-500'>/sesi</span>
               </div>
-              <Button className='mt-3 w-full bg-orange-500 hover:bg-orange-600'>
+                <Button 
+                  className='mt-3 w-full bg-orange-500 hover:bg-orange-600'
+                  onClick={() => {
+                    scheduleRef.current?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                 }}
+                >
                 Cek Ketersediaan
-              </Button>
+                </Button>
             </div>
 
-            <div className='flex flex-1 flex-col rounded-xl bg-white p-4 shadow-md'>
+            <div id="schedule-section" ref={scheduleRef} className='flex flex-1 flex-col rounded-xl bg-white p-4 shadow-md'>
               <div className='mb-2 flex items-center gap-2'>
                 {/* <span className="inline-block rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600">
                       Paket Langganan
@@ -506,17 +516,48 @@ export default function SchedulesPage() {
                   onClick={() => setShowDetails((prev) => !prev)}
                 >
                   <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform ${showDetails ? 'rotate-180' : ''}`}
-                    stroke="white"
+                  className={`h-5 w-5 transition-transform ${showDetails || selectedTimes.length > 0 ? 'rotate-180' : ''}`}
+                  stroke="white"
                   />
-                </button>
+                </button>                           
               </div>
-              <div className='flex items-center gap-4'>
-                {/* <div className='text-right'>
-                    <p className='text-lg font-semibold text-white'>
-                      Rp. {selectedTimes.length * 60000}
-                    </p>
-                  </div> */}
+              <div className='flex items-center font-medium gap-4'>
+                <div className="relative">
+                  <button
+                  onClick={() => setOpenDropdown(openDropdown === 'paymentType' ? null : 'paymentType')}
+                  className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                  >
+                  {selectedCategory === 'Langganan' ? 'Langganan' : 'Reguler'}
+                  <ChevronDownCircle
+                    className={`h-4 w-4 transition-transform ${openDropdown === 'paymentType' ? 'rotate-180' : ''}`}
+                    stroke="currentColor"
+                  />
+                  </button>
+                  
+                  {openDropdown === 'paymentType' && (
+                  <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
+                    style={{ width: '100%' }}>
+                    <button 
+                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                      onClick={() => {
+                        setSelectedCategory('Reguler');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Reguler
+                    </button>
+                    <button 
+                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                      onClick={() => {
+                        setSelectedCategory('Langganan');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Langganan
+                    </button>
+                  </div>
+                  )}
+                </div>
                 <Button
                   onClick={() => router.push('./payment')}
                   className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'
@@ -526,22 +567,19 @@ export default function SchedulesPage() {
               </div>
             </div>
 
-            {/* Dropdown details */}
-            {showDetails && (
+            {/* Dropdown details - show by default if any time slots are selected */}
+            {(showDetails || selectedTimes.length > 0) && (
               <div className='mt-2 border-t pt-3'>
                 <div className='space-y-2'>
                   {selectedTimes.map((timeKey, idx) => {
                     const [court, timeSlot] = timeKey.split('|');
                     return (
-                      <div
-                        key={idx}
-                        className='flex items-center justify-between text-sm'
-                      >
+                      <div key={idx} className='flex items-center justify-between text-sm'>
                         <div>
                           <p className='font-medium text-white'>{court}</p>
                           <p className='text-white'>{timeSlot}</p>
                         </div>
-                        <p className='text-white'>Rp60.000</p>
+                          <p className='text-white'>Rp60.000</p>
                       </div>
                     );
                   })}
@@ -550,7 +588,7 @@ export default function SchedulesPage() {
                 <div className='mt-3 flex justify-between border-t pt-3 text-white'>
                   <p className='font-bold'>Total</p>
                   <p className='font-bold'>
-                    Rp. {selectedTimes.length * 60000}
+                  Rp. {selectedTimes.length * 60000}
                   </p>
                 </div>
               </div>
