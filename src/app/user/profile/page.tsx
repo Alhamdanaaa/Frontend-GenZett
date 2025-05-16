@@ -36,7 +36,7 @@ export default function ProfilePage() {
             <label className="text-sm text-gray-500 flex items-center gap-2 mb-1">
               <User size={16} /> Username
             </label>
-            <p className="font-medium text-gray-800">{userData.username}</p>
+            <p className="font-medium text-gray-800 text-base">{userData.username}</p>
           </div>
 
           <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
