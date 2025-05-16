@@ -13,11 +13,11 @@ const CellAction = dynamic(
 export const columns: ColumnDef<Sport>[] = [
   {
     id: 'name',
-    accessorKey: 'name',
+    accessorKey: 'sportName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Nama Cabang Olahraga' />
     ),
-    cell: ({ cell }) => <div>{cell.getValue<Sport['name']>()}</div>,
+    cell: ({ cell }) => <div>{cell.getValue<Sport['sportName']>()}</div>,
     filterFn: 'includesString',
     meta: {
       label: 'Name',

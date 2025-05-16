@@ -1,4 +1,4 @@
-import { fakeSports } from '@/constants/mock-api';
+import { getSports } from '@/lib/api/sports';
 import { searchParamsCache } from '@/lib/searchparams';
 import SportTableWrapper from './sport-table-wrapper';
 
@@ -13,12 +13,12 @@ export default async function SportListingPage() {
   const pageLimit = searchParamsCache.get('perPage');
   
   const filters = {
-    page,
-    limit: pageLimit,
+    page: page?.toString(),
+    limit: pageLimit?.toString(),
     ...(search && { search })
   };
 
-  const data = await fakeSports.getSports(filters); // Ambil semua data sport
+  const data = await getSports(filters); // Ambil semua data sport
   const columns = await getColumns();
 
   return (

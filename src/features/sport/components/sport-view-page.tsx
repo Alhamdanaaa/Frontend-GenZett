@@ -27,13 +27,13 @@ async function fetchSport(sportId: string): Promise<Sport | null> {
 export default async function SportViewPage({ sportId }: SportViewPageProps) {
   let sport: Sport | null = null;
   let pageTitle = 'Tambah Cabang Olahraga Baru';
-
+  
   if (sportId !== 'new') {
     sport = await fetchSport(sportId);
     if (!sport) {
       notFound();
     }
-    pageTitle = `Edit Cabang Olahraga - ${sport.name}`;
+    pageTitle = `Edit Cabang Olahraga - ${sport.sportName}`;
   }
 
   return <SportViewPageClient sport={sport} pageTitle={pageTitle} />;

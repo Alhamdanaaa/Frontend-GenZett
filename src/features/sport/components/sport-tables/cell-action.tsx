@@ -1,8 +1,10 @@
 'use client';
+
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Sport } from '@/constants/data';
+import { deleteSport } from '@/lib/api/sports';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -12,11 +14,24 @@ interface CellActionProps {
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    setLoading(true);
+    try {
+      await deleteSport(Number(data.sportId)); // cukup panggil dan biarkan throw jika error
+      setOpen(false);
+      router.refresh(); // Refresh data
+    } catch (error) {
+      console.error(error);
+      alert('Terjadi kesalahan saat menghapus data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <>
@@ -33,7 +48,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               <Button className='shadow-md'
                 variant="outline"
                 size="sm"
-                onClick={() => router.push(`/dashboard/sport/${data.id}`)}
+                onClick={() => router.push(`/dashboard/sport/${data.sportId}`)}
               >
                 <IconEdit className="h-4 w-4 stroke-amber-500" />
               </Button>

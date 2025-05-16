@@ -317,18 +317,18 @@ export const fakeSports = {
 
   initialize() {
     const sportNames = [
-      { name: 'Futsal', description: 'Olahraga mirip sepak bola, dimainkan di dalam ruangan.' },
-      { name: 'Badminton', description: 'Olahraga raket yang dimainkan oleh dua atau empat orang.' },
-      { name: 'Basketball', description: 'Olahraga tim yang bertujuan memasukkan bola ke keranjang.' },
-      { name: 'Volleyball', description: 'Olahraga memukul bola melewati net dengan tangan.' },
-      { name: 'Tennis', description: 'Olahraga raket satu lawan satu atau ganda.' },
-      { name: 'Sepak Bola', description: 'Olahraga paling populer dengan 11 pemain tiap tim.' },
-      { name: 'Handball', description: 'Olahraga cepat dengan bola tangan.' }
+      { sportName: 'Futsal', description: 'Olahraga mirip sepak bola, dimainkan di dalam ruangan.' },
+      { sportName: 'Badminton', description: 'Olahraga raket yang dimainkan oleh dua atau empat orang.' },
+      { sportName: 'Basketball', description: 'Olahraga tim yang bertujuan memasukkan bola ke keranjang.' },
+      { sportName: 'Volleyball', description: 'Olahraga memukul bola melewati net dengan tangan.' },
+      { sportName: 'Tennis', description: 'Olahraga raket satu lawan satu atau ganda.' },
+      { sportName: 'Sepak Bola', description: 'Olahraga paling populer dengan 11 pemain tiap tim.' },
+      { sportName: 'Handball', description: 'Olahraga cepat dengan bola tangan.' }
     ];
 
     const sports: Sport[] = sportNames.map((item, index) => ({
-      id: index + 1,
-      name: item.name,
+      sportId: index + 1,
+      sportName: item.sportName,
       countLocation: faker.number.int({ min: 1, max: 10 }),
       description: item.description,
       created_at: faker.date.past().toISOString(),
@@ -355,7 +355,7 @@ export const fakeSports = {
     if (search) {
       const lowerSearch = search.toLowerCase();
       filteredSports = filteredSports.filter(sport =>
-        sport.name.toLowerCase().includes(lowerSearch) ||
+        sport.sportName.toLowerCase().includes(lowerSearch) ||
         sport.description.toLowerCase().includes(lowerSearch)
       );
     }
@@ -380,7 +380,7 @@ export const fakeSports = {
 
   async getSportById(id: number) {
     // await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
-    const sport = this.records.find((s) => s.id === id);
+    const sport = this.records.find((s) => s.sportId === id);
     if (!sport) {
       return {
         success: false,
