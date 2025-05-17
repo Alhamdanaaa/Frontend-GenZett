@@ -312,92 +312,92 @@ export const fakeLocations = {
 fakeLocations.initialize();
 
 // Data sport
-export const fakeSports = {
-  records: [] as Sport[],
+// export const fakeSports = {
+//   records: [] as Sport[],
 
-  initialize() {
-    const sportNames = [
-      { sportName: 'Futsal', description: 'Olahraga mirip sepak bola, dimainkan di dalam ruangan.' },
-      { sportName: 'Badminton', description: 'Olahraga raket yang dimainkan oleh dua atau empat orang.' },
-      { sportName: 'Basketball', description: 'Olahraga tim yang bertujuan memasukkan bola ke keranjang.' },
-      { sportName: 'Volleyball', description: 'Olahraga memukul bola melewati net dengan tangan.' },
-      { sportName: 'Tennis', description: 'Olahraga raket satu lawan satu atau ganda.' },
-      { sportName: 'Sepak Bola', description: 'Olahraga paling populer dengan 11 pemain tiap tim.' },
-      { sportName: 'Handball', description: 'Olahraga cepat dengan bola tangan.' }
-    ];
+//   initialize() {
+//     const sportNames = [
+//       { sportName: 'Futsal', description: 'Olahraga mirip sepak bola, dimainkan di dalam ruangan.' },
+//       { sportName: 'Badminton', description: 'Olahraga raket yang dimainkan oleh dua atau empat orang.' },
+//       { sportName: 'Basketball', description: 'Olahraga tim yang bertujuan memasukkan bola ke keranjang.' },
+//       { sportName: 'Volleyball', description: 'Olahraga memukul bola melewati net dengan tangan.' },
+//       { sportName: 'Tennis', description: 'Olahraga raket satu lawan satu atau ganda.' },
+//       { sportName: 'Sepak Bola', description: 'Olahraga paling populer dengan 11 pemain tiap tim.' },
+//       { sportName: 'Handball', description: 'Olahraga cepat dengan bola tangan.' }
+//     ];
 
-    const sports: Sport[] = sportNames.map((item, index) => ({
-      sportId: index + 1,
-      sportName: item.sportName,
-      countLocation: faker.number.int({ min: 1, max: 10 }),
-      description: item.description,
-      created_at: faker.date.past().toISOString(),
-      updated_at: faker.date.recent().toISOString()
-    }));
+//     const sports: Sport[] = sportNames.map((item, index) => ({
+//       sportId: index + 1,
+//       sportName: item.sportName,
+//       countLocation: faker.number.int({ min: 1, max: 10 }),
+//       description: item.description,
+//       created_at: faker.date.past().toISOString(),
+//       updated_at: faker.date.recent().toISOString()
+//     }));
 
-    this.records = sports;
-  },
+//     this.records = sports;
+//   },
 
-  async getSports({
-    page = 1,
-    limit = 10,
-    search
-  }: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }) {
-    // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
+//   async getSports({
+//     page = 1,
+//     limit = 10,
+//     search
+//   }: {
+//     page?: number;
+//     limit?: number;
+//     search?: string;
+//   }) {
+//     // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
   
-    let filteredSports = this.records;
+//     let filteredSports = this.records;
   
-    // Tambahkan logika pencarian
-    if (search) {
-      const lowerSearch = search.toLowerCase();
-      filteredSports = filteredSports.filter(sport =>
-        sport.sportName.toLowerCase().includes(lowerSearch) ||
-        sport.description.toLowerCase().includes(lowerSearch)
-      );
-    }
+//     // Tambahkan logika pencarian
+//     if (search) {
+//       const lowerSearch = search.toLowerCase();
+//       filteredSports = filteredSports.filter(sport =>
+//         sport.sportName.toLowerCase().includes(lowerSearch) ||
+//         sport.description.toLowerCase().includes(lowerSearch)
+//       );
+//     }
   
-    const totalSports = filteredSports.length;
+//     const totalSports = filteredSports.length;
   
-    const offset = (page - 1) * limit;
-    const paginatedSports = filteredSports.slice(offset, offset + limit);
+//     const offset = (page - 1) * limit;
+//     const paginatedSports = filteredSports.slice(offset, offset + limit);
   
-    const currentTime = new Date().toISOString();
+//     const currentTime = new Date().toISOString();
   
-    return {
-      success: true,
-      time: currentTime,
-      message: 'Data olahraga untuk keperluan testing',
-      totalSports: totalSports,
-      offset,
-      limit,
-      sports: paginatedSports
-    };
-  },
+//     return {
+//       success: true,
+//       time: currentTime,
+//       message: 'Data olahraga untuk keperluan testing',
+//       totalSports: totalSports,
+//       offset,
+//       limit,
+//       sports: paginatedSports
+//     };
+//   },
 
-  async getSportById(id: number) {
-    // await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
-    const sport = this.records.find((s) => s.sportId === id);
-    if (!sport) {
-      return {
-        success: false,
-        time: new Date().toISOString(),
-        message: `Sport dengan ID ${id} tidak ditemukan`
-      };
-    }
-    return {
-      success: true,
-      time: new Date().toISOString(),
-      sport
-    };
-  }
-};
+//   async getSportById(id: number) {
+//     // await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
+//     const sport = this.records.find((s) => s.sportId === id);
+//     if (!sport) {
+//       return {
+//         success: false,
+//         time: new Date().toISOString(),
+//         message: `Sport dengan ID ${id} tidak ditemukan`
+//       };
+//     }
+//     return {
+//       success: true,
+//       time: new Date().toISOString(),
+//       sport
+//     };
+//   }
+// };
 
-// Jangan lupa panggil initialize
-fakeSports.initialize();
+// // Jangan lupa panggil initialize
+// fakeSports.initialize();
 
 
 // Mock field data store
