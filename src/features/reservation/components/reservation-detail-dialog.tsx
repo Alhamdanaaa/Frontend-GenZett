@@ -116,23 +116,6 @@ function formatDate(dateStr: string, onlyDate = false) {
   });
 }
 
-function parseCustomDate(dateStr: string, onlyDate = false) {
-  const [datePart, timePart] = dateStr.split(' ');
-  const [day, month, year] = datePart.split('/').map(Number);
-  const [hours, minutes, seconds] = timePart.split(':').map(Number);
-
-  const fullYear = year < 100 ? 2000 + year : year; // 25 → 2025
-
-  const date = new Date(fullYear, month - 1, day, hours, minutes, seconds);
-
-  return date.toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    ...(onlyDate ? {} : { hour: '2-digit', minute: '2-digit' })
-  });
-}
-
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
