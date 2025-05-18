@@ -6,6 +6,7 @@ import { Eye, EyeOff, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { login } from "@/lib/api/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,22 +22,11 @@ export default function LoginPage() {
     setPending(true);
 
     try {
-      const formData = new FormData();
-      formData.append("email", email);
-      formData.append("password", password);
+      const data = await login({ email, password });
+      Cookies.set("token", data.token);
+      Cookies.set("role", data.user.role);
 
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BACKEND}/api/login`,
-        formData
-      );
-
-      Cookies.set("token", response.data.token);
-      
-    
-      const userRole = response.data.user.role;
-      Cookies.set("role", userRole);
-
-      if (userRole === "admin") {
+      if (data.user.role === "admin") {
         router.push("/dashboard");
       } else {
         router.push("/");
