@@ -61,7 +61,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <TooltipContent>Ubah</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
+          {/* <Tooltip>
             <TooltipTrigger asChild>
               <Button className='shadow-md'
                 variant="outline"
@@ -72,7 +72,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               </Button>
             </TooltipTrigger>
             <TooltipContent>Hapus</TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
         </TooltipProvider>
       </div>
       
