@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { register } from "@/lib/api/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,7 +27,6 @@ export default function RegisterPage() {
     setPending(true);
     setError({});
 
-    // Validasi konfirmasi password di frontend
     if (form.password !== form.password_confirmation) {
       setError({ password_confirmation: ["Konfirmasi kata sandi tidak cocok."] });
       setPending(false);
@@ -34,11 +34,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BACKEND}/api/register`,
-        form
-      );
-
+      await register(form);
       router.push("/login");
     } catch (error: any) {
       console.error(error);
