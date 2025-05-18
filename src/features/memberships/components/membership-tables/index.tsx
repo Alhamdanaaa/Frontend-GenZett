@@ -23,7 +23,7 @@ export function MembershipTable<TData, TValue>({
   const pageCount = useMemo(() => Math.ceil(totalItems / pageSize), [totalItems, pageSize]);
   
   const { table } = useDataTable({
-    data,
+    data: data ?? [],
     columns,
     pageCount,
     shallow: false

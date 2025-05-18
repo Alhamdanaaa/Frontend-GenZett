@@ -109,16 +109,25 @@ export type Schedule = {
 };
 
 // Tipe data Member
-export type Membership = {
-  membershipId: number;
-  location: string;
-  sport: string;
-  name: string;
-  description: string;
-  discount: string;
-  weeks: string;
+export type MembershipLocation = {
+  locationId: number;
+  locationName: string;
 };
 
+export type MembershipSport = {
+  sportId: number;
+  sportName: string;
+};
+
+export type Membership = {
+  membershipId: number;
+  name: string;
+  description: string;
+  price: number;
+  weeks: number;
+  locations: MembershipLocation;
+  sports: MembershipSport;
+};
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
