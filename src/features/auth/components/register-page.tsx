@@ -39,12 +39,11 @@ export default function RegisterPage() {
         form
       );
 
-      // Jika berhasil, redirect ke login
       router.push("/login");
     } catch (error: any) {
       console.error(error);
       if (error.response && error.response.status === 422) {
-        setError(error.response.data.errors); // Validasi dari Laravel
+        setError(error.response.data.errors);
       } else {
         setError({ general: ["Terjadi kesalahan saat mendaftar."] });
       }
