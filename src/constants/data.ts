@@ -13,12 +13,12 @@ export type Product = {
 
 // Tipe data untuk Location
 export type Location = {
-  id: number;
+  locationId: number;
   img: string;
-  name: string;
+  locationName: string;
   sports: string[];
   countLap: number;
-  desc: string;
+  description: string;
   address: string;
   created_at: string;
   updated_at: string;

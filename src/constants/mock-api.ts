@@ -194,12 +194,12 @@ export const fakeLocations = {
       const locationSports = faker.helpers.arrayElements(sportsList, { min: 1, max: 3 });
       
       return {
-        id,
+        locationId: id,
         img: `https://api.slingacademy.com/public/sample-photos/${id}.jpeg`,
-        name: `${faker.location.city()} Sport Center`,
+        locationName: `${faker.location.city()} Sport Center`,
         sports: locationSports,
         countLap: faker.number.int({ min: 2, max: 10 }),
-        desc: faker.lorem.paragraph(),
+        description: faker.lorem.paragraph(),
         address: faker.location.streetAddress(),
         created_at: faker.date
           .between({ from: '2022-01-01', to: '2023-12-31' })
@@ -239,8 +239,8 @@ export const fakeLocations = {
     if (search) {
       const searchLower = search.toLowerCase();
       locations = locations.filter(location => 
-        location.name.toLowerCase().includes(searchLower) ||
-        location.desc.toLowerCase().includes(searchLower) ||
+        location.locationName.toLowerCase().includes(searchLower) ||
+        location.description.toLowerCase().includes(searchLower) ||
         location.sports.some(sport => sport.toLowerCase().includes(searchLower))
       );
     }
@@ -290,7 +290,7 @@ export const fakeLocations = {
     // Remove the artificial delay
     // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const location = this.records.find((location) => location.id === id);
+    const location = this.records.find((location) => location.locationId === id);
 
     if (!location) {
       return {
