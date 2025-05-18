@@ -7,6 +7,7 @@ import { Menu, X, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
+import { logout } from "@/lib/api/auth";
 
 
 export default function NavbarUser() {
@@ -58,12 +59,17 @@ export default function NavbarUser() {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    document.cookie = 'token=; Max-Age=-99999999;'
-    setIsAuthenticated(false)
-    router.push('/')
-  }
+  const handleLogout = async () => {
+    try {
+      await logout(); // Panggil API logout ke backend
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    localStorage.removeItem('token');
+    document.cookie = 'token=; Max-Age=-99999999;';
+    setIsAuthenticated(false);
+    router.push('/');
+  };
 
   const toggleDropdown = () => {
     setDropdownOpen(prev => !prev)
