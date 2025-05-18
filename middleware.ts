@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
   if (token && authPaths.includes(pathname)) {
     try {
       const decoded = jwtDecode(token) as { role?: string };
-      const redirectUrl = decoded.role === 'admin' ? '/dashboard' : '/';
+      const redirectUrl = decoded.role === 'admin' ? '/dashboard/overview' : '/';
       
     
       return NextResponse.rewrite(new URL(redirectUrl, request.url));

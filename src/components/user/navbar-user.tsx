@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Menu, X, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { motion, AnimatePresence } from 'framer-motion'
+
 
 export default function NavbarUser() {
   const pathname = usePathname()
@@ -72,16 +74,16 @@ export default function NavbarUser() {
   }
 
   return (
-    <nav className="bg-[#2C473A] text-white shadow">
+    <nav className="bg-[#2C473A] text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="font-bold text-lg">
+        <Link href="/" className="font-bold text-xl tracking-wide">
           ReSports
         </Link>
 
         {/* Hamburger - Mobile */}
         <button
-          className="md:hidden"
+          className="md:hidden p-2 rounded hover:bg-[#3a5a4a] transition"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle menu"
         >
@@ -89,14 +91,16 @@ export default function NavbarUser() {
         </button>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex gap-10 items-center">
+        <div className="hidden md:flex gap-8 items-center">
           {navItems.map((item) => (
             <div key={item.href} className="flex flex-col items-center space-y-1">
               <Link
                 href={item.href}
                 className={cn(
-                  'text-sm font-semibold transition-colors tracking-wide',
-                  isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
+                  'text-sm font-semibold tracking-wide transition-colors',
+                  isActive(item.href)
+                    ? 'text-white'
+                    : 'text-white/70 hover:text-white'
                 )}
               >
                 {item.label}
@@ -111,49 +115,48 @@ export default function NavbarUser() {
           ))}
         </div>
 
-        {/* CONDITIONAL ACCOUNT/LOGIN BUTTON */}
+        {/* Auth Button (Desktop) */}
         {isAuthenticated ? (
           <div className="relative" ref={dropdownRef}>
-            <button 
-              className="flex items-center text-white border border-transparent hover:border-white px-3 py-2 rounded-full transition-all duration-300"
+            <button
               onClick={toggleDropdown}
               aria-expanded={dropdownOpen}
               aria-label="User menu"
+              className="flex items-center p-2 rounded-full border hover:border-white transition-all"
             >
               <User className="w-6 h-6" />
             </button>
 
             <div
-              className={`absolute right-0 mt-2 w-20 bg-[#2C473A] border-2 border-[#C5FC40] text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out ${
-                dropdownOpen 
-                  ? 'opacity-100 translate-y-0 visible' 
+              className={cn(
+                'absolute right-0 mt-3 w-28 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
+                dropdownOpen
+                  ? 'opacity-100 translate-y-0 visible'
                   : 'opacity-0 -translate-y-2 invisible'
-              }`}
+              )}
             >
-              <div className="py-1">
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Profil
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    setDropdownOpen(false)
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
+              <Link
+                href="/profile"
+                onClick={() => setDropdownOpen(false)}
+                className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+              >
+                Profil
+              </Link>
+              <button
+                onClick={() => {
+                  handleLogout()
+                  setDropdownOpen(false)
+                }}
+                className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+              >
+                Logout
+              </button>
             </div>
           </div>
         ) : (
           <Link
             href="/login"
-            className="hidden md:flex items-center justify-center h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition"
+            className="hidden md:inline-block bg-[#C5FC40] text-black font-semibold text-sm px-5 py-2 rounded-full hover:bg-lime-300 transition"
           >
             Login
           </Link>
@@ -161,15 +164,21 @@ export default function NavbarUser() {
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-[#2C473A] px-4 pb-4">
-          <div className="flex flex-col space-y-4">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden md:hidden bg-[#2C473A] px-4 pt-4 pb-6 space-y-4"
+          >
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'text-sm font-semibold transition-colors',
+                  'block text-sm font-semibold transition-colors',
                   isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
                 )}
                 onClick={() => setIsOpen(false)}
@@ -177,60 +186,10 @@ export default function NavbarUser() {
                 {item.label}
               </Link>
             ))}
-
-            {/* CONDITIONAL ACCOUNT/LOGIN (Mobile)*/}
-            {isAuthenticated ? (
-              <div className="relative mt-2">
-                <button 
-                  className="flex items-center text-white border border-transparent hover:border-white px-3 py-2 rounded-full transition-all duration-300"
-                  onClick={toggleDropdown}
-                  aria-expanded={dropdownOpen}
-                  aria-label="User menu"
-                >
-                  <User className="w-6 h-6" />
-                </button>
-
-                {dropdownOpen && (
-                  <div
-                    className="absolute left-0 mt-2 w-40 bg-[#2C473A] border-2 border-[#C5FC40] text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
-                  >
-                    <div className="py-1">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                        onClick={() => {
-                          setDropdownOpen(false)
-                          setIsOpen(false)
-                        }}
-                      >
-                        Profil
-                      </Link>
-                      <button
-                        onClick={() => {
-                          handleLogout()
-                          setDropdownOpen(false)
-                          setIsOpen(false)
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="bg-[#C5FC40] text-black font-semibold text-sm rounded-full p-2 hover:bg-lime-300 transition text-center"
-                onClick={() => setIsOpen(false)}
-              >
-                Login
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
+
   )
 }
