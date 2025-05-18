@@ -71,21 +71,31 @@ export type Admin = {
   updated_at: string;
 };
 
+interface ReservationDetail {
+  reservationId: number;
+  fieldName: string;
+  time: string;
+  date: string;
+}
 
 // Tipe data Reservation
-export type Reservation = {
+export interface Reservation {
   reservationId: number;
-  createTime: string;
   name: string;
-  fieldTime: string;
-  date: string;
-  totalPayment: number;
-  remainingPayment: number;
-  paymentStatus: 'pending' | 'down payment' | 'complete' | 'fail';
-  status: 'upcoming' | 'ongoing' | 'completed';
+  paymentStatus: string;
+  total: number;
   created_at: string;
-  updated_at: string;
-};
+  status: string;
+  details: ReservationDetail[];
+  remainingPayment: number;
+  // Tambahkan property fieldData
+  fieldData: {
+    fieldName: string;
+    times: string[];
+    dates: string[];
+  }[];
+}
+
 
 // Tipe data Schedule
 export type Schedule = {
@@ -95,7 +105,7 @@ export type Schedule = {
   field: string;
   sport: string;
   date: string;
-  paymentStatus: 'pending' | 'down payment' | 'complete';
+  paymentStatus: 'pending' | 'dp' | 'complete';
 };
 
 // Tipe data Member
