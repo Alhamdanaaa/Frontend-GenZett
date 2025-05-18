@@ -1,6 +1,6 @@
-import { fakeMemberships } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
 import MembershipTableWrapper from './membership-table-wrapper';
+import { getMemberships } from '@/lib/api/membership';
 
 const getColumns = async () => {
   const { columns } = await import('./membership-tables/columns');
@@ -15,20 +15,21 @@ export default async function MembershipListingPage() {
   const pageLimit = searchParamsCache.get('perPage');
   
   const filters = {
-    page,
-    limit: pageLimit,
+    page: page || undefined,
+    limit: pageLimit || undefined,
     ...(search && { search }),
-    ...(sports && { sports: sports }),
-    ...(locations && { locations: locations })
+    ...(sports && { sports: sports.split(',').map(Number) }),   
+    ...(locations && { locations: locations.split(',').map(Number) })
   };
 
-  const data = await fakeMemberships.getMemberships(filters);
+  // Call getMemberships directly with filters
+  const memberships = await getMemberships(filters);
   const columns = await getColumns();
 
   return (
     <MembershipTableWrapper
-      data={data.memberships}
-      totalItems={data.total_memberships}
+      data={memberships}
+      totalItems={memberships.length}
       columns={columns}
     />
   );

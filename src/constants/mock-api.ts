@@ -1055,76 +1055,117 @@ faker.seed(123);
 export const fakeMemberships = {
   records: [] as Membership[],
 
-  // Inisialisasi data membership secara manual
+  // Inisialisasi data membership dengan struktur baru
   initialize() {
     this.records = [
       {
         membershipId: 1,
-        location: 'GOR Utama',
-        sport: 'Futsal',
         name: 'Paket Futsal Mingguan',
         description: 'Paket bermain futsal setiap hari Senin, Rabu, dan Jumat pukul 18.00 - 20.00 selama 4 minggu.',
-        discount: '10%',
-        weeks: '4'
+        price: 100000,
+        weeks: 4,
+        locations: {
+          locationId: 1,
+          locationName: 'GOR Utama'
+        },
+        sports: {
+          sportId: 1,
+          sportName: 'Futsal'
+        }
       },
       {
         membershipId: 2,
-        location: 'Sport Center Kota',
-        sport: 'Badminton',
         name: 'Paket Badminton Akhir Pekan',
         description: 'Akses lapangan badminton setiap Sabtu dan Minggu pagi selama 6 minggu.',
-        discount: '15%',
-        weeks: '6'
+        price: 150000,
+        weeks: 6,
+        locations: {
+          locationId: 2,
+          locationName: 'Sport Center Kota'
+        },
+        sports: {
+          sportId: 2,
+          sportName: 'Badminton'
+        }
       },
       {
         membershipId: 3,
-        location: 'Stadion Olahraga',
-        sport: 'Basket',
         name: 'Paket Latihan Basket Rutin',
         description: 'Paket latihan intensif 3 kali seminggu selama 8 minggu. Cocok untuk tim sekolah atau komunitas.',
-        discount: '20%',
-        weeks: '8'
+        price: 200000,
+        weeks: 8,
+        locations: {
+          locationId: 3,
+          locationName: 'Stadion Olahraga'
+        },
+        sports: {
+          sportId: 3,
+          sportName: 'Basketball'
+        }
       },
       {
         membershipId: 4,
-        location: 'Pusat Kebugaran',
-        sport: 'Volleyball',
         name: 'Membership Voli Pro',
         description: 'Akses eksklusif ke lapangan voli setiap sore hari Senin-Jumat selama 5 minggu.',
-        discount: '12%',
-        weeks: '5'
+        price: 180000,
+        weeks: 5,
+        locations: {
+          locationId: 4,
+          locationName: 'Pusat Kebugaran'
+        },
+        sports: {
+          sportId: 4,
+          sportName: 'Volleyball'
+        }
       },
       {
         membershipId: 5,
-        location: 'Arena Olahraga',
-        sport: 'Tennis',
         name: 'Paket Tennis Premium',
         description: 'Reservasi otomatis setiap Selasa dan Kamis pagi selama 6 minggu dengan pelatih pendamping.',
-        discount: '25%',
-        weeks: '6'
+        price: 220000,
+        weeks: 6,
+        locations: {
+          locationId: 5,
+          locationName: 'Arena Olahraga'
+        },
+        sports: {
+          sportId: 5,
+          sportName: 'Tennis'
+        }
       },
       {
         membershipId: 6,
-        location: 'Kompleks Olahraga',
-        sport: 'Sepak Bola',
         name: 'Paket Mini Soccer Bulanan',
         description: 'Paket latihan dan permainan setiap akhir pekan selama 4 minggu untuk kelompok usia 12-18 tahun.',
-        discount: '10%',
-        weeks: '4'
+        price: 130000,
+        weeks: 4,
+        locations: {
+          locationId: 6,
+          locationName: 'Kompleks Olahraga'
+        },
+        sports: {
+          sportId: 6,
+          sportName: 'Sepak Bola'
+        }
       },
       {
         membershipId: 7,
-        location: 'Lapangan Terpadu',
-        sport: 'Handball',
         name: 'Paket Handball Komunitas',
         description: 'Akses terjadwal untuk komunitas handball lokal selama 6 minggu dengan jadwal fleksibel.',
-        discount: '18%',
-        weeks: '6'
+        price: 140000,
+        weeks: 6,
+        locations: {
+          locationId: 7,
+          locationName: 'Lapangan Terpadu'
+        },
+        sports: {
+          sportId: 7,
+          sportName: 'Handball'
+        }
       }
     ];
   },
 
-  // Ambil semua membership
   async getAll({
     locations = [],
     sports = [],
@@ -1136,24 +1177,24 @@ export const fakeMemberships = {
   }) {
     let memberships = [...this.records];
 
-    // Filter berdasarkan location
+    // Filter berdasarkan locationName yang ada di daftar locations
     if (locations.length > 0) {
-      memberships = memberships.filter((field) =>
-        locations.includes(field.location)
+      memberships = memberships.filter((membership) => 
+        locations.includes(membership.locations.locationName)
       );
     }
 
-    // Filter berdasarkan cabang olahraga
+    // Filter berdasarkan sportName yang ada di daftar sports
     if (sports.length > 0) {
-      memberships = memberships.filter((membership) =>
-        sports.includes(membership.sport)
+      memberships = memberships.filter((membership) => 
+        sports.includes(membership.sports.sportName)
       );
     }
 
-    // Pencarian di berbagai membership
+    // Pencarian berdasarkan nama dan deskripsi
     if (search) {
       memberships = matchSorter(memberships, search, {
-        keys: ['name', 'location', 'sport', 'description']
+        keys: ['name', 'description', 'locationName', 'sportName']
       });
     }
 
@@ -1173,8 +1214,6 @@ export const fakeMemberships = {
     sports?: string;
     search?: string;
   }) {
-    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
-
     const locationArray = locations ? locations.split('.') : [];
     const sportArray = sports ? sports.split('.') : [];
 
@@ -1185,7 +1224,6 @@ export const fakeMemberships = {
     });
 
     const totalMemberships = allMemberships.length;
-
     const offset = (page - 1) * limit;
     const paginatedMemberships = allMemberships.slice(offset, offset + limit);
 
@@ -1200,11 +1238,12 @@ export const fakeMemberships = {
     };
   },
 
-  // Ambil membership berdasarkan ID
-  async getMembershipById(id: number) {
-    // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
-
-    const found = this.records.find(item => item.membershipId === id);
+  async getMembershipById(id: number): Promise<{
+    success: boolean;
+    message?: string;
+    membership?: Membership;
+  }> {
+    const found = this.records.find((item: Membership) => item.membershipId === id);
     if (!found) {
       return {
         success: false,
@@ -1219,7 +1258,6 @@ export const fakeMemberships = {
   }
 };
 
-// Inisialisasi data
 fakeMemberships.initialize();
 
 
