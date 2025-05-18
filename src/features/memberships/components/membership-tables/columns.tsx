@@ -40,14 +40,11 @@ export const columns: ColumnDef<Membership>[] = [
   },
   {
     id: 'location',
-    accessorKey: 'location',
+    accessorKey: 'locationName',
     header: ({ column }: { column: Column<Membership, unknown> }) => (
       <DataTableColumnHeader column={column} title='Lokasi Cabang' />
     ),
-    cell: ({ cell }) => {
-      const location = cell.getValue<Membership['locations']>();
-      return <div>{location?.locationName || 'N/A'}</div>;
-    },
+    cell: ({ cell }) => <div>{cell.getValue<Membership['locationName']>()}</div>,
     enableColumnFilter: true,
     meta: {
       label: 'Lokasi Cabang',
@@ -57,14 +54,11 @@ export const columns: ColumnDef<Membership>[] = [
   },
   {
     id: 'sport',
-    accessorKey: 'sport',
+    accessorKey: 'sportName',
     header: ({ column }: { column: Column<Membership, unknown> }) => (
       <DataTableColumnHeader column={column} title='Cabang Olahraga' />
     ),
-    cell: ({ cell }) => {
-      const sport = cell.getValue<Membership['sports']>();
-      return <div>{sport?.sportName || 'N/A'}</div>;
-    },
+    cell: ({ cell }) => <div>{cell.getValue<Membership['sportName']>()}</div>,
     enableColumnFilter: true,
     meta: {
       label: 'Cabang Olahraga',
@@ -73,11 +67,11 @@ export const columns: ColumnDef<Membership>[] = [
     }
   },
   {
-    accessorKey: 'price',
+    accessorKey: 'discount',
     header: ({ column }: { column: Column<Membership, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Harga' />
+      <DataTableColumnHeader column={column} title='Diskon' />
     ),
-    cell: ({ cell }) => <div>Rp. {cell.getValue<Membership['price']>()}</div>,
+    cell: ({ cell }) => <div>{cell.getValue<Membership['discount']>()}%</div>,
     meta: {
       label: 'Harga'
     }

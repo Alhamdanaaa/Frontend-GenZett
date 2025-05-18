@@ -15,8 +15,8 @@ export default async function MembershipListingPage() {
   const pageLimit = searchParamsCache.get('perPage');
   
   const filters = {
-    page: page || undefined,
-    limit: pageLimit || undefined,
+    page: page?.toString(),
+    limit: pageLimit?.toString(),
     ...(search && { search }),
     ...(sports && { sports: sports.split(',').map(Number) }),   
     ...(locations && { locations: locations.split(',').map(Number) })
@@ -25,10 +25,10 @@ export default async function MembershipListingPage() {
   // Call getMemberships directly with filters
   const memberships = await getMemberships(filters);
   const columns = await getColumns();
-
+  
   return (
     <MembershipTableWrapper
-      data={memberships}
+      data={memberships.data}
       totalItems={memberships.length}
       columns={columns}
     />

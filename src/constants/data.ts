@@ -123,10 +123,10 @@ export type Membership = {
   membershipId: number;
   name: string;
   description: string;
-  price: number;
+  discount: number;
   weeks: number;
-  locations: MembershipLocation;
-  sports: MembershipSport;
+  locationName: string;
+  sportName: string;
 };
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.

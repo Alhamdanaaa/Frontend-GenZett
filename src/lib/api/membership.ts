@@ -15,19 +15,8 @@ function serializeArray(arr?: number[]): string | undefined {
 }
 
 export async function getMemberships(params: FilterParams) {
-  try {
-    const queryParams = {
-      ...params,
-      sports: serializeArray(params.sports),
-      locations: serializeArray(params.locations),
-    };
-
-    const res = await api.get("/memberships", { params: queryParams });
-    return res.data.data as Membership[];
-  } catch (error) {
-    console.error("Error fetching memberships:", error);
-    throw error;
-  }
+  const res = await api.get("/memberships", { params });
+  return res.data;
 }
 
 export async function getMembershipById(membershipId: number): Promise<Membership | null> {
