@@ -21,17 +21,20 @@ export default function SchedulesPage() {
   const [showDetails, setShowDetails] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<string>(''); // format: 'YYYY-MM-DD'
-  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [selectedTimes] = useState<string[]>([]);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
-  const [selectedSlots, setSelectedSlots] = useState<{
-    court: any; date: string; time: string, price: number;
-  }[]>([]);
 
   const [sports, setSports] = useState<string[]>([]);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [dates, setDates] = useState<Array<{ day: string; date: string; month: string; displayDate: string }>>([]);
   const [timeSlotsByCourt, setTimeSlotsByCourt] = useState<Record<string, any[]>>({});
   const [courts, setCourts] = useState<string[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<{
+    date: string;
+    time: string;
+    court: string;
+    price: number
+  }[]>([]);
 
   const getDayName = (dayIndex: number): string => {
     const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -39,7 +42,10 @@ export default function SchedulesPage() {
   };
 
   const getMonthName = (monthIndex: number): string => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
     return months[monthIndex];
   };
 
@@ -122,12 +128,7 @@ export default function SchedulesPage() {
 
     const slots: Record<string, any[]> = {};
 
-    // Inisialisasi slots untuk semua court yang ada
-    courts.forEach(court => {
-      slots[court] = [];
-    });
-
-    // Filter schedule untuk tanggal terpilih
+    // Filter berdasarkan sportName jika ada
     const filtered = schedule.filter(s =>
       s.date === selectedDate &&
       (!selectedSport || selectedSport === 'Semua' || s.sport === selectedSport)
@@ -161,65 +162,52 @@ export default function SchedulesPage() {
     setTimeSlotsByCourt(slots);
   }, [schedule, selectedDate, locationId, courts, selectedSport]);
 
-  // useEffect(() => {
-  //   fetchData(); // Jalankan saat mount
-  // }, []);
-
   useEffect(() => {
     if (locationId) {
       fetchData();
     }
-  }, [selectedDate, selectedSport, locationId]);
+  }, [selectedDate, selectedSport, locationId, fetchData]);
 
   useEffect(() => {
-    if (!selectedDate || !locationId) return;
-
+    // Filter schedule for selected date
+    const filtered = schedule.filter((s) => s.date === selectedDate);
     const slots: Record<string, any[]> = {};
 
-    // 1. Inisialisasi semua court yang ada
-    courts.forEach(court => {
-      slots[court] = [];
-    });
-
-    // 2. Filter schedule untuk tanggal terpilih
-    const filtered = schedule.filter(s => s.date === selectedDate);
-    console.log('Filtered schedules:', filtered);
-
-    // 3. Isi time slots
+    // Organize slots by court
     filtered.forEach((slot) => {
       const court = slot.court;
-      if (!court) return;
-
-      if (!slots[court]) {
-        console.warn(`Court ${court} not initialized`);
-        return;
-      }
-
-      // Format waktu dari "HH:MM:SS" ke "HH:00 - HH+1:00"
-      const timeParts = slot.time.split(':');
-      const hour = parseInt(timeParts[0]);
-      const nextHour = hour + 1 === 24 ? 0 : hour + 1;
-      const formattedTime = `${hour.toString().padStart(2, '0')}:00 - ${nextHour.toString().padStart(2, '0')}:00`;
-
-      // Konversi harga dari string "Rp xxx.xxx" ke number
-      const priceValue = typeof slot.price === 'string'
-        ? parseInt(slot.price.replace(/[^\d]/g, ''))
-        : slot.price || 60000;
+      if (!slots[court]) slots[court] = [];
 
       slots[court].push({
-        time: formattedTime,
-        originalTime: slot.time,
-        timeId: slot.timeId,
-        booked: slot.status === 'booked', // Gunakan status langsung dari API
-        price: priceValue,
-        locationId: slot.locationId,
-        fieldId: slot.fieldId
+        time: slot.time,
+        booked: slot.status === 'booked',
+        price: slot.price || 60000 // Default price if not provided
       });
     });
 
-    console.log('Time slots by court:', slots);
+    // If no data from API for this date, generate default slots
+    if (Object.keys(slots).length === 0 && courts.length > 0) {
+      courts.forEach(court => {
+        if (!slots[court]) slots[court] = [];
+
+        // Generate default time slots from 10:00 to 23:00
+        for (let hour = 10; hour <= 23; hour++) {
+          const startHour = hour.toString().padStart(2, '0');
+          const endHour = (hour + 1 === 24 ? 0 : hour + 1)
+            .toString()
+            .padStart(2, '0');
+
+          slots[court].push({
+            time: `${startHour}:00 - ${endHour}:00`,
+            booked: hour % 4 === 0, // Simple pattern for demo
+            price: 60000
+          });
+        }
+      });
+    }
+
     setTimeSlotsByCourt(slots);
-  }, [schedule, selectedDate, locationId, courts]);
+  }, [schedule, selectedDate, courts]);
 
   const handleTimeClick = (date: string, time: string, court: string, price: number) => {
     setSelectedSlots(prev => {
@@ -234,18 +222,7 @@ export default function SchedulesPage() {
       }
     });
   };
-
-  // const calculateTotal = () => {
-  //   return selectedTimes.reduce((sum, timeKey) => sum + getPrice(timeKey), 0);
-  // };
-  const calculateTotal = () => {
-    return selectedSlots.reduce((sum, slot) => {
-      const courtSlots = timeSlotsByCourt[slot.court] || [];
-      const slotData = courtSlots.find(s => s.time === slot.time);
-      return sum + (slotData?.price || 60000); // Default price if not found
-    }, 0);
-  };
-
+  
   return (
     <UserLayout>
       {/* <div className='min-h-screen bg-[#f8f8f8]' suppressHydrationWarning> */}
@@ -346,11 +323,14 @@ export default function SchedulesPage() {
               <div className='flex items-center justify-center'>
                 <div className='w-px h-[35px] bg-gray-300'></div>
               </div>
-
               <div className='flex flex-row items-center justify-between'>
-                <div ref={dropdownRefs.calendar}>
+                <div className='flex items-center'>
                   <button
-                    onClick={() => toggleDropdown('calendar')}
+                    onClick={() =>
+                      setOpenDropdown(
+                        openDropdown === 'calendar' ? null : 'calendar'
+                      )
+                    }
                     className='flex items-center gap-2 text-white cursor-pointer'
                   >
                     <svg
@@ -381,36 +361,22 @@ export default function SchedulesPage() {
                 </div>
               </div>
 
-              <div className='flex items-center' ref={dropdownRefs.category}>
+              <div className='flex items-center'>
                 <button
-                  onClick={() =>
-                    setOpenDropdown(
-                      openDropdown === 'Sport' ? null : 'Sport'
-                    )
-                  }
-                  className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer'
-                  style={{ width: '140px' }} // Fixed width for the button
+                  onClick={() => setOpenDropdown(openDropdown === 'sport' ? null : 'sport')}
+                  className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer mr-2'
+                  style={{ width: '140px' }}
                 >
                   <span className='text-sm truncate'>{selectedSport || 'Pilih Cabor'}</span>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='16'
-                    height='16'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    className={`transition-transform ${openDropdown === 'Sport' ? 'rotate-180' : ''}`}
-                  >
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  <ChevronDownCircle
+                    className={`h-4 w-4 transition-transform ${openDropdown === 'sport' ? 'rotate-180' : ''}`}
+                    stroke="currentColor"
+                  />
                 </button>
 
-                {openDropdown === 'Sport' && (
-                  <div className='absolute mt-62 rounded-lg bg-white p-2 shadow-lg z-10'
-                    style={{ width: '140px', left: 'auto', right: 'auto' }}>
+                {openDropdown === 'sport' && (
+                  <div className='absolute mt-2 z-10 rounded-lg bg-white p-2 shadow-lg'
+                    style={{ width: '140px' }}>
                     <div className='flex flex-col'>
                       {['Semua', ...sports].map((sport) => (
                         <button
@@ -431,7 +397,7 @@ export default function SchedulesPage() {
             </div>
 
             {/* Calendar dropdown - Two months side by side */}
-            {openDropdowns.includes('calendar') && (
+            {openDropdown === 'calendar' && (
               <div className='mt-4 rounded-lg bg-white p-3 shadow-lg'>
                 <div className='flex flex-row gap-4'>
                   {/* Current Month */}
@@ -562,10 +528,9 @@ export default function SchedulesPage() {
                             <div
                               key={`next-${i}`}
                               onClick={() => {
-                                // Need to handle selection for next month in state
-                                console.log(
-                                  `Selected day ${dayNumber} in next month`
-                                );
+                                // Set the selected date with correct format
+                                setSelectedDate(dateStr);
+                                setOpenDropdown(null);
                               }}
                               className='cursor-pointer rounded-md p-2 text-center text-sm hover:bg-gray-50'
                             >
@@ -584,33 +549,43 @@ export default function SchedulesPage() {
 
         {/* Court Time Slots */}
         <div className='mt-8 space-y-6'>
-          {['Lapangan 1', 'Lapangan 2'].map((court, index) => (
-            <div key={index} className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}>
-              <div className='mb-4'>
-                <p className='text-lg font-semibold text-black'>{court}</p>
-                <p className='text-sm text-gray-600'>Lapangan Badminton beralaskan karpet vinyl</p>
-              </div>
-              <div className='relative'>
-                <button
-                  onClick={() =>
-                    setOpenDropdown(openDropdown === court ? null : court)
-                  }
-                  className='flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'>
-                  {timeSlots.filter((slot) => !slot.booked).length} Jadwal
-                  Tersedia
-                  <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
-                    stroke="currentColor"
-                  />
-                </button>
+          {courts.map((court, index) => {
+            const courtSlots = timeSlotsByCourt[court] || [];
+            const availableCount = courtSlots.filter(slot => !slot.booked).length;
 
-                {/* Dropdown Content - bg-white shadow-lg*/}
-                {(openDropdown === court || (openDropdown === null && index === 0)) && (
-                  <div className='mt-4 w-full rounded-md'>
-                    <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
-                      {timeSlots.map((time, idx) => {
-                        const key = `${court}|${time.time}`;
-                        const isSelected = selectedTimes.includes(key);
+            return (
+              <div key={`${court}-${index}`} className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}>
+                <div className='mb-4'>
+                  <p className='text-lg font-semibold text-black'>{court}</p>
+                  <p className='text-sm text-gray-600'>
+                    {selectedSport === 'Badminton' ? 'Lapangan Badminton' :
+                      selectedSport === 'Basket' ? 'Lapangan Basket' :
+                        'Lapangan Futsal'}
+                  </p>
+                </div>
+
+                <div className='relative'>
+                  <button
+                    onClick={() => setOpenDropdown(openDropdown === court ? null : court)}
+                    className='flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'
+                  >
+                    {availableCount} Jadwal Tersedia
+                    <ChevronDownCircle
+                      className={`h-5 w-5 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
+                      stroke="currentColor"
+                    />
+                  </button>
+
+                  {(openDropdown === court || (openDropdown === null && index === 0)) && (
+                    <div className='mt-4 w-full rounded-md'>
+                      <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
+                        {courtSlots.map((slot, idx) => {
+                          const key = `${court}|${slot.time}`;
+                          const isSelected = selectedSlots.some(s =>
+                            s.date === selectedDate && s.time === slot.time && s.court === court
+                          );
+                          const isBooked = slot.booked;
+                          const priceFormatted = `Rp${slot.price.toLocaleString('id-ID')}`;
 
                           return (
                             <button
@@ -670,46 +645,46 @@ export default function SchedulesPage() {
                   onClick={() => setShowDetails((prev) => !prev)}
                 >
                   <ChevronDownCircle
-                  className={`h-5 w-5 transition-transform ${showDetails || selectedTimes.length > 0 ? 'rotate-180' : ''}`}
-                  stroke="white"
+                    className={`h-5 w-5 transition-transform ${showDetails || selectedTimes.length > 0 ? 'rotate-180' : ''}`}
+                    stroke="white"
                   />
                 </button>
               </div>
               <div className='flex items-center font-medium gap-4'>
-                <div className="relative" ref={dropdownRefs.paymentType}>
+                <div className="relative">
                   <button
-                  onClick={() => setOpenDropdown(openDropdown === 'paymentType' ? null : 'paymentType')}
-                  className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                    onClick={() => setOpenDropdown(openDropdown === 'paymentType' ? null : 'paymentType')}
+                    className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
                   >
-                  {selectedCategory === 'Langganan' ? 'Langganan' : 'Reguler'}
-                  <ChevronDownCircle
-                    className={`h-4 w-4 transition-transform ${openDropdown === 'paymentType' ? 'rotate-180' : ''}`}
-                    stroke="currentColor"
-                  />
+                    {selectedSport === 'Langganan' ? 'Langganan' : 'Reguler'}
+                    <ChevronDownCircle
+                      className={`h-4 w-4 transition-transform ${openDropdown === 'paymentType' ? 'rotate-180' : ''}`}
+                      stroke="currentColor"
+                    />
                   </button>
-                  
+
                   {openDropdown === 'paymentType' && (
-                  <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
-                    style={{ width: '100%' }}>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Reguler');
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Reguler
-                    </button>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Langganan');
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Langganan
-                    </button>
-                  </div>
+                    <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
+                      style={{ width: '100%' }}>
+                      <button
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedSport('Reguler');
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        Reguler
+                      </button>
+                      <button
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedSport('Langganan');
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        Langganan
+                      </button>
+                    </div>
                   )}
                 </div>
                 <Button
@@ -723,7 +698,7 @@ export default function SchedulesPage() {
             </div>
 
             {/* Dropdown details - show by default if any time slots are selected */}
-            {(showDetails || selectedTimes.length > 0) && (
+            {(showDetails || selectedSlots.length > 0) && (
               <div className='mt-2 border-t pt-3'>
                 <div className='space-y-2'>
                   {selectedSlots.map((slot, idx) => {
@@ -746,10 +721,11 @@ export default function SchedulesPage() {
                   })}
                 </div>
 
+                {/* Total */}
                 <div className='mt-3 flex justify-between border-t pt-3 text-white'>
                   <p className='font-bold'>Total</p>
                   <p className='font-bold'>
-                    Rp{calculateTotal().toLocaleString()}
+                    Rp{selectedSlots.reduce((sum, slot) => sum + slot.price, 0).toLocaleString('id-ID')}
                   </p>
                 </div>
               </div>
