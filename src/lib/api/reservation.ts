@@ -57,3 +57,8 @@ export async function getSports() {
     const res = await api.get('/reservations/sport'); // Perhatikan plural 'sports'
     return res.data;
 }
+
+export async function getSportsByLocation(locationId: string | number) {
+    const res = await api.get(`/reservations/sport/${locationId}`); 
+    return res.data;
+}

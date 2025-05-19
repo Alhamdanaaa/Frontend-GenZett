@@ -1,14 +1,13 @@
 /* eslint-disable no-console */
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronDownCircle } from 'lucide-react';
 import UserLayout from '@/app/user/layout';
-import { getSports, getSchedule } from '@/lib/api/reservation';
-import { useSearchParams } from 'next/navigation';
+import { getSportsByLocation, getSchedule } from '@/lib/api/reservation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function SchedulesPage() {
   const searchParams = useSearchParams();
@@ -17,14 +16,15 @@ export default function SchedulesPage() {
 
   const locationId = searchParams.get('locationId'); // Ambil dari URL
 
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string[]>([]);
   const [showDetails, setShowDetails] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<string>(''); // format: 'YYYY-MM-DD'
   const [selectedTimes] = useState<string[]>([]);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string>('Reguler');
 
-  const [sports, setSports] = useState<string[]>([]);
+  const [sports, setSports] = useState<Array<{ sportId: string, sportName: string }>>([]);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [dates, setDates] = useState<Array<{ day: string; date: string; month: string; displayDate: string }>>([]);
   const [timeSlotsByCourt, setTimeSlotsByCourt] = useState<Record<string, any[]>>({});
@@ -51,8 +51,7 @@ export default function SchedulesPage() {
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (!locationId) {
         console.error('Location ID is required');
@@ -60,7 +59,7 @@ export default function SchedulesPage() {
       }
 
       const [sportsResponse, scheduleResponse] = await Promise.all([
-        getSports(),
+        getSportsByLocation(locationId),
         getSchedule(locationId, {
           date: selectedDate,
           sportName: selectedSport !== 'Semua' ? (selectedSport ?? undefined) : undefined // Gunakan sportName
@@ -69,12 +68,9 @@ export default function SchedulesPage() {
 
       setSports(sportsResponse.data || []);
 
-      // Pastikan semua field ditampilkan
       const allFields = scheduleResponse.fields || [];
-      console.log('Fields data:', allFields);
-
-      // Set courts langsung dari data API
-      setCourts(allFields.map((field: { fieldName: any; }) => field.fieldName));
+      const courtsList = allFields.map((field: { fieldName: any; }) => field.fieldName);
+      setCourts(courtsList);
 
       // Proses data schedule
       const processedSchedules = allFields.flatMap((field: any) => {
@@ -87,7 +83,7 @@ export default function SchedulesPage() {
             date: daily.date,
             time: schedule.time,
             timeId: schedule.timeId,
-            price: schedule.price,
+            price: parseInt(schedule.price?.replace(/[^\d]/g, '') || '0'), // Konversi ke number
             status: schedule.status,
             sport: field.sport || selectedSport || 'Futsal', // Tambahkan field sport
             locationId: locationId
@@ -96,7 +92,6 @@ export default function SchedulesPage() {
       });
 
       setSchedule(processedSchedules);
-      console.log('Processed schedules:', processedSchedules);
 
       // Generate dates dari API response
       const startDate = new Date(scheduleResponse.start_date);
@@ -121,7 +116,7 @@ export default function SchedulesPage() {
     } catch (err) {
       console.error('Gagal fetch data:', err);
     }
-  };
+  }, [locationId, selectedDate, selectedSport]);
 
   useEffect(() => {
     if (!selectedDate || !locationId) return;
@@ -153,7 +148,7 @@ export default function SchedulesPage() {
         originalTime: slot.time,
         timeId: slot.timeId,
         booked: slot.status === 'booked', // Gunakan status dari API
-        price: parseInt(slot.price.replace(/[^\d]/g, '')) || 60000,
+        price: typeof slot.price === 'string' ? parseInt(slot.price.replace(/[^\d]/g, '')) : slot.price || 60000,
         locationId: slot.locationId,
         fieldId: slot.fieldId
       });
@@ -166,7 +161,7 @@ export default function SchedulesPage() {
     if (locationId) {
       fetchData();
     }
-  }, [selectedDate, selectedSport, locationId, fetchData]);
+  }, [locationId, fetchData]);
 
   useEffect(() => {
     // Filter schedule for selected date
@@ -209,7 +204,20 @@ export default function SchedulesPage() {
     setTimeSlotsByCourt(slots);
   }, [schedule, selectedDate, courts]);
 
-  const handleTimeClick = (date: string, time: string, court: string, price: number) => {
+  const toggleDropdown = (dropdownName: string) => {
+    setOpenDropdown(prev =>
+      prev.includes(dropdownName)
+        ? prev.filter(name => name !== dropdownName)
+        : [...prev, dropdownName]
+    );
+  };
+
+  const handleTimeClick = (date: string, time: string, court: string, price: string | number) => {
+    // Konversi price ke number
+    const priceNumber = typeof price === 'string'
+      ? parseInt(price.replace(/[^\d]/g, ''))
+      : price;
+
     setSelectedSlots(prev => {
       const existingIndex = prev.findIndex(slot =>
         slot.date === date && slot.time === time && slot.court === court
@@ -218,11 +226,29 @@ export default function SchedulesPage() {
       if (existingIndex >= 0) {
         return prev.filter((_, index) => index !== existingIndex);
       } else {
-        return [...prev, { date, time, court, price }];
+        return [...prev, {
+          date,
+          time,
+          court,
+          price: priceNumber || 0 // Pastikan selalu number
+        }];
       }
     });
   };
-  
+
+  const calculateTotal = () => {
+    return selectedSlots.reduce((sum, slot) => {
+
+      const price = typeof slot.price === 'string'
+        ? parseInt((slot.price as string).replace(/[^\d]/g, '')) || 0
+        : slot.price || 0;
+      return sum + price;
+    }, 0);
+  };
+
+  console.log('Selected Slots:', selectedSlots);
+  console.log('Prices:', selectedSlots.map(slot => slot.price));
+  console.log('Total:', selectedSlots.reduce((sum, slot) => sum + slot.price, 0));
   return (
     <UserLayout>
       {/* <div className='min-h-screen bg-[#f8f8f8]' suppressHydrationWarning> */}
@@ -252,6 +278,7 @@ export default function SchedulesPage() {
                     behavior: 'smooth',
                     block: 'start',
                   });
+                  setOpenDropdown(['schedule-section']);
                 }}
               >
                 Cek Ketersediaan
@@ -327,9 +354,7 @@ export default function SchedulesPage() {
                 <div className='flex items-center'>
                   <button
                     onClick={() =>
-                      setOpenDropdown(
-                        openDropdown === 'calendar' ? null : 'calendar'
-                      )
+                      setOpenDropdown(openDropdown.includes('calendar') ? [] : ['calendar'])
                     }
                     className='flex items-center gap-2 text-white cursor-pointer'
                   >
@@ -363,31 +388,31 @@ export default function SchedulesPage() {
 
               <div className='flex items-center'>
                 <button
-                  onClick={() => setOpenDropdown(openDropdown === 'sport' ? null : 'sport')}
+                  onClick={() => toggleDropdown('sport')}
                   className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer mr-2'
                   style={{ width: '140px' }}
                 >
                   <span className='text-sm truncate'>{selectedSport || 'Pilih Cabor'}</span>
                   <ChevronDownCircle
-                    className={`h-4 w-4 transition-transform ${openDropdown === 'sport' ? 'rotate-180' : ''}`}
+                    className={`h-5 w-5 transition-transform ${openDropdown.includes('sport') ? 'rotate-180' : ''}`}
                     stroke="currentColor"
                   />
                 </button>
 
-                {openDropdown === 'sport' && (
-                  <div className='absolute mt-2 z-10 rounded-lg bg-white p-2 shadow-lg'
+                {openDropdown.includes('sport') && (
+                  <div className='absolute mt-2 z-10 rounded-lg bg-[#2C473A] p-2 shadow-lg'
                     style={{ width: '140px' }}>
                     <div className='flex flex-col'>
-                      {['Semua', ...sports].map((sport) => (
+                      {['Semua', ...sports.map(sport => sport.sportName)].map((sportName) => (
                         <button
-                          key={sport}
+                          key={`sport-${typeof sportName === 'string' ? sportName : 'unknown'}`}
                           onClick={() => {
-                            setSelectedSport(sport === 'Semua' ? null : sport);
-                            setOpenDropdown(null);
+                            setSelectedSport(sportName === 'Semua' ? null : sportName);
+                            toggleDropdown('sport');
                           }}
-                          className='rounded-md px-4 py-2 text-left text-sm hover:bg-gray-100 w-full truncate cursor-pointer'
+                          className={`rounded-lg px-3 py-2 text-sm text-left text-white hover:bg-[#C5FC40] ${selectedSport === sportName ? 'bg-[#C5FC40]' : ''}`}
                         >
-                          {sport}
+                          {sportName}
                         </button>
                       ))}
                     </div>
@@ -397,8 +422,8 @@ export default function SchedulesPage() {
             </div>
 
             {/* Calendar dropdown - Two months side by side */}
-            {openDropdown === 'calendar' && (
-              <div className='mt-4 rounded-lg bg-white p-3 shadow-lg'>
+            {openDropdown.includes('calendar') && (
+              <div className='mt-4 rounded-lg bg-[#2C473A] p-3 shadow-lg'>
                 <div className='flex flex-row gap-4'>
                   {/* Current Month */}
                   <div className='flex-1'>
@@ -530,7 +555,7 @@ export default function SchedulesPage() {
                               onClick={() => {
                                 // Set the selected date with correct format
                                 setSelectedDate(dateStr);
-                                setOpenDropdown(null);
+                                toggleDropdown('calendar');
                               }}
                               className='cursor-pointer rounded-md p-2 text-center text-sm hover:bg-gray-50'
                             >
@@ -566,17 +591,17 @@ export default function SchedulesPage() {
 
                 <div className='relative'>
                   <button
-                    onClick={() => setOpenDropdown(openDropdown === court ? null : court)}
-                    className='flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'
+                    onClick={() => toggleDropdown(court)}
+                    className='text-black flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'
                   >
                     {availableCount} Jadwal Tersedia
                     <ChevronDownCircle
-                      className={`h-5 w-5 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
+                      className={`h-5 w-5 transition-transform ${openDropdown.includes(court) ? 'rotate-180' : ''}`}
                       stroke="currentColor"
                     />
                   </button>
 
-                  {(openDropdown === court || (openDropdown === null && index === 0)) && (
+                  {openDropdown.includes(court) && (
                     <div className='mt-4 w-full rounded-md'>
                       <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
                         {courtSlots.map((slot, idx) => {
@@ -652,24 +677,24 @@ export default function SchedulesPage() {
               <div className='flex items-center font-medium gap-4'>
                 <div className="relative">
                   <button
-                    onClick={() => setOpenDropdown(openDropdown === 'paymentType' ? null : 'paymentType')}
+                    onClick={() => toggleDropdown('paymentType')}
                     className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
                   >
-                    {selectedSport === 'Langganan' ? 'Langganan' : 'Reguler'}
+                    {selectedPaymentType}
                     <ChevronDownCircle
-                      className={`h-4 w-4 transition-transform ${openDropdown === 'paymentType' ? 'rotate-180' : ''}`}
+                      className={`h-5 w-5 transition-transform ${openDropdown.includes('paymentType') ? 'rotate-180' : ''}`}
                       stroke="currentColor"
                     />
                   </button>
 
-                  {openDropdown === 'paymentType' && (
+                  {openDropdown?.includes('paymentType') && (
                     <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
                       style={{ width: '100%' }}>
                       <button
                         className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
                         onClick={() => {
-                          setSelectedSport('Reguler');
-                          setOpenDropdown(null);
+                          setSelectedPaymentType('Reguler');
+                          toggleDropdown('paymentType');
                         }}
                       >
                         Reguler
@@ -677,8 +702,8 @@ export default function SchedulesPage() {
                       <button
                         className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
                         onClick={() => {
-                          setSelectedSport('Langganan');
-                          setOpenDropdown(null);
+                          setSelectedPaymentType('Langganan');
+                          toggleDropdown('paymentType');
                         }}
                       >
                         Langganan
@@ -687,7 +712,14 @@ export default function SchedulesPage() {
                   )}
                 </div>
                 <Button
-                  onClick={() => router.push('./payment')}
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      selectedSlots: JSON.stringify(selectedSlots),
+                      locationId: locationId ?? '',
+                      paymentType: selectedPaymentType,
+                    });
+                    router.push(`./payment?${params.toString()}`);
+                  }}
                   className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'
                   disabled={selectedSlots.length === 0}
                 >
@@ -724,7 +756,7 @@ export default function SchedulesPage() {
                 <div className='mt-3 flex justify-between border-t pt-3 text-white'>
                   <p className='font-bold'>Total</p>
                   <p className='font-bold'>
-                    Rp{selectedSlots.reduce((sum, slot) => sum + slot.price, 0).toLocaleString('id-ID')}
+                    Rp{calculateTotal().toLocaleString('id-ID')}
                   </p>
                 </div>
               </div>
