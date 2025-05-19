@@ -7,6 +7,7 @@ import { Text } from 'lucide-react';
 import Image from 'next/image';
 import { SPORTS_OPTIONS } from './options';
 import dynamic from 'next/dynamic';
+import { getAllSports } from '@/lib/api/location';
 
 const CellAction = dynamic(
   () => import('./cell-action').then(mod => mod.CellAction),
@@ -24,8 +25,9 @@ export const columns: ColumnDef<Location>[] = [
       return (
         <div className='relative aspect-square w-16 h-16'>
           <Image
-            src={row.getValue('img')}
-            alt={row.getValue('name')}
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/locations/${row.getValue('img')}`}
+            alt= ''
+            // alt={row.getValue('name')}
             fill
             className='rounded-lg object-cover'
           />
@@ -35,11 +37,11 @@ export const columns: ColumnDef<Location>[] = [
   },
   {
     id: 'name',
-    accessorKey: 'name',
+    accessorKey: 'locationName',
     header: ({ column }: { column: Column<Location, unknown> }) => (
       <DataTableColumnHeader column={column} title='Nama Lokasi' />
     ),
-    cell: ({ cell }) => <div>{cell.getValue<Location['name']>()}</div>,
+    cell: ({ cell }) => <div>{cell.getValue<Location['locationName']>()}</div>,
     meta: {
       label: 'Nama Lokasi',
       placeholder: 'Cari...',
@@ -69,8 +71,15 @@ export const columns: ColumnDef<Location>[] = [
     enableColumnFilter: true,
     meta: {
       label: 'Cabang Olahraga',
-      variant: 'multiSelect',
+      variant: 'select',
       options: SPORTS_OPTIONS
+      // options: async () => {
+      //   const sports = await getAllSports();
+      //   return sports.map(sport => ({
+      //     label: sport.sportName,
+      //     value: sport.sportId
+      //   }));
+      // }
     }
   },
   {

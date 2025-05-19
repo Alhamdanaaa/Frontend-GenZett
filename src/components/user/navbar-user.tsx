@@ -6,14 +6,18 @@ import { useState, useEffect, useRef } from 'react'
 import { Menu, X, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { motion, AnimatePresence } from 'framer-motion'
+import { logout } from "@/lib/api/auth";
 
 export default function NavbarUser() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(false)
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false)
   const router = useRouter()
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const desktopDropdownRef = useRef<HTMLDivElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
   const mobileDropdownRef = useRef<HTMLDivElement>(null)
 
   const navItems = [
@@ -33,20 +37,20 @@ export default function NavbarUser() {
       .split('; ')
       .find(row => row.startsWith('token='))?.split('=')[1]
     
-    if (token) {
-      setIsAuthenticated(true)
-    } else {
-      setIsAuthenticated(false)
-    }
-  }, [])
+    setIsAuthenticated(!!token)
+  }, [pathname])
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false)
+      if (desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target as Node)) {
+        setDesktopDropdownOpen(false)
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
       }
       if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+        setMobileDropdownOpen(false)
       }
     }
 
@@ -56,47 +60,46 @@ export default function NavbarUser() {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    document.cookie = 'token=; Max-Age=-99999999;'
-    setIsAuthenticated(false)
-    router.push('/')
-  }
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    localStorage.removeItem('token');
+    document.cookie = 'token=; Max-Age=-99999999;';
+    document.cookie = 'role=; Max-Age=0; path=/;';
+    setIsAuthenticated(false);
+    router.push('/');
+  };
 
-  const toggleDropdown = () => {
-    setDropdownOpen(prev => !prev)
+  const toggleDesktopDropdown = () => {
+    setDesktopDropdownOpen(prev => !prev)
   }
 
   const toggleMobileDropdown = () => {
-    setIsOpen(prev => !prev)
+    setMobileDropdownOpen(prev => !prev)
   }
 
   return (
-    <nav className="bg-[#2C473A] text-white shadow">
+    <nav className="bg-[#2C473A] text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="font-bold text-lg">
+        <Link href="/" className="font-bold text-xl tracking-wide">
           ReSports
         </Link>
 
-        {/* Hamburger - Mobile */}
-        <button
-          className="md:hidden"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-
         {/* Desktop Menu */}
-        <div className="hidden md:flex gap-10 items-center">
+        <div className="hidden md:flex gap-8 items-center">
           {navItems.map((item) => (
             <div key={item.href} className="flex flex-col items-center space-y-1">
               <Link
                 href={item.href}
                 className={cn(
-                  'text-sm font-semibold transition-colors tracking-wide',
-                  isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
+                  'text-sm font-semibold tracking-wide transition-colors',
+                  isActive(item.href)
+                    ? 'text-white'
+                    : 'text-white/70 hover:text-white'
                 )}
               >
                 {item.label}
@@ -111,126 +114,166 @@ export default function NavbarUser() {
           ))}
         </div>
 
-        {/* CONDITIONAL ACCOUNT/LOGIN BUTTON */}
+        {/* Desktop Auth Button */}
         {isAuthenticated ? (
-          <div className="relative" ref={dropdownRef}>
-            <button 
-              className="flex items-center text-white border border-transparent hover:border-white px-3 py-2 rounded-full transition-all duration-300"
-              onClick={toggleDropdown}
-              aria-expanded={dropdownOpen}
+          <div className="relative hidden md:block" ref={desktopDropdownRef}>
+            <button
+              onClick={toggleDesktopDropdown}
+              aria-expanded={desktopDropdownOpen}
               aria-label="User menu"
+              className="flex items-center p-2 rounded-full border hover:border-white transition-all"
             >
               <User className="w-6 h-6" />
             </button>
 
             <div
-              className={`absolute right-0 mt-2 w-20 bg-[#2C473A] border-2 border-[#C5FC40] text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out ${
-                dropdownOpen 
-                  ? 'opacity-100 translate-y-0 visible' 
+              className={cn(
+                'absolute right-0 mt-3 w-40 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
+                desktopDropdownOpen
+                  ? 'opacity-100 translate-y-0 visible'
                   : 'opacity-0 -translate-y-2 invisible'
-              }`}
+              )}
             >
-              <div className="py-1">
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Profil
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    setDropdownOpen(false)
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
+              <Link
+                href="/profile"
+                onClick={() => setDesktopDropdownOpen(false)}
+                className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+              >
+                Profil
+              </Link>
+              <Link
+                href="/membership"
+                onClick={() => setDesktopDropdownOpen(false)}
+                className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+              >
+                Paket Langganan
+              </Link>
+              <button
+                onClick={() => {
+                  const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
+                  if (confirmed) {
+                    handleLogout();
+                  }
+                  setDesktopDropdownOpen(false);
+                }}
+                className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+              >
+                Logout
+              </button>
             </div>
           </div>
         ) : (
           <Link
             href="/login"
-            className="hidden md:flex items-center justify-center h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition"
+            className="hidden md:inline-block bg-[#C5FC40] text-black font-semibold text-sm px-5 py-2 rounded-full hover:bg-lime-300 transition"
           >
             Login
           </Link>
         )}
+
+        {/* Mobile Buttons - Hamburger on far right */}
+        <div className="md:hidden flex items-center gap-4">
+                    
+          {/* Hamburger Button - Now on far right */}
+          <button
+            className="p-2 rounded hover:bg-[#3a5a4a] transition"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+
+          {/* Mobile User Button */}
+          {isAuthenticated && (
+            <div className="relative" ref={mobileDropdownRef}>
+              <button
+                onClick={toggleMobileDropdown}
+                aria-expanded={mobileDropdownOpen}
+                aria-label="User menu"
+                className="flex items-center p-2 rounded-full border hover:border-white transition-all"
+              >
+                <User className="w-6 h-6" />
+              </button>
+
+              {/* Mobile User Dropdown */}
+              <div
+                className={cn(
+                  'absolute right-0 mt-2 w-28 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
+                  mobileDropdownOpen
+                    ? 'opacity-100 translate-y-0 visible'
+                    : 'opacity-0 -translate-y-2 invisible'
+                )}
+              >
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                >
+                  Profil
+                </Link>
+                <Link
+                  href="/membership"
+                  onClick={() => setDesktopDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                >
+                  Paket Langganan
+                </Link>
+                <button
+                  onClick={() => {
+                    const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
+                    if (confirmed) {
+                      handleLogout();
+                    }
+                    setMobileDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
+          
+        </div>
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-[#2C473A] px-4 pb-4">
-          <div className="flex flex-col space-y-4">
-            {navItems.map((item) => (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden md:hidden bg-[#2C473A] px-4 pt-4 pb-6 space-y-4"
+            ref={mobileMenuRef}
+          >
+            {navItems.map((item,idx) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'text-sm font-semibold transition-colors',
+                  'block text-sm font-semibold transition-colors text-center',
                   isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
                 )}
                 onClick={() => setIsOpen(false)}
+                style={{ borderBottom: idx !== navItems.length - 1 ? '1px solid rgba(255,255,255,0.2)' : 'none', paddingBottom: '0.5rem' }}
               >
                 {item.label}
               </Link>
             ))}
-
-            {/* CONDITIONAL ACCOUNT/LOGIN (Mobile)*/}
-            {isAuthenticated ? (
-              <div className="relative mt-2">
-                <button 
-                  className="flex items-center text-white border border-transparent hover:border-white px-3 py-2 rounded-full transition-all duration-300"
-                  onClick={toggleDropdown}
-                  aria-expanded={dropdownOpen}
-                  aria-label="User menu"
-                >
-                  <User className="w-6 h-6" />
-                </button>
-
-                {dropdownOpen && (
-                  <div
-                    className="absolute left-0 mt-2 w-40 bg-[#2C473A] border-2 border-[#C5FC40] text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
-                  >
-                    <div className="py-1">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                        onClick={() => {
-                          setDropdownOpen(false)
-                          setIsOpen(false)
-                        }}
-                      >
-                        Profil
-                      </Link>
-                      <button
-                        onClick={() => {
-                          handleLogout()
-                          setDropdownOpen(false)
-                          setIsOpen(false)
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
+            {!isAuthenticated && (
               <Link
                 href="/login"
-                className="bg-[#C5FC40] text-black font-semibold text-sm rounded-full p-2 hover:bg-lime-300 transition text-center"
+                className="block text-sm font-semibold text-white/70 hover:text-white transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 Login
               </Link>
             )}
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   )
 }

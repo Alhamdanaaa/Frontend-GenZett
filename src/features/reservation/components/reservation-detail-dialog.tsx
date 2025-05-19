@@ -35,26 +35,68 @@ export default function ReservationDetailDialog({
           <DialogDescription>Informasi lengkap dari reservasi yang dipilih.</DialogDescription>
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
-          <DetailRow label='Waktu Pemesanan' value={parseCustomDate(data.createTime)} />
+          <DetailRow label='Waktu Pemesanan' value={formatDate(data.created_at)} />
           <DetailRow label='Nama Pemesan' value={data.name} />
-          <DetailRow label='Waktu Lapangan' value={data.fieldTime} />
-          <DetailRow label='Tanggal Main' value={formatDate(data.date, true)} />
-          <DetailRow label='Total Pembayaran' value={formatCurrency(data.totalPayment)} />
+          <DetailRow 
+            label='Lapangan & Waktu' 
+            value={
+              data.fieldData && data.fieldData.length > 0 ? 
+                data.fieldData.map((field, index) => (
+                  <div key={index} className="mb-1">
+                    <div className="font-medium">{field.fieldName}</div>
+                    <div className="text-sm text-gray-600">
+                      {field.times.length > 0 ? field.times.join(', ') : 'Tidak ada waktu'}
+                    </div>
+                  </div>
+                ))
+              : 'Tidak ada data lapangan'
+            } 
+          />
+
+          {/* Tampilkan data tanggal */}
+          <DetailRow 
+            label='Tanggal Main' 
+            value={
+              data.fieldData && data.fieldData.length > 0 ? 
+                data.fieldData.map((field, index) => (
+                  <div key={index} className="mb-1">
+                    {field.dates.length > 0 ? 
+                      field.dates.map(date => formatDate(date, true)).join(', ') 
+                      : 'Tidak ada tanggal'
+                    }
+                  </div>
+                ))
+              : 'Tidak ada data tanggal'
+            } 
+          />
+          <DetailRow label='Total Pembayaran' value={formatCurrency(data.total)} />
           <DetailRow label='Sisa Pembayaran' value={formatCurrency(data.remainingPayment)} />
           <DetailRow
             label='Status Pembayaran'
-            value={<Badge className='capitalize'>{data.paymentStatus}</Badge>}
+            value={<Badge className='capitalize'>{convertPaymentStatus(data.paymentStatus)}</Badge>}
           />
           <DetailRow
             label='Status Reservasi'
-            value={<Badge variant='outline' className='capitalize'>{data.status}</Badge>}
+            value={<Badge variant='outline' className='capitalize'>{convertStatus(data.status)}</Badge>}
           />
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
+function convertStatus(status: string) {
+  if (status === 'upcoming') return 'Mendatang';
+  if (status === 'ongoing') return 'Berlangsung';
+  if (status === 'completed') return 'Selesai';
+  return status;
+}
+function convertPaymentStatus(status: string) {
+  if (status === 'pending') return 'Menunggu';
+  if (status === 'dp') return 'Uang Muka';
+  if (status === 'complete') return 'Lunas';
+  if (status === 'fail') return 'Gagal';
+  return status;
+}
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className='flex flex-col'>
@@ -66,23 +108,6 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 
 function formatDate(dateStr: string, onlyDate = false) {
   const date = new Date(dateStr);
-  return date.toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    ...(onlyDate ? {} : { hour: '2-digit', minute: '2-digit' })
-  });
-}
-
-function parseCustomDate(dateStr: string, onlyDate = false) {
-  const [datePart, timePart] = dateStr.split(' ');
-  const [day, month, year] = datePart.split('/').map(Number);
-  const [hours, minutes, seconds] = timePart.split(':').map(Number);
-
-  const fullYear = year < 100 ? 2000 + year : year; // 25 → 2025
-
-  const date = new Date(fullYear, month - 1, day, hours, minutes, seconds);
-
   return date.toLocaleString('id-ID', {
     day: '2-digit',
     month: 'long',

@@ -10,6 +10,7 @@ type FilterParams = {
     sportName?: string;
     location?: string;
     date?: string; // Tambahkan jika perlu filter by date
+    paymentStatus?: string;
 };
 
 export async function getReservations(params: FilterParams = {}) {

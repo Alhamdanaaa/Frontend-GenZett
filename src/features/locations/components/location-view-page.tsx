@@ -1,7 +1,7 @@
 import { Location } from '@/constants/data';
 import { notFound } from 'next/navigation';
 import LocationViewPageClient from './location-view-page-client';
-import { fakeLocations } from '@/constants/mock-api';
+import { getLocationById } from '@/lib/api/location';
 
 interface LocationViewPageProps {
   locationId: string;
@@ -9,15 +9,8 @@ interface LocationViewPageProps {
 
 async function fetchLocation(locationId: string): Promise<Location | null> {
   try {
-    // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/locations/${locationId}`, {
-    //   cache: 'no-store'
-    // });
-    // if (!res.ok) {
-    //   throw new Error('Location not found');
-    // }
-    // const data = await res.json();
-    const data = await fakeLocations.getLocationById(Number(locationId));
-    return data.location as Location;
+    const data = await getLocationById(Number(locationId));
+    return data as Location;
   } catch (error) {
     console.error(error);
     return null;
@@ -33,7 +26,7 @@ export default async function LocationViewPage({ locationId }: LocationViewPageP
     if (!location) {
       notFound();
     }
-    pageTitle = `Edit Lokasi - ${location.name}`;
+    pageTitle = `Edit Lokasi - ${location.locationName}`;
   }
 
   return <LocationViewPageClient location={location} pageTitle={pageTitle} />;

@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronDownCircle } from 'lucide-react';
 import UserLayout from '@/app/user/layout';
-import { useRef } from 'react';
 
 export default function SchedulesPage() {
   const scheduleRef = useRef<HTMLDivElement>(null);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
   const [timeSlots, setTimeSlots] = useState<
     Array<{ time: string; booked: boolean }>
   >([]);
@@ -21,7 +20,9 @@ export default function SchedulesPage() {
   >([]);
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string>('Reguler');
+  const courtNames = ['court1', 'court2'];
 
   const getDayName = (dayIndex: number): string => {
     const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -47,7 +48,6 @@ export default function SchedulesPage() {
   };
 
   useEffect(() => {
-    // Ensure this runs only on client side
     if (typeof window !== 'undefined') {
       const today = new Date();
       const currentDate = today.getDate();
@@ -69,7 +69,6 @@ export default function SchedulesPage() {
     }
   }, []);
 
-  // Replace the random booking with deterministic logic
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 10; hour <= 23; hour++) {
@@ -90,6 +89,30 @@ export default function SchedulesPage() {
       prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
     );
   };
+
+  const toggleDropdown = (dropdownName: string) => {
+    setOpenDropdowns(prev => 
+      prev.includes(dropdownName) 
+        ? prev.filter(name => name !== dropdownName)
+        : [...prev, dropdownName]
+    );
+  };
+  
+  const dropdownRefs = {
+    calendar: useRef<HTMLDivElement>(null),
+    category: useRef<HTMLDivElement>(null),
+    paymentType: useRef<HTMLDivElement>(null),
+    court1: useRef<HTMLDivElement>(null),
+    court2: useRef<HTMLDivElement>(null)
+  };
+
+  useEffect(() => {
+    if (selectedTimes.length > 0) {
+      setShowDetails(true);
+    } else {
+      setShowDetails(false);
+    }
+  }, [selectedTimes]);
 
   return (
     <UserLayout>
@@ -116,13 +139,11 @@ export default function SchedulesPage() {
                 <Button 
                   className='mt-3 w-full bg-orange-500 hover:bg-orange-600'
                   onClick={() => {
-                    scheduleRef.current?.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start',
-                    });
-                 }}
+                    scheduleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setOpenDropdowns(courtNames);
+                  }}
                 >
-                Cek Ketersediaan
+                  Cek Ketersediaan
                 </Button>
             </div>
 
@@ -191,14 +212,11 @@ export default function SchedulesPage() {
               <div className='flex items-center justify-center'>
                 <div className='w-px h-[35px] bg-gray-300'></div>
               </div>
+
               <div className='flex flex-row items-center justify-between'>
-                <div className='flex items-center'>
+                <div ref={dropdownRefs.calendar}>
                   <button
-                    onClick={() =>
-                      setOpenDropdown(
-                        openDropdown === 'calendar' ? null : 'calendar'
-                      )
-                    }
+                    onClick={() => toggleDropdown('calendar')}
                     className='flex items-center gap-2 text-white cursor-pointer'
                   >
                     <svg
@@ -229,44 +247,33 @@ export default function SchedulesPage() {
                 </div>
               </div>
 
-              <div className='flex items-center'>
+              <div className='flex items-center' ref={dropdownRefs.category}>
                 <button
-                  onClick={() =>
-                    setOpenDropdown(
-                      openDropdown === 'category' ? null : 'category'
-                    )
-                  }
-                  className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer'
-                  style={{ width: '140px' }} // Fixed width for the button
+                  onClick={() => toggleDropdown('category')}
+                  className='flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300'
+                  style={{ width: '140px' }}
                 >
-                  <span className='text-sm truncate'>{selectedCategory || 'Pilih Cabor'}</span>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='16'
-                    height='16'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    className={`transition-transform ${openDropdown === 'category' ? 'rotate-180' : ''}`}
-                  >
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  <span className='text-sm truncate'>{selectedSport || 'Pilih Cabor'}</span>
+                  <ChevronDownCircle
+                    className={`h-4 w-4 transition-transform duration-300 ${
+                      openDropdowns.includes('category') ? 'rotate-180' : ''
+                    }`}
+                    stroke="currentColor"
+                  />
                 </button>
 
-                {openDropdown === 'category' && (
-                  <div className='absolute mt-62 rounded-lg bg-white p-2 shadow-lg z-10'
-                    style={{ width: '140px', left: 'auto', right: 'auto' }}>
+                {openDropdowns.includes('category') && (
+                  <div 
+                    className="absolute mt-62 rounded-lg bg-white p-2 shadow-lg z-10"
+                    style={{ width: '140px' }}
+                  >
                     <div className='flex flex-col'>
                       {['Semua', 'Badminton', 'Sepakbola', 'Basket', 'Renang'].map((sport) => (
                         <button
                           key={sport}
                           onClick={() => {
-                            setSelectedCategory(sport);
-                            console.log(sport);
-                            setOpenDropdown(null);
+                            setSelectedSport(sport);
+                            toggleDropdown('category');
                           }}
                           className='rounded-md px-4 py-2 text-left text-sm hover:bg-gray-100 w-full truncate cursor-pointer'
                         >
@@ -280,7 +287,7 @@ export default function SchedulesPage() {
             </div>
 
             {/* Calendar dropdown - Two months side by side */}
-            {openDropdown === 'calendar' && (
+            {openDropdowns.includes('calendar') && (
               <div className='mt-4 rounded-lg bg-white p-3 shadow-lg'>
                 <div className='flex flex-row gap-4'>
                   {/* Current Month */}
@@ -405,7 +412,6 @@ export default function SchedulesPage() {
                             <div
                               key={`next-${i}`}
                               onClick={() => {
-                                // Need to handle selection for next month in state
                                 console.log(
                                   `Selected day ${dayNumber} in next month`
                                 );
@@ -433,22 +439,22 @@ export default function SchedulesPage() {
                 <p className='text-lg font-semibold text-black'>{court}</p>
                 <p className='text-sm text-gray-600'>Lapangan Badminton beralaskan karpet vinyl</p>
               </div>
-              <div className='relative'>
+              <div className='relative' ref={index === 0 ? dropdownRefs.court1 : dropdownRefs.court2}>
                 <button
-                  onClick={() =>
-                    setOpenDropdown(openDropdown === court ? null : court)
-                  }
-                  className='flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'>
-                  {timeSlots.filter((slot) => !slot.booked).length} Jadwal
-                  Tersedia
+                  onClick={() => toggleDropdown(`court${index + 1}`)}
+                  className='flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'
+                >
+                  {timeSlots.filter((slot) => !slot.booked).length} Jadwal Tersedia
                   <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform ${openDropdown === court ? 'rotate-180' : ''}`}
+                    className={`h-5 w-5 transition-transform duration-300 ${
+                      openDropdowns.includes(`court${index + 1}`) ? 'rotate-180' : ''
+                    }`}
                     stroke="currentColor"
                   />
                 </button>
 
                 {/* Dropdown Content - bg-white shadow-lg*/}
-                {(openDropdown === court || (openDropdown === null && index === 0)) && (
+                {openDropdowns.includes(`court${index + 1}`) && (
                   <div className='mt-4 w-full rounded-md'>
                     <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
                       {timeSlots.map((time, idx) => {
@@ -516,46 +522,46 @@ export default function SchedulesPage() {
                   onClick={() => setShowDetails((prev) => !prev)}
                 >
                   <ChevronDownCircle
-                  className={`h-5 w-5 transition-transform ${showDetails || selectedTimes.length > 0 ? 'rotate-180' : ''}`}
+                  className={`h-5 w-5 transition-transform ${showDetails ? 'rotate-180' : ''}`}
                   stroke="white"
                   />
                 </button>                           
               </div>
               <div className='flex items-center font-medium gap-4'>
-                <div className="relative">
+                <div className="relative" ref={dropdownRefs.paymentType}>
                   <button
-                  onClick={() => setOpenDropdown(openDropdown === 'paymentType' ? null : 'paymentType')}
-                  className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                    onClick={() => toggleDropdown('paymentType')}
+                    className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
                   >
-                  {selectedCategory === 'Langganan' ? 'Langganan' : 'Reguler'}
-                  <ChevronDownCircle
-                    className={`h-4 w-4 transition-transform ${openDropdown === 'paymentType' ? 'rotate-180' : ''}`}
-                    stroke="currentColor"
-                  />
+                    {selectedPaymentType}
+                    <ChevronDownCircle
+                      className={`h-4 w-4 transition-transform ${openDropdowns.includes('paymentType') ? 'rotate-180' : ''}`}
+                      stroke="currentColor"
+                    />
                   </button>
                   
-                  {openDropdown === 'paymentType' && (
-                  <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
-                    style={{ width: '100%' }}>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Reguler');
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Reguler
-                    </button>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Langganan');
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Langganan
-                    </button>
-                  </div>
+                  {openDropdowns.includes('paymentType') && (
+                    <div className="absolute right-0 top-full mt-1 rounded-lg bg-white py-1 shadow-lg z-20"
+                      style={{ width: '100%' }}>
+                      <button 
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedPaymentType('Reguler');
+                          toggleDropdown('paymentType');
+                        }}
+                      >
+                        Reguler
+                      </button>
+                      <button 
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedPaymentType('Langganan');
+                          toggleDropdown('paymentType');
+                        }}
+                      >
+                        Langganan
+                      </button>
+                    </div>
                   )}
                 </div>
                 <Button
@@ -568,7 +574,7 @@ export default function SchedulesPage() {
             </div>
 
             {/* Dropdown details - show by default if any time slots are selected */}
-            {(showDetails || selectedTimes.length > 0) && (
+            {showDetails && (
               <div className='mt-2 border-t pt-3'>
                 <div className='space-y-2'>
                   {selectedTimes.map((timeKey, idx) => {

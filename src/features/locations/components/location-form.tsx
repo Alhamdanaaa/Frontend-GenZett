@@ -11,13 +11,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Location } from '@/constants/data';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,9 +26,10 @@ const FileUploader = dynamic(
   }
 );
 
-
-import { SPORTS_OPTIONS } from './location-tables/options';
 import { Skeleton } from '@/components/ui/skeleton';
+import { createLocation, updateLocation } from '@/lib/api/location';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [
@@ -45,48 +39,89 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/webp'
 ];
 
-const formSchema = z.object({
-  img: z
-    .any()
-    .refine((files) => files?.length == 1, 'Gambar lokasi diperlukan.')
-    .refine(
-      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Ukuran file maksimal 5MB.`
-    )
-    .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      'Hanya menerima file .jpg, .jpeg, .png dan .webp.'
-    ),
-  name: z.string().min(2, { message: 'Nama lokasi minimal 2 karakter.' }),
-  sports: z.array(z.string()).min(1, { message: 'Pilih minimal satu cabang olahraga.' }),
-  countLap: z.number().min(1, { message: 'Jumlah lapangan minimal 1.' }),
-  address: z.string().min(5, { message: 'Alamat minimal 5 karakter.' }),
-  desc: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' })
-});
-
-export default function LocationForm({
-  initialData,
-  pageTitle
-}: {
-  initialData: Location | null;
-  pageTitle: string;
-}) {
-  const defaultValues = {
-    name: initialData?.name || '',
-    sports: initialData?.sports || [],
-    countLap: initialData?.countLap || 1,
-    address: initialData?.address || '',
-    desc: initialData?.desc || ''
-  };
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    values: defaultValues,
-    mode: 'onBlur'
+const formSchema = (isEdit: boolean) =>
+  z.object({
+    img: isEdit
+      ? z.any().optional() // saat edit, gambar boleh kosong
+      : z
+          .any()
+          .refine((files) => files?.length == 1, 'Gambar lokasi diperlukan.')
+          .refine(
+            (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+            `Ukuran file maksimal 5MB.`
+          )
+          .refine(
+            (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+            'Hanya menerima file .jpg, .jpeg, .png dan .webp.'
+          ),
+    locationName: z.string().min(2, { message: 'Nama lokasi minimal 2 karakter.' }),
+    address: z.string().min(5, { message: 'Alamat minimal 5 karakter.' }),
+    description: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' })
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('Form submitted:', values);
+
+  export default function LocationForm({
+    initialData,
+    pageTitle
+  }: {
+    initialData: Location | null;
+    pageTitle: string;
+  }) {
+
+  const isEdit = !!initialData;
+  const defaultValues = {
+    locationName: initialData?.locationName ?? '',
+    address: initialData?.address ?? '',
+    description: initialData?.description ?? '',
+    img: undefined, // biarkan kosong saat edit, kecuali user upload baru
+  };
+  // const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
+  //   resolver: zodResolver(formSchema(isEdit)),
+  //   values: {
+  //     locationName: initialData?.locationName ?? '',
+  //     address: initialData?.address ?? '',
+  //     description: initialData?.description ?? '',
+  //     img: undefined, // biarkan kosong saat edit, kecuali user upload baru
+  //   },
+  //   mode: 'onBlur'
+  // });
+
+  const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
+    resolver: zodResolver(formSchema(isEdit)), // 2. Gunakan nilai schema yang dikompilasi
+    defaultValues
+  });
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        locationName: initialData.locationName,
+        address: initialData.address,
+        description: initialData.description,
+        img: undefined,
+      });
+    }
+  }, [initialData, form]);
+  const router = useRouter();
+
+  // 2. Gunakan nilai schema yang dikompilasi
+  const compiledSchema = formSchema(isEdit);
+
+  async function onSubmit(values: z.infer<typeof compiledSchema>) {
+    console.log('locationName:', values.locationName); // pastikan bukan undefined
+    console.log('address:', values.address); // pastikan bukan undefined
+    console.log('description:', values.description); // pastikan bukan undefined
+
+    try {
+      if (isEdit) {
+        await updateLocation(initialData!.locationId, values);
+      } else {
+        const res = await createLocation(values);
+        router.push(`/locations/${res.location.locationId}`);
+      }
+
+      router.push('/dashboard/location');
+    } catch (error) {
+      console.error('Gagal menyimpan lokasi:', error);
+    }
   }
 
   return (
@@ -119,83 +154,12 @@ export default function LocationForm({
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               <FormField
                 control={form.control}
-                name='name'
+                name='locationName'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nama Lokasi</FormLabel>
                     <FormControl>
                       <Input placeholder='Masukkan nama lokasi' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='sports'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cabang Olahraga</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        const currentSports = field.value || [];
-                        const newSports = currentSports.includes(value)
-                          ? currentSports.filter((sport) => sport !== value)
-                          : [...currentSports, value];
-                        field.onChange(newSports);
-                      }}
-                      value={field.value[field.value.length - 1]}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih cabang olahraga' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {SPORTS_OPTIONS.map((sport) => (
-                          <SelectItem key={sport.value} value={sport.value}>
-                            {sport.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <div className='flex flex-wrap gap-2 mt-2'>
-                      {field.value?.map((sport) => (
-                        <div
-                          key={sport}
-                          className='bg-primary/10 px-2 py-1 rounded-md text-sm flex items-center'
-                        >
-                          {sport}
-                          <button
-                            type='button'
-                            onClick={() => {
-                              const newSports = field.value.filter((s) => s !== sport);
-                              field.onChange(newSports);
-                            }}
-                            className='ml-2 text-destructive'
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='countLap'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jumlah Lapangan</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='number'
-                        placeholder='Masukkan jumlah lapangan'
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -217,7 +181,7 @@ export default function LocationForm({
             </div>
             <FormField
               control={form.control}
-              name='desc'
+              name='description'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Deskripsi</FormLabel>

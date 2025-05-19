@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Reservation } from '@/constants/data';
-import { fakeReservations } from '@/constants/mock-api';
 import ReservationViewPageClient from './reservation-view-page-client';
+import { getReservationById } from '@/lib/api/reservation';
 
 interface ReservationViewPageProps {
   reservationId: string;
@@ -9,8 +9,8 @@ interface ReservationViewPageProps {
 
 async function fetchReservation(reservationId: string): Promise<Reservation | null> {
   try {
-    const data = await fakeReservations.getReservationById(Number(reservationId));
-    return data.reservation as Reservation;
+    const data = await getReservationById(Number(reservationId));
+    return data as Reservation;
   } catch (error) {
     console.error(error);
     return null;

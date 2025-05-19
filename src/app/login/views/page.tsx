@@ -6,6 +6,7 @@ import { Eye, EyeOff, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { login } from "@/lib/api/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,22 +22,11 @@ export default function LoginPage() {
     setPending(true);
 
     try {
-      const formData = new FormData();
-      formData.append("email", email);
-      formData.append("password", password);
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BACKEND}/api/login`,
-        formData
-      );
-
-      Cookies.set("token", response.data.token);
-      
-    
-      const userRole = response.data.user.role;
-      Cookies.set("role", userRole);
-
-      if (userRole === "admin") {
+      const data = await login({ email, password });
+      Cookies.set("token", data.token);
+      Cookies.set("role", data.user.role);
+      localStorage.setItem("token", data.token);
+      if (data.user.role === "admin") {
         router.push("/dashboard");
       } else {
         router.push("/");
@@ -66,7 +56,7 @@ export default function LoginPage() {
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
           <form
             onSubmit={handleLogin}
-            className="bg-white p-10 rounded-3xl shadow-md w-full max-w-md space-y-6"
+            className="bg-white p-10 rounded-3xl w-full max-w-md space-y-6"
           >
             <h1 className="text-2xl font-bold text-center">Masuk Akun</h1>
             <p className="text-sm text-gray-500 text-center">

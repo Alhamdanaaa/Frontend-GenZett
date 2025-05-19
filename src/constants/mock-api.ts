@@ -194,12 +194,12 @@ export const fakeLocations = {
       const locationSports = faker.helpers.arrayElements(sportsList, { min: 1, max: 3 });
       
       return {
-        id,
+        locationId: id,
         img: `https://api.slingacademy.com/public/sample-photos/${id}.jpeg`,
-        name: `${faker.location.city()} Sport Center`,
+        locationName: `${faker.location.city()} Sport Center`,
         sports: locationSports,
         countLap: faker.number.int({ min: 2, max: 10 }),
-        desc: faker.lorem.paragraph(),
+        description: faker.lorem.paragraph(),
         address: faker.location.streetAddress(),
         created_at: faker.date
           .between({ from: '2022-01-01', to: '2023-12-31' })
@@ -239,8 +239,8 @@ export const fakeLocations = {
     if (search) {
       const searchLower = search.toLowerCase();
       locations = locations.filter(location => 
-        location.name.toLowerCase().includes(searchLower) ||
-        location.desc.toLowerCase().includes(searchLower) ||
+        location.locationName.toLowerCase().includes(searchLower) ||
+        location.description.toLowerCase().includes(searchLower) ||
         location.sports.some(sport => sport.toLowerCase().includes(searchLower))
       );
     }
@@ -290,7 +290,7 @@ export const fakeLocations = {
     // Remove the artificial delay
     // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const location = this.records.find((location) => location.id === id);
+    const location = this.records.find((location) => location.locationId === id);
 
     if (!location) {
       return {
@@ -312,92 +312,92 @@ export const fakeLocations = {
 fakeLocations.initialize();
 
 // Data sport
-export const fakeSports = {
-  records: [] as Sport[],
+// export const fakeSports = {
+//   records: [] as Sport[],
 
-  initialize() {
-    const sportNames = [
-      { sportName: 'Futsal', description: 'Olahraga mirip sepak bola, dimainkan di dalam ruangan.' },
-      { sportName: 'Badminton', description: 'Olahraga raket yang dimainkan oleh dua atau empat orang.' },
-      { sportName: 'Basketball', description: 'Olahraga tim yang bertujuan memasukkan bola ke keranjang.' },
-      { sportName: 'Volleyball', description: 'Olahraga memukul bola melewati net dengan tangan.' },
-      { sportName: 'Tennis', description: 'Olahraga raket satu lawan satu atau ganda.' },
-      { sportName: 'Sepak Bola', description: 'Olahraga paling populer dengan 11 pemain tiap tim.' },
-      { sportName: 'Handball', description: 'Olahraga cepat dengan bola tangan.' }
-    ];
+//   initialize() {
+//     const sportNames = [
+//       { sportName: 'Futsal', description: 'Olahraga mirip sepak bola, dimainkan di dalam ruangan.' },
+//       { sportName: 'Badminton', description: 'Olahraga raket yang dimainkan oleh dua atau empat orang.' },
+//       { sportName: 'Basketball', description: 'Olahraga tim yang bertujuan memasukkan bola ke keranjang.' },
+//       { sportName: 'Volleyball', description: 'Olahraga memukul bola melewati net dengan tangan.' },
+//       { sportName: 'Tennis', description: 'Olahraga raket satu lawan satu atau ganda.' },
+//       { sportName: 'Sepak Bola', description: 'Olahraga paling populer dengan 11 pemain tiap tim.' },
+//       { sportName: 'Handball', description: 'Olahraga cepat dengan bola tangan.' }
+//     ];
 
-    const sports: Sport[] = sportNames.map((item, index) => ({
-      sportId: index + 1,
-      sportName: item.sportName,
-      countLocation: faker.number.int({ min: 1, max: 10 }),
-      description: item.description,
-      created_at: faker.date.past().toISOString(),
-      updated_at: faker.date.recent().toISOString()
-    }));
+//     const sports: Sport[] = sportNames.map((item, index) => ({
+//       sportId: index + 1,
+//       sportName: item.sportName,
+//       countLocation: faker.number.int({ min: 1, max: 10 }),
+//       description: item.description,
+//       created_at: faker.date.past().toISOString(),
+//       updated_at: faker.date.recent().toISOString()
+//     }));
 
-    this.records = sports;
-  },
+//     this.records = sports;
+//   },
 
-  async getSports({
-    page = 1,
-    limit = 10,
-    search
-  }: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }) {
-    // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
+//   async getSports({
+//     page = 1,
+//     limit = 10,
+//     search
+//   }: {
+//     page?: number;
+//     limit?: number;
+//     search?: string;
+//   }) {
+//     // await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi delay
   
-    let filteredSports = this.records;
+//     let filteredSports = this.records;
   
-    // Tambahkan logika pencarian
-    if (search) {
-      const lowerSearch = search.toLowerCase();
-      filteredSports = filteredSports.filter(sport =>
-        sport.sportName.toLowerCase().includes(lowerSearch) ||
-        sport.description.toLowerCase().includes(lowerSearch)
-      );
-    }
+//     // Tambahkan logika pencarian
+//     if (search) {
+//       const lowerSearch = search.toLowerCase();
+//       filteredSports = filteredSports.filter(sport =>
+//         sport.sportName.toLowerCase().includes(lowerSearch) ||
+//         sport.description.toLowerCase().includes(lowerSearch)
+//       );
+//     }
   
-    const totalSports = filteredSports.length;
+//     const totalSports = filteredSports.length;
   
-    const offset = (page - 1) * limit;
-    const paginatedSports = filteredSports.slice(offset, offset + limit);
+//     const offset = (page - 1) * limit;
+//     const paginatedSports = filteredSports.slice(offset, offset + limit);
   
-    const currentTime = new Date().toISOString();
+//     const currentTime = new Date().toISOString();
   
-    return {
-      success: true,
-      time: currentTime,
-      message: 'Data olahraga untuk keperluan testing',
-      totalSports: totalSports,
-      offset,
-      limit,
-      sports: paginatedSports
-    };
-  },
+//     return {
+//       success: true,
+//       time: currentTime,
+//       message: 'Data olahraga untuk keperluan testing',
+//       totalSports: totalSports,
+//       offset,
+//       limit,
+//       sports: paginatedSports
+//     };
+//   },
 
-  async getSportById(id: number) {
-    // await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
-    const sport = this.records.find((s) => s.sportId === id);
-    if (!sport) {
-      return {
-        success: false,
-        time: new Date().toISOString(),
-        message: `Sport dengan ID ${id} tidak ditemukan`
-      };
-    }
-    return {
-      success: true,
-      time: new Date().toISOString(),
-      sport
-    };
-  }
-};
+//   async getSportById(id: number) {
+//     // await new Promise(resolve => setTimeout(resolve, 300)); // Simulasi delay
+//     const sport = this.records.find((s) => s.sportId === id);
+//     if (!sport) {
+//       return {
+//         success: false,
+//         time: new Date().toISOString(),
+//         message: `Sport dengan ID ${id} tidak ditemukan`
+//       };
+//     }
+//     return {
+//       success: true,
+//       time: new Date().toISOString(),
+//       sport
+//     };
+//   }
+// };
 
-// Jangan lupa panggil initialize
-fakeSports.initialize();
+// // Jangan lupa panggil initialize
+// fakeSports.initialize();
 
 
 // Mock field data store
@@ -843,212 +843,213 @@ export const fakeAdmins = {
 fakeAdmins.initialize();
 
 
-// Mock reservation data store
-export const fakeReservations = {
-  records: [] as Reservation[], // Menyimpan daftar objek reservasi
+// // Mock reservation data store
+// export const fakeReservations = {
+//   records: [] as Reservation[], // Menyimpan daftar objek reservasi
 
-  // Inisialisasi dengan data contoh
-  initialize() {
-    const sampleReservations: Reservation[] = [];
+//   // Inisialisasi dengan data contoh
+//   initialize() {
+//     const sampleReservations: Reservation[] = [];
     
-    // Daftar nama lapangan
-    const fieldNames = [
-      'Lapangan Futsal Utama',
-      'Lapangan Badminton A',
-      'Lapangan Basket Kota',
-      'Lapangan Voli Stadion',
-      'Lapangan Tennis Center',
-      'Lapangan Sepak Bola Mini',
-      'Lapangan Handball Profesional'
-    ];
+//     // Daftar nama lapangan
+//     const fieldName = [
+//       'Lapangan Futsal Utama',
+//       'Lapangan Badminton A',
+//       'Lapangan Basket Kota',
+//       'Lapangan Voli Stadion',
+//       'Lapangan Tennis Center',
+//       'Lapangan Sepak Bola Mini',
+//       'Lapangan Handball Profesional'
+//     ];
 
-    // Status pembayaran dan reservasi
-    const paymentStatuses: Reservation['paymentStatus'][] = ['pending', 'down payment', 'complete', 'fail'];
-    const reservationStatuses: Reservation['status'][] = ['upcoming', 'ongoing', 'completed'];
+//     // Status pembayaran dan reservasi
+//     const paymentStatuses: Reservation['paymentStatus'][] = ['pending', 'dp', 'complete', 'fail'];
+//     const reservationStatuses: Reservation['status'][] = ['upcoming', 'ongoing', 'completed'];
 
-    function generateRandomReservationData(reservationId: number): Reservation {
-      // Generate waktu mulai dan selesai
-      const startHour = faker.number.int({ min: 9, max: 20 }); 
-      const startTime = new Date();
-      startTime.setHours(startHour, 0, 0, 0);
-      const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
+//     function generateRandomReservationData(reservationId: number): Reservation {
+//       // Generate waktu mulai dan selesai
+//       const startHour = faker.number.int({ min: 9, max: 20 }); 
+//       const startTime = new Date();
+//       startTime.setHours(startHour, 0, 0, 0);
+//       const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
 
-      // Total dan sisa pembayaran
-      const totalPayment = faker.number.int({ min: 50000, max: 500000 });
-      const paymentStatus = faker.helpers.arrayElement(paymentStatuses);
+//       // Total dan sisa pembayaran
+//       const total = faker.number.int({ min: 50000, max: 500000 });
+//       const paymentStatus = faker.helpers.arrayElement(paymentStatuses);
       
-      // Hitung sisa pembayaran berdasarkan status
-      let remainingPayment = 0;
-      switch (paymentStatus) {
-        case 'pending':
-          remainingPayment = totalPayment;
-          break;
-        case 'down payment':
-          remainingPayment = totalPayment * 0.5;
-          break;
-        case 'complete':
-          remainingPayment = 0;
-          break;
-        case 'fail':
-          remainingPayment = totalPayment;
-          break;
-      }
+//       // Hitung sisa pembayaran berdasarkan status
+//       let remainingPayment = 0;
+//       switch (paymentStatus) {
+//         case 'pending':
+//           remainingPayment = total;
+//           break;
+//         case 'dp':
+//           remainingPayment = total * 0.5;
+//           break;
+//         case 'complete':
+//           remainingPayment = 0;
+//           break;
+//         case 'fail':
+//           remainingPayment = total;
+//           break;
+//       }
 
-      // Generate nama pemesan
-      const firstName = faker.person.firstName();
-      const lastName = faker.person.lastName();
+//       // Generate nama pemesan
+//       const firstName = faker.person.firstName();
+//       const lastName = faker.person.lastName();
 
-      function formatDateTime(date: Date): string {
-        const pad = (num: number) => num.toString().padStart(2, '0');
+//       function formatDateTime(date: Date): string {
+//         const pad = (num: number) => num.toString().padStart(2, '0');
         
-        const year = date.getFullYear().toString().slice(-2);
-        const month = pad(date.getMonth() + 1);
-        const day = pad(date.getDate());
-        const hours = pad(date.getHours());
-        const minutes = pad(date.getMinutes());
-        const seconds = pad(date.getSeconds());
+//         const year = date.getFullYear().toString().slice(-2);
+//         const month = pad(date.getMonth() + 1);
+//         const day = pad(date.getDate());
+//         const hours = pad(date.getHours());
+//         const minutes = pad(date.getMinutes());
+//         const seconds = pad(date.getSeconds());
         
-        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
-      }
-      return {
-        reservationId,
+//         return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+//       }
+//       return {
+//         reservationId,
         
-        // Dalam mock data
-        createTime: formatDateTime(faker.date.recent()),
-        name: `${firstName} ${lastName}`,
-        fieldTime: `${faker.helpers.arrayElement(fieldNames)} (${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()})`,
-        date: startTime.toISOString().split('T')[0],
-        totalPayment,
-        remainingPayment: Math.round(remainingPayment),
-        paymentStatus,
-        status: faker.helpers.arrayElement(reservationStatuses),
-        created_at: faker.date
-          .between({ from: '2022-01-01', to: '2023-12-31' })
-          .toISOString(),
-        updated_at: faker.date.recent().toISOString()
-      };
-    }
+//         // Dalam mock data
+//         created_at: formatDateTime(faker.date.recent()),
+//         name: `${firstName} ${lastName}`,
+//         fieldName: `${faker.helpers.arrayElement(fieldName)} `,
+//         time: `(${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()})`,
+//         date: startTime.toISOString().split('T')[0],
+//         total,
+//         remainingPayment: Math.round(remainingPayment),
+//         paymentStatus,
+//         status: faker.helpers.arrayElement(reservationStatuses),
+//         // created_at: faker.date
+//         //   .between({ from: '2022-01-01', to: '2023-12-31' })
+//         //   .toISOString(),
+//         // updated_at: faker.date.recent().toISOString()
+//       };
+//     }
 
-    // Generate 50 reservasi
-    for (let i = 1; i <= 50; i++) {
-      sampleReservations.push(generateRandomReservationData(i));
-    }
+//     // Generate 50 reservasi
+//     for (let i = 1; i <= 50; i++) {
+//       sampleReservations.push(generateRandomReservationData(i));
+//     }
 
-    this.records = sampleReservations;
-  },
+//     this.records = sampleReservations;
+//   },
 
-  // Ambil semua reservasi dengan filter opsional
-  async getAll({
-    paymentStatus = [],
-    // status = [],
-    search,
-    date,
-  }: {
-    paymentStatus?: string[];
-    // status?: string[];
-    search?: string;
-    date?: string;
-  }) {
-    let reservations = [...this.records];
-    console.log('Filter date from query:', date);
-    console.log('Sample dates from data:', reservations.slice(0, 5).map(r => r.date));
-    // Filter berdasarkan status pembayaran
-    if (paymentStatus.length > 0) {
-      reservations = reservations.filter((reservation) =>
-        paymentStatus.includes(reservation.paymentStatus)
-      );
-    }
+//   // Ambil semua reservasi dengan filter opsional
+//   async getAll({
+//     paymentStatus = [],
+//     // status = [],
+//     search,
+//     date,
+//   }: {
+//     paymentStatus?: string[];
+//     // status?: string[];
+//     search?: string;
+//     date?: string;
+//   }) {
+//     let reservations = [...this.records];
+//     console.log('Filter date from query:', date);
+//     console.log('Sample dates from data:', reservations.slice(0, 5).map(r => r.date));
+//     // Filter berdasarkan status pembayaran
+//     if (paymentStatus.length > 0) {
+//       reservations = reservations.filter((reservation) =>
+//         paymentStatus.includes(reservation.paymentStatus)
+//       );
+//     }
 
-    // Filter tanggal
-    if (date) {
-      reservations = reservations.filter(
-        (r) => r.date === date
-      );
-    }
+//     // Filter tanggal
+//     if (date) {
+//       reservations = reservations.filter(
+//         (r) => r.date === date
+//       );
+//     }
 
-    // Pencarian di berbagai field
-    if (search) {
-      reservations = matchSorter(reservations, search, {
-        keys: ['name', 'fieldTime', 'date']
-      });
-    }
+//     // Pencarian di berbagai field
+//     if (search) {
+//       reservations = matchSorter(reservations, search, {
+//         keys: ['name', 'fieldTime', 'date']
+//       });
+//     }
     
-    return reservations;
-  },
+//     return reservations;
+//   },
 
-  // Ambil reservasi dengan pagination
-  async getReservations({
-    page = 1,
-    limit = 10,
-    paymentStatus,
-    search,
-    date,
-  }: {
-    page?: number;
-    limit?: number;
-    paymentStatus?: string;
-    search?: string;
-    date?: string;
-  }) {
-    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+//   // Ambil reservasi dengan pagination
+//   async getReservations({
+//     page = 1,
+//     limit = 10,
+//     paymentStatus,
+//     search,
+//     date,
+//   }: {
+//     page?: number;
+//     limit?: number;
+//     paymentStatus?: string;
+//     search?: string;
+//     date?: string;
+//   }) {
+//     // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const paymentStatusArray = paymentStatus ? paymentStatus.split('.') : [];
-    // const statusArray = status ? status.split('.') : [];
-    const allReservations = await this.getAll({
-      paymentStatus: paymentStatusArray,
-      search,
-      date
-    });
-    const totalReservations = allReservations.length;
+//     const paymentStatusArray = paymentStatus ? paymentStatus.split('.') : [];
+//     // const statusArray = status ? status.split('.') : [];
+//     const allReservations = await this.getAll({
+//       paymentStatus: paymentStatusArray,
+//       search,
+//       date
+//     });
+//     const totalReservations = allReservations.length;
 
-    // Logika pagination
-    const offset = (page - 1) * limit;
-    const paginatedReservations = allReservations.slice(offset, offset + limit);
+//     // Logika pagination
+//     const offset = (page - 1) * limit;
+//     const paginatedReservations = allReservations.slice(offset, offset + limit);
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
+//     // Waktu saat ini
+//     const currentTime = new Date().toISOString();
 
-    // Kembalikan respons dengan pagination
-    return {
-      success: true,
-      time: currentTime,
-      message: 'Data reservasi untuk keperluan testing',
-      total_reservations: totalReservations,
-      offset,
-      limit,
-      reservations: paginatedReservations
-    };
-  },
+//     // Kembalikan respons dengan pagination
+//     return {
+//       success: true,
+//       time: currentTime,
+//       message: 'Data reservasi untuk keperluan testing',
+//       total_reservations: totalReservations,
+//       offset,
+//       limit,
+//       reservations: paginatedReservations
+//     };
+//   },
 
-  async getReservationById(id: number) {
-    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+//   async getReservationById(id: number) {
+//     // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const reservation = this.records.find((reservation) => reservation.reservationId === id);
+//     const reservation = this.records.find((reservation) => reservation.reservationId === id);
 
-    if (!reservation) {
-      return {
-        success: false,
-        message: `Reservasi dengan ID ${id} tidak ditemukan`
-      };
-    }
+//     if (!reservation) {
+//       return {
+//         success: false,
+//         message: `Reservasi dengan ID ${id} tidak ditemukan`
+//       };
+//     }
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
+//     // Waktu saat ini
+//     const currentTime = new Date().toISOString();
 
-    return {
-      success: true,
-      time: currentTime,
-      message: `Reservasi dengan ID ${id} ditemukan`,
-      reservation
-    };
-  }
-};
+//     return {
+//       success: true,
+//       time: currentTime,
+//       message: `Reservasi dengan ID ${id} ditemukan`,
+//       reservation
+//     };
+//   }
+// };
 
-// Inisialisasi reservasi contoh
-fakeReservations.initialize();
+// // Inisialisasi reservasi contoh
+// fakeReservations.initialize();
 
-// Set a fixed seed untuk konsistensi
-faker.seed(123);
+// // Set a fixed seed untuk konsistensi
+// faker.seed(123);
 
 
 // Mock data store untuk membership
@@ -1228,7 +1229,7 @@ export const fakeSchedules = {
 
   initialize() {
     const sports: Schedule['sport'][] = ['Futsal', 'Badminton', 'Basketball', 'Volleyball', 'Tennis', 'Sepak Bola', 'Handball'];
-    const paymentStatuses: Schedule['paymentStatus'][] = ['pending', 'down payment', 'complete'];
+    const paymentStatuses: Schedule['paymentStatus'][] = ['pending', 'dp', 'complete'];
 
     const generateRandomScheduleData = (reservationId: number): Schedule => {
       const startDate = faker.date.between({ from: '2024-01-01', to: '2024-12-31' });

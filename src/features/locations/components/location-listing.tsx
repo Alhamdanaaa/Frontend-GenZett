@@ -1,6 +1,6 @@
-import { fakeLocations } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
 import LocationTableWrapper from './location-table-wrapper';
+import { getLocations } from '@/lib/api/location';
 
 const getColumns = async () => {
   const { columns } = await import('./location-tables/columns');
@@ -14,13 +14,13 @@ export default async function LocationListingPage() {
   const sports = searchParamsCache.get('sport');
 
   const filters = {
-    page,
-    limit: pageLimit,
+    page: page?.toString(),
+    limit: pageLimit?.toString(),
     ...(search && { search }),
     ...(sports && { sports: sports })
   };
 
-  const data = await fakeLocations.getLocations(filters);
+  const data = await getLocations(filters);
   const columns = await getColumns();
 
   return (

@@ -368,11 +368,12 @@ export default function HomePage() {
                 </div>
                 <Link href="/reservation" passHref className="block w-full sm:w-auto">
                   <motion.button
-                    className="bg-[#F67403] hover:bg-[#D26201] text-white font-medium text-base py-2 px-6 rounded-full shadow-md transition-all w-full sm:w-auto mb-30"
+                    className="bg-[#F67403] hover:bg-[#D26201] text-white font-medium text-base py-2 px-6 rounded-full shadow-md transition-all w-full sm:w-auto mb-30 flex items-center justify-center gap-2"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     Reservasi Sekarang
+                    <MoveRight size={20} />
                   </motion.button>
                 </Link>
               </motion.div>
