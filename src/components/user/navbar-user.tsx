@@ -37,12 +37,9 @@ export default function NavbarUser() {
       .split('; ')
       .find(row => row.startsWith('token='))?.split('=')[1]
     
-    if (token) {
-      setIsAuthenticated(true)
-    } else {
-      setIsAuthenticated(false)
-    }
-  }, [])
+    setIsAuthenticated(!!token)
+  }, [pathname])
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -71,6 +68,7 @@ export default function NavbarUser() {
     }
     localStorage.removeItem('token');
     document.cookie = 'token=; Max-Age=-99999999;';
+    document.cookie = 'role=; Max-Age=0; path=/;';
     setIsAuthenticated(false);
     router.push('/');
   };
@@ -130,7 +128,7 @@ export default function NavbarUser() {
 
             <div
               className={cn(
-                'absolute right-0 mt-3 w-28 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
+                'absolute right-0 mt-3 w-40 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
                 desktopDropdownOpen
                   ? 'opacity-100 translate-y-0 visible'
                   : 'opacity-0 -translate-y-2 invisible'
@@ -143,10 +141,20 @@ export default function NavbarUser() {
               >
                 Profil
               </Link>
+              <Link
+                href="/membership"
+                onClick={() => setDesktopDropdownOpen(false)}
+                className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+              >
+                Paket Langganan
+              </Link>
               <button
                 onClick={() => {
-                  handleLogout()
-                  setDesktopDropdownOpen(false)
+                  const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
+                  if (confirmed) {
+                    handleLogout();
+                  }
+                  setDesktopDropdownOpen(false);
                 }}
                 className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
               >
@@ -203,10 +211,20 @@ export default function NavbarUser() {
                 >
                   Profil
                 </Link>
+                <Link
+                  href="/membership"
+                  onClick={() => setDesktopDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                >
+                  Paket Langganan
+                </Link>
                 <button
                   onClick={() => {
-                    handleLogout()
-                    setMobileDropdownOpen(false)
+                    const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
+                    if (confirmed) {
+                      handleLogout();
+                    }
+                    setMobileDropdownOpen(false);
                   }}
                   className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
                 >
