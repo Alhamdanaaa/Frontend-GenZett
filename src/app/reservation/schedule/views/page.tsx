@@ -580,7 +580,6 @@ export default function SchedulesPage() {
                     <div className='mt-4 w-full rounded-md'>
                       <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
                         {courtSlots.map((slot, idx) => {
-                          const key = `${court}|${slot.time}`;
                           const isSelected = selectedSlots.some(s =>
                             s.date === selectedDate && s.time === slot.time && s.court === court
                           );
