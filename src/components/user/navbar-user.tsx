@@ -128,7 +128,7 @@ export default function NavbarUser() {
 
             <div
               className={cn(
-                'absolute right-0 mt-3 w-28 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
+                'absolute right-0 mt-3 w-40 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
                 desktopDropdownOpen
                   ? 'opacity-100 translate-y-0 visible'
                   : 'opacity-0 -translate-y-2 invisible'
@@ -140,6 +140,13 @@ export default function NavbarUser() {
                 className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
               >
                 Profil
+              </Link>
+              <Link
+                href="/membership"
+                onClick={() => setDesktopDropdownOpen(false)}
+                className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+              >
+                Paket Langganan
               </Link>
               <button
                 onClick={() => {
@@ -203,6 +210,13 @@ export default function NavbarUser() {
                   className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
                 >
                   Profil
+                </Link>
+                <Link
+                  href="/membership"
+                  onClick={() => setDesktopDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                >
+                  Paket Langganan
                 </Link>
                 <button
                   onClick={() => {
