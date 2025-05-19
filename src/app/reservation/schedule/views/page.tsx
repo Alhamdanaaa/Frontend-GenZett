@@ -690,7 +690,7 @@ export default function SchedulesPage() {
                 <Button
                   onClick={() => router.push('./payment')}
                   className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'
-                  disabled={selectedTimes.length === 0}
+                  disabled={selectedSlots.length === 0}
                 >
                   BAYAR
                 </Button>
