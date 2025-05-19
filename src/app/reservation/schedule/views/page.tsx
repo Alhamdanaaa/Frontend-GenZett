@@ -20,7 +20,8 @@ export default function SchedulesPage() {
   >([]);
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string>('Reguler');
   const courtNames = ['court1', 'court2'];
 
   const getDayName = (dayIndex: number): string => {
@@ -47,7 +48,6 @@ export default function SchedulesPage() {
   };
 
   useEffect(() => {
-    // Ensure this runs only on client side
     if (typeof window !== 'undefined') {
       const today = new Date();
       const currentDate = today.getDate();
@@ -69,7 +69,6 @@ export default function SchedulesPage() {
     }
   }, []);
 
-  // Replace the random booking with deterministic logic
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 10; hour <= 23; hour++) {
@@ -91,24 +90,12 @@ export default function SchedulesPage() {
     );
   };
 
-  const [dropdownStates, setDropdownStates] = useState({
-    calendar: false,
-    category: false,
-    paymentType: false,
-    court1: false,
-    court2: false
-  });
-
   const toggleDropdown = (dropdownName: string) => {
     setOpenDropdowns(prev => 
       prev.includes(dropdownName) 
         ? prev.filter(name => name !== dropdownName)
         : [...prev, dropdownName]
     );
-  };
-
-  const closeDropdown = (dropdownName: string) => {
-    setOpenDropdowns(prev => prev.filter(name => name !== dropdownName));
   };
   
   const dropdownRefs = {
@@ -153,7 +140,7 @@ export default function SchedulesPage() {
                   className='mt-3 w-full bg-orange-500 hover:bg-orange-600'
                   onClick={() => {
                     scheduleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    setOpenDropdowns(courtNames); // Buka semua dropdown
+                    setOpenDropdowns(courtNames);
                   }}
                 >
                   Cek Ketersediaan
@@ -263,24 +250,16 @@ export default function SchedulesPage() {
               <div className='flex items-center' ref={dropdownRefs.category}>
                 <button
                   onClick={() => toggleDropdown('category')}
-                  className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer'
+                  className='flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300'
                   style={{ width: '140px' }}
                 >
-                  <span className='text-sm truncate'>{selectedCategory || 'Pilih Cabor'}</span>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='16'
-                    height='16'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    className={`transition-transform ${dropdownStates.category ? 'rotate-180' : ''}`}
-                  >
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  <span className='text-sm truncate'>{selectedSport || 'Pilih Cabor'}</span>
+                  <ChevronDownCircle
+                    className={`h-4 w-4 transition-transform duration-300 ${
+                      openDropdowns.includes('category') ? 'rotate-180' : ''
+                    }`}
+                    stroke="currentColor"
+                  />
                 </button>
 
                 {openDropdowns.includes('category') && (
@@ -293,7 +272,7 @@ export default function SchedulesPage() {
                         <button
                           key={sport}
                           onClick={() => {
-                            setSelectedCategory(sport);
+                            setSelectedSport(sport);
                             toggleDropdown('category');
                           }}
                           className='rounded-md px-4 py-2 text-left text-sm hover:bg-gray-100 w-full truncate cursor-pointer'
@@ -433,7 +412,6 @@ export default function SchedulesPage() {
                             <div
                               key={`next-${i}`}
                               onClick={() => {
-                                // Need to handle selection for next month in state
                                 console.log(
                                   `Selected day ${dayNumber} in next month`
                                 );
@@ -552,38 +530,38 @@ export default function SchedulesPage() {
               <div className='flex items-center font-medium gap-4'>
                 <div className="relative" ref={dropdownRefs.paymentType}>
                   <button
-                  onClick={() => toggleDropdown('paymentType')}
-                  className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                    onClick={() => toggleDropdown('paymentType')}
+                    className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
                   >
-                  {selectedCategory === 'Langganan' ? 'Langganan' : 'Reguler'}
-                  <ChevronDownCircle
-                    className={`h-4 w-4 transition-transform 'rotate-180' : ''}`}
-                    stroke="currentColor"
-                  />
+                    {selectedPaymentType}
+                    <ChevronDownCircle
+                      className={`h-4 w-4 transition-transform ${openDropdowns.includes('paymentType') ? 'rotate-180' : ''}`}
+                      stroke="currentColor"
+                    />
                   </button>
                   
                   {openDropdowns.includes('paymentType') && (
-                  <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
-                    style={{ width: '100%' }}>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Reguler');
-                        // setOpenDropdown(null);
-                      }}
-                    >
-                      Reguler
-                    </button>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Langganan');
-                        // setOpenDropdown(null);
-                      }}
-                    >
-                      Langganan
-                    </button>
-                  </div>
+                    <div className="absolute right-0 top-full mt-1 rounded-lg bg-white py-1 shadow-lg z-20"
+                      style={{ width: '100%' }}>
+                      <button 
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedPaymentType('Reguler');
+                          toggleDropdown('paymentType');
+                        }}
+                      >
+                        Reguler
+                      </button>
+                      <button 
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedPaymentType('Langganan');
+                          toggleDropdown('paymentType');
+                        }}
+                      >
+                        Langganan
+                      </button>
+                    </div>
                   )}
                 </div>
                 <Button
