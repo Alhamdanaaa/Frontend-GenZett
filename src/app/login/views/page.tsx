@@ -25,7 +25,7 @@ export default function LoginPage() {
       const data = await login({ email, password });
       Cookies.set("token", data.token);
       Cookies.set("role", data.user.role);
-
+      localStorage.setItem("token", data.token);
       if (data.user.role === "admin") {
         router.push("/dashboard");
       } else {

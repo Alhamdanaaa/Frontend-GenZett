@@ -37,12 +37,9 @@ export default function NavbarUser() {
       .split('; ')
       .find(row => row.startsWith('token='))?.split('=')[1]
     
-    if (token) {
-      setIsAuthenticated(true)
-    } else {
-      setIsAuthenticated(false)
-    }
-  }, [])
+    setIsAuthenticated(!!token)
+  }, [pathname])
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -71,6 +68,7 @@ export default function NavbarUser() {
     }
     localStorage.removeItem('token');
     document.cookie = 'token=; Max-Age=-99999999;';
+    document.cookie = 'role=; Max-Age=0; path=/;';
     setIsAuthenticated(false);
     router.push('/');
   };
@@ -145,8 +143,11 @@ export default function NavbarUser() {
               </Link>
               <button
                 onClick={() => {
-                  handleLogout()
-                  setDesktopDropdownOpen(false)
+                  const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
+                  if (confirmed) {
+                    handleLogout();
+                  }
+                  setDesktopDropdownOpen(false);
                 }}
                 className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
               >
@@ -205,8 +206,11 @@ export default function NavbarUser() {
                 </Link>
                 <button
                   onClick={() => {
-                    handleLogout()
-                    setMobileDropdownOpen(false)
+                    const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
+                    if (confirmed) {
+                      handleLogout();
+                    }
+                    setMobileDropdownOpen(false);
                   }}
                   className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
                 >
