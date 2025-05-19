@@ -53,7 +53,7 @@ export default function RegisterPage() {
       <div className="flex w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Form Kiri */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
-          <div className="w-full bg-white p-8 rounded-xl shadow-2xl border-2">
+          <div className="w-full bg-white p-8 rounded-xl">
             <h1 className="text-2xl font-bold text-center mb-4">Daftar Akun</h1>
             <p className="text-sm text-gray-500 text-center mb-4">
               Daftar untuk mulai reservasi lapangan favoritmu!
