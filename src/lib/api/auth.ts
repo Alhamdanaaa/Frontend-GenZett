@@ -46,6 +46,16 @@ export async function register(payload: RegisterPayload) {
 }
 
 export async function logout() {
-  const res = await api.post("/logout");
+  const token = localStorage.getItem("token"); // Ambil token dari localStorage
+  const res = await api.post(
+    "/logout",
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return res.data;
 }
+

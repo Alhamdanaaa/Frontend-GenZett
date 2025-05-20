@@ -1,27 +1,40 @@
+/* eslint-disable no-console */
 'use client';
 
-import { useEffect, useState , useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronDownCircle } from 'lucide-react';
 import UserLayout from '@/app/user/layout';
+import { getSportsByLocation, getSchedule } from '@/lib/api/reservation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function SchedulesPage() {
-  const scheduleRef = useRef<HTMLDivElement>(null);
-  const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
-  const [timeSlots, setTimeSlots] = useState<
-    Array<{ time: string; booked: boolean }>
-  >([]);
-  const [showDetails, setShowDetails] = useState(false);
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [dates, setDates] = useState<
-    Array<{ day: string; date: number; month: string }>
-  >([]);
-  const [selectedDate, setSelectedDate] = useState<number | null>(null);
-  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const courtNames = ['court1', 'court2'];
+  const scheduleRef = useRef<HTMLDivElement>(null);
+
+  const locationId = searchParams.get('locationId'); // Ambil dari URL
+
+  const [openDropdown, setOpenDropdown] = useState<string[]>([]);
+  const [showDetails, setShowDetails] = useState(false);
+
+  const [selectedDate, setSelectedDate] = useState<string>(''); // format: 'YYYY-MM-DD'
+  const [selectedTimes] = useState<string[]>([]);
+  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string>('Reguler');
+
+  const [sports, setSports] = useState<Array<{ sportId: string, sportName: string }>>([]);
+  const [schedule, setSchedule] = useState<any[]>([]);
+  const [dates, setDates] = useState<Array<{ day: string; date: string; month: string; displayDate: string }>>([]);
+  const [timeSlotsByCourt, setTimeSlotsByCourt] = useState<Record<string, any[]>>({});
+  const [courts, setCourts] = useState<string[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<{
+    date: string;
+    time: string;
+    court: string;
+    price: number
+  }[]>([]);
 
   const getDayName = (dayIndex: number): string => {
     const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -30,103 +43,212 @@ export default function SchedulesPage() {
 
   const getMonthName = (monthIndex: number): string => {
     const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mei',
-      'Jun',
-      'Jul',
-      'Ags',
-      'Sep',
-      'Okt',
-      'Nov',
-      'Des'
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'
     ];
     return months[monthIndex];
   };
 
-  useEffect(() => {
-    // Ensure this runs only on client side
-    if (typeof window !== 'undefined') {
-      const today = new Date();
-      const currentDate = today.getDate();
+  const formatDate = (date: Date) => date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
 
-      const generatedDates = [];
-      for (let i = 0; i < 7; i++) {
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + i);
-        generatedDates.push({
-          day: getDayName(nextDate.getDay()),
-          date: nextDate.getDate(),
-          month: getMonthName(nextDate.getMonth())
+  const fetchData = useCallback(async () => {
+    try {
+      if (!locationId) {
+        console.error('Location ID is required');
+        return;
+      }
+
+      const [sportsResponse, scheduleResponse] = await Promise.all([
+        getSportsByLocation(locationId),
+        getSchedule(locationId, {
+          date: selectedDate,
+          sportName: selectedSport !== 'Semua' ? (selectedSport ?? undefined) : undefined // Gunakan sportName
+        })
+      ]);
+
+      setSports(sportsResponse.data || []);
+
+      const allFields = scheduleResponse.fields || [];
+      const courtsList = allFields.map((field: { fieldName: any; }) => field.fieldName);
+      setCourts(courtsList);
+
+      // Proses data schedule
+      const processedSchedules = allFields.flatMap((field: any) => {
+        const dailySchedules = field.dailySchedules || [];
+        return dailySchedules.flatMap((daily: any) => {
+          const schedules = daily.schedules || [];
+          return schedules.map((schedule: any) => ({
+            fieldId: field.fieldId,
+            court: field.fieldName,
+            date: daily.date,
+            time: schedule.time,
+            timeId: schedule.timeId,
+            price: parseInt(schedule.price?.replace(/[^\d]/g, '') || '0'), // Konversi ke number
+            status: schedule.status,
+            sport: field.sport || selectedSport || 'Futsal', // Tambahkan field sport
+            locationId: locationId
+          }));
+        });
+      });
+
+      setSchedule(processedSchedules);
+
+      // Generate dates dari API response
+      const startDate = new Date(scheduleResponse.start_date);
+      const endDate = new Date(scheduleResponse.end_date);
+      const upcomingDates: any[] = [];
+
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = formatDate(new Date(d));
+        upcomingDates.push({
+          day: getDayName(d.getDay()),
+          date: dateStr,
+          month: getMonthName(d.getMonth()),
+          displayDate: d.getDate().toString()
         });
       }
 
-      setDates(generatedDates);
-      setSelectedDate(currentDate);
-      setTimeSlots(generateTimeSlots());
-    }
-  }, []);
+      setDates(upcomingDates);
+      if (!selectedDate && upcomingDates.length > 0) {
+        setSelectedDate(upcomingDates[0].date);
+      }
 
-  // Replace the random booking with deterministic logic
-  const generateTimeSlots = () => {
-    const slots = [];
-    for (let hour = 10; hour <= 23; hour++) {
-      const startHour = hour.toString().padStart(2, '0');
-      const endHour = (hour + 1 === 24 ? 0 : hour + 1)
-        .toString()
-        .padStart(2, '0');
-      slots.push({
-        time: `${startHour}:00 - ${endHour}:00`,
-        booked: hour % 4 === 0
+    } catch (err) {
+      console.error('Gagal fetch data:', err);
+    }
+  }, [locationId, selectedDate, selectedSport]);
+
+  useEffect(() => {
+    if (!selectedDate || !locationId) return;
+
+    const slots: Record<string, any[]> = {};
+
+    // Filter berdasarkan sportName jika ada
+    const filtered = schedule.filter(s =>
+      s.date === selectedDate &&
+      (!selectedSport || selectedSport === 'Semua' || s.sport === selectedSport)
+    );
+
+    // Isi time slots
+    filtered.forEach((slot) => {
+      const court = slot.court;
+      if (!slots[court]) {
+        console.warn(`Court ${court} not found in courts list`);
+        return;
+      }
+
+      // Format waktu
+      const timeParts = slot.time.split(':');
+      const hour = parseInt(timeParts[0]);
+      const nextHour = hour + 1 === 24 ? 0 : hour + 1;
+      const formattedTime = `${hour.toString().padStart(2, '0')}:00 - ${nextHour.toString().padStart(2, '0')}:00`;
+
+      slots[court].push({
+        time: formattedTime,
+        originalTime: slot.time,
+        timeId: slot.timeId,
+        booked: slot.status === 'booked', // Gunakan status dari API
+        price: typeof slot.price === 'string' ? parseInt(slot.price.replace(/[^\d]/g, '')) : slot.price || 60000,
+        locationId: slot.locationId,
+        fieldId: slot.fieldId
+      });
+    });
+
+    setTimeSlotsByCourt(slots);
+  }, [schedule, selectedDate, locationId, courts, selectedSport]);
+
+  useEffect(() => {
+    if (locationId) {
+      fetchData();
+    }
+  }, [locationId, fetchData]);
+
+  useEffect(() => {
+    // Filter schedule for selected date
+    const filtered = schedule.filter((s) => s.date === selectedDate);
+    const slots: Record<string, any[]> = {};
+
+    // Organize slots by court
+    filtered.forEach((slot) => {
+      const court = slot.court;
+      if (!slots[court]) slots[court] = [];
+
+      slots[court].push({
+        time: slot.time,
+        booked: slot.status === 'booked',
+        price: slot.price || 60000 // Default price if not provided
+      });
+    });
+
+    // If no data from API for this date, generate default slots
+    if (Object.keys(slots).length === 0 && courts.length > 0) {
+      courts.forEach(court => {
+        if (!slots[court]) slots[court] = [];
+
+        // Generate default time slots from 10:00 to 23:00
+        for (let hour = 10; hour <= 23; hour++) {
+          const startHour = hour.toString().padStart(2, '0');
+          const endHour = (hour + 1 === 24 ? 0 : hour + 1)
+            .toString()
+            .padStart(2, '0');
+
+          slots[court].push({
+            time: `${startHour}:00 - ${endHour}:00`,
+            booked: hour % 4 === 0, // Simple pattern for demo
+            price: 60000
+          });
+        }
       });
     }
-    return slots;
-  };
 
-  const handleTimeClick = (time: string) => {
-    setSelectedTimes((prev) =>
-      prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
-    );
-  };
-
-  const [dropdownStates, setDropdownStates] = useState({
-    calendar: false,
-    category: false,
-    paymentType: false,
-    court1: false,
-    court2: false
-  });
+    setTimeSlotsByCourt(slots);
+  }, [schedule, selectedDate, courts]);
 
   const toggleDropdown = (dropdownName: string) => {
-    setOpenDropdowns(prev => 
-      prev.includes(dropdownName) 
+    setOpenDropdown(prev =>
+      prev.includes(dropdownName)
         ? prev.filter(name => name !== dropdownName)
         : [...prev, dropdownName]
     );
   };
 
-  const closeDropdown = (dropdownName: string) => {
-    setOpenDropdowns(prev => prev.filter(name => name !== dropdownName));
-  };
-  
-  const dropdownRefs = {
-    calendar: useRef<HTMLDivElement>(null),
-    category: useRef<HTMLDivElement>(null),
-    paymentType: useRef<HTMLDivElement>(null),
-    court1: useRef<HTMLDivElement>(null),
-    court2: useRef<HTMLDivElement>(null)
+  const handleTimeClick = (date: string, time: string, court: string, price: string | number) => {
+    // Konversi price ke number
+    const priceNumber = typeof price === 'string'
+      ? parseInt(price.replace(/[^\d]/g, ''))
+      : price;
+
+    setSelectedSlots(prev => {
+      const existingIndex = prev.findIndex(slot =>
+        slot.date === date && slot.time === time && slot.court === court
+      );
+
+      if (existingIndex >= 0) {
+        return prev.filter((_, index) => index !== existingIndex);
+      } else {
+        return [...prev, {
+          date,
+          time,
+          court,
+          price: priceNumber || 0 // Pastikan selalu number
+        }];
+      }
+    });
   };
 
-  useEffect(() => {
-    if (selectedTimes.length > 0) {
-      setShowDetails(true);
-    } else {
-      setShowDetails(false);
-    }
-  }, [selectedTimes]);
+  const calculateTotal = () => {
+    return selectedSlots.reduce((sum, slot) => {
 
+      const price = typeof slot.price === 'string'
+        ? parseInt((slot.price as string).replace(/[^\d]/g, '')) || 0
+        : slot.price || 0;
+      return sum + price;
+    }, 0);
+  };
+
+  console.log('Selected Slots:', selectedSlots);
+  console.log('Prices:', selectedSlots.map(slot => slot.price));
+  console.log('Total:', selectedSlots.reduce((sum, slot) => sum + slot.price, 0));
   return (
     <UserLayout>
       {/* <div className='min-h-screen bg-[#f8f8f8]' suppressHydrationWarning> */}
@@ -149,15 +271,18 @@ export default function SchedulesPage() {
                 <p className='text-xl font-semibold text-black'>Rp 60,000</p>
                 <span className='ml-1 text-sm text-gray-500'>/sesi</span>
               </div>
-                <Button 
-                  className='mt-3 w-full bg-orange-500 hover:bg-orange-600'
-                  onClick={() => {
-                    scheduleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    setOpenDropdowns(courtNames); // Buka semua dropdown
-                  }}
-                >
-                  Cek Ketersediaan
-                </Button>
+              <Button
+                className='mt-3 w-full bg-orange-500 hover:bg-orange-600'
+                onClick={() => {
+                  scheduleRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                  });
+                  setOpenDropdown(['schedule-section']);
+                }}
+              >
+                Cek Ketersediaan
+              </Button>
             </div>
 
             <div id="schedule-section" ref={scheduleRef} className='flex flex-1 flex-col rounded-xl bg-white p-4 shadow-md'>
@@ -196,7 +321,7 @@ export default function SchedulesPage() {
           <div className='rounded-2xl bg-[#2C473A] p-4'>
             {/* Date selector */}
             <div className='flex justify-between overflow-x-auto'>
-              {dates.map(({ day, date, month }) => {
+              {dates.map(({ day, date, month, displayDate }) => {
                 const isSelected = selectedDate === date;
                 return (
                   <div
@@ -217,7 +342,7 @@ export default function SchedulesPage() {
                       className={`${isSelected ? 'text-black font-bold' : 'text-white'
                         }`}
                     >
-                      {date} {month}
+                      {displayDate} {month}
                     </div>
                   </div>
                 );
@@ -225,11 +350,12 @@ export default function SchedulesPage() {
               <div className='flex items-center justify-center'>
                 <div className='w-px h-[35px] bg-gray-300'></div>
               </div>
-
               <div className='flex flex-row items-center justify-between'>
-                <div ref={dropdownRefs.calendar}>
+                <div className='flex items-center'>
                   <button
-                    onClick={() => toggleDropdown('calendar')}
+                    onClick={() =>
+                      setOpenDropdown(openDropdown.includes('calendar') ? [] : ['calendar'])
+                    }
                     className='flex items-center gap-2 text-white cursor-pointer'
                   >
                     <svg
@@ -260,45 +386,33 @@ export default function SchedulesPage() {
                 </div>
               </div>
 
-              <div className='flex items-center' ref={dropdownRefs.category}>
+              <div className='flex items-center'>
                 <button
-                  onClick={() => toggleDropdown('category')}
-                  className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer'
+                  onClick={() => toggleDropdown('sport')}
+                  className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer mr-2'
                   style={{ width: '140px' }}
                 >
-                  <span className='text-sm truncate'>{selectedCategory || 'Pilih Cabor'}</span>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='16'
-                    height='16'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    className={`transition-transform ${dropdownStates.category ? 'rotate-180' : ''}`}
-                  >
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
+                  <span className='text-sm truncate'>{selectedSport || 'Pilih Cabor'}</span>
+                  <ChevronDownCircle
+                    className={`h-5 w-5 transition-transform ${openDropdown.includes('sport') ? 'rotate-180' : ''}`}
+                    stroke="currentColor"
+                  />
                 </button>
 
-                {openDropdowns.includes('category') && (
-                  <div 
-                    className="absolute mt-62 rounded-lg bg-white p-2 shadow-lg z-10"
-                    style={{ width: '140px' }}
-                  >
+                {openDropdown.includes('sport') && (
+                  <div className='absolute mt-2 z-10 rounded-lg bg-[#2C473A] p-2 shadow-lg'
+                    style={{ width: '140px' }}>
                     <div className='flex flex-col'>
-                      {['Semua', 'Badminton', 'Sepakbola', 'Basket', 'Renang'].map((sport) => (
+                      {['Semua', ...sports.map(sport => sport.sportName)].map((sportName) => (
                         <button
-                          key={sport}
+                          key={`sport-${typeof sportName === 'string' ? sportName : 'unknown'}`}
                           onClick={() => {
-                            setSelectedCategory(sport);
-                            toggleDropdown('category');
+                            setSelectedSport(sportName === 'Semua' ? null : sportName);
+                            toggleDropdown('sport');
                           }}
-                          className='rounded-md px-4 py-2 text-left text-sm hover:bg-gray-100 w-full truncate cursor-pointer'
+                          className={`rounded-lg px-3 py-2 text-sm text-left text-white hover:bg-[#C5FC40] ${selectedSport === sportName ? 'bg-[#C5FC40]' : ''}`}
                         >
-                          {sport}
+                          {sportName}
                         </button>
                       ))}
                     </div>
@@ -308,8 +422,8 @@ export default function SchedulesPage() {
             </div>
 
             {/* Calendar dropdown - Two months side by side */}
-            {openDropdowns.includes('calendar') && (
-              <div className='mt-4 rounded-lg bg-white p-3 shadow-lg'>
+            {openDropdown.includes('calendar') && (
+              <div className='mt-4 rounded-lg bg-[#2C473A] p-3 shadow-lg'>
                 <div className='flex flex-row gap-4'>
                   {/* Current Month */}
                   <div className='flex-1'>
@@ -346,8 +460,12 @@ export default function SchedulesPage() {
                           const isToday =
                             isCurrentMonth &&
                             dayNumber === currentDate.getDate();
-                          const isSelected =
-                            isCurrentMonth && dayNumber === selectedDate;
+
+                          // Create the date string in YYYY-MM-DD format for selected date
+                          const thisDate = new Date(year, month, dayNumber);
+                          const dateStr = isCurrentMonth ? formatDate(thisDate) : '';
+
+                          const isSelected = isCurrentMonth && selectedDate === dateStr;
                           const isPastDate =
                             isCurrentMonth &&
                             dayNumber < currentDate.getDate();
@@ -363,9 +481,7 @@ export default function SchedulesPage() {
                           return (
                             <div
                               key={i}
-                              onClick={() =>
-                                !isPastDate && setSelectedDate(dayNumber)
-                              }
+                              onClick={() => !isPastDate && setSelectedDate(dateStr)}
                               className={`cursor-pointer rounded-md p-2 text-center text-sm ${isPastDate
                                 ? 'text-gray-300'
                                 : isSelected
@@ -421,6 +537,10 @@ export default function SchedulesPage() {
                           const isCurrentMonth =
                             dayNumber > 0 && dayNumber <= daysInMonth;
 
+                          // Create the date string in YYYY-MM-DD format for next month
+                          const nextMonthDate = new Date(year, month, dayNumber);
+                          const dateStr = isCurrentMonth ? formatDate(nextMonthDate) : '';
+
                           if (!isCurrentMonth)
                             return (
                               <div
@@ -433,10 +553,9 @@ export default function SchedulesPage() {
                             <div
                               key={`next-${i}`}
                               onClick={() => {
-                                // Need to handle selection for next month in state
-                                console.log(
-                                  `Selected day ${dayNumber} in next month`
-                                );
+                                // Set the selected date with correct format
+                                setSelectedDate(dateStr);
+                                toggleDropdown('calendar');
                               }}
                               className='cursor-pointer rounded-md p-2 text-center text-sm hover:bg-gray-50'
                             >
@@ -453,84 +572,90 @@ export default function SchedulesPage() {
           </div>
         </div>
 
-        {/* Court Time Slots - bg-white p-4 shadow-sm */}
+        {/* Court Time Slots */}
         <div className='mt-8 space-y-6'>
-          {['Lapangan 1', 'Lapangan 2'].map((court, index) => (
-            <div key={index} className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}>
-              <div className='mb-4'>
-                <p className='text-lg font-semibold text-black'>{court}</p>
-                <p className='text-sm text-gray-600'>Lapangan Badminton beralaskan karpet vinyl</p>
-              </div>
-              <div className='relative' ref={index === 0 ? dropdownRefs.court1 : dropdownRefs.court2}>
-                <button
-                  onClick={() => toggleDropdown(`court${index + 1}`)}
-                  className='flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'
-                >
-                  {timeSlots.filter((slot) => !slot.booked).length} Jadwal Tersedia
-                  <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform duration-300 ${
-                      openDropdowns.includes(`court${index + 1}`) ? 'rotate-180' : ''
-                    }`}
-                    stroke="currentColor"
-                  />
-                </button>
+          {courts.map((court, index) => {
+            const courtSlots = timeSlotsByCourt[court] || [];
+            const availableCount = courtSlots.filter(slot => !slot.booked).length;
 
-                {/* Dropdown Content - bg-white shadow-lg*/}
-                {openDropdowns.includes(`court${index + 1}`) && (
-                  <div className='mt-4 w-full rounded-md'>
-                    <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
-                      {timeSlots.map((time, idx) => {
-                        const key = `${court}|${time.time}`;
-                        const isSelected = selectedTimes.includes(key);
+            return (
+              <div key={`${court}-${index}`} className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}>
+                <div className='mb-4'>
+                  <p className='text-lg font-semibold text-black'>{court}</p>
+                  <p className='text-sm text-gray-600'>
+                    {selectedSport === 'Badminton' ? 'Lapangan Badminton' :
+                      selectedSport === 'Basket' ? 'Lapangan Basket' :
+                        'Lapangan Futsal'}
+                  </p>
+                </div>
 
-                        return (
-                          <button
-                            key={idx}
-                            onClick={() => !time.booked && handleTimeClick(key)}
-                            disabled={time.booked}
-                            className={`relative rounded-lg border px-3 py-4 text-center text-base transition-all ${time.booked
-                              ? 'pointer-events-none border-gray-200 text-gray-400'
-                              : isSelected
-                                ? 'border-lime-400 bg-lime-50 text-black cursor-pointer'
-                                : 'border-gray-300 bg-white hover:border-lime-300 hover:bg-lime-50 cursor-pointer'
-                              }`}
-                          >
-                            <div className='mb-1 text-xs font-medium text-[#A0A4A8]'>
-                              60 menit
-                            </div>
-                            <div className={`mb-1 text-base font-semibold ${time.booked ? 'text-gray-400' : 'text-black'}`}>
-                              {time.time}
-                            </div>
-                            <div className={`text-sm ${time.booked ? 'text-gray-500' : 'text-[#2C473A]'}`}>
-                              {time.booked ? 'BOOKED' : 'Rp60.000'}
-                            </div>
-                            {isSelected && (
-                              <div className='absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-lime-400'>
-                                <svg
-                                  xmlns='http://www.w3.org/2000/svg'
-                                  className='h-4 w-4 text-white'
-                                  fill='none'
-                                  viewBox='0 0 24 24'
-                                  stroke='currentColor'
-                                  strokeWidth='3'
-                                >
-                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                    d='M5 13l4 4L19 7'
-                                  />
-                                </svg>
+                <div className='relative'>
+                  <button
+                    onClick={() => toggleDropdown(court)}
+                    className='text-black flex items-center gap-1 rounded-lg bg-[#C5FC40] px-5 py-3 text-sm font-semibold hover:bg-lime-300'
+                  >
+                    {availableCount} Jadwal Tersedia
+                    <ChevronDownCircle
+                      className={`h-5 w-5 transition-transform ${openDropdown.includes(court) ? 'rotate-180' : ''}`}
+                      stroke="currentColor"
+                    />
+                  </button>
+
+                  {openDropdown.includes(court) && (
+                    <div className='mt-4 w-full rounded-md'>
+                      <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
+                        {courtSlots.map((slot, idx) => {
+                          const isSelected = selectedSlots.some(s =>
+                            s.date === selectedDate && s.time === slot.time && s.court === court
+                          );
+                          const isBooked = slot.booked;
+                          const priceFormatted = `Rp${slot.price.toLocaleString('id-ID')}`;
+
+                          return (
+                            <button
+                              key={`${slot.timeId}-${idx}`}
+                              onClick={() => handleTimeClick(selectedDate, slot.time, court, slot.price)}
+                              disabled={isBooked}
+                              className={`relative rounded-lg border px-3 py-4 text-center text-base transition-all ${isBooked
+                                ? 'pointer-events-none border-gray-200 text-gray-400'
+                                : isSelected
+                                  ? 'border-lime-400 bg-lime-50 text-black cursor-pointer'
+                                  : 'border-gray-300 bg-white hover:border-lime-300 hover:bg-lime-50 cursor-pointer'
+                                }`}
+                            >
+                              <div className='mb-1 text-xs font-medium text-[#A0A4A8]'>
+                                60 menit
                               </div>
-                            )}
-                          </button>
-                        );
-                      })}
+                              <div className={`mb-1 text-base font-semibold ${isBooked ? 'text-gray-400' : 'text-black'}`}>
+                                {slot.time}
+                              </div>
+                              <div className={`text-sm ${isBooked ? 'text-gray-500' : 'text-[#2C473A]'}`}>
+                                {isBooked ? 'BOOKED' : priceFormatted}
+                              </div>
+                              {isSelected && (
+                                <div className='absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-lime-400'>
+                                  <svg
+                                    xmlns='http://www.w3.org/2000/svg'
+                                    className='h-4 w-4 text-white'
+                                    fill='none'
+                                    viewBox='0 0 24 24'
+                                    stroke='currentColor'
+                                    strokeWidth='3'
+                                  >
+                                    <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           <div className='space-y-4 rounded-xl border bg-[#2C473A] p-4 shadow-sm'>
             {/* Summary info row */}
@@ -544,51 +669,59 @@ export default function SchedulesPage() {
                   onClick={() => setShowDetails((prev) => !prev)}
                 >
                   <ChevronDownCircle
-                  className={`h-5 w-5 transition-transform ${showDetails ? 'rotate-180' : ''}`}
-                  stroke="white"
+                    className={`h-5 w-5 transition-transform ${showDetails || selectedTimes.length > 0 ? 'rotate-180' : ''}`}
+                    stroke="white"
                   />
-                </button>                           
+                </button>
               </div>
               <div className='flex items-center font-medium gap-4'>
-                <div className="relative" ref={dropdownRefs.paymentType}>
+                <div className="relative">
                   <button
-                  onClick={() => toggleDropdown('paymentType')}
-                  className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                    onClick={() => toggleDropdown('paymentType')}
+                    className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
                   >
-                  {selectedCategory === 'Langganan' ? 'Langganan' : 'Reguler'}
-                  <ChevronDownCircle
-                    className={`h-4 w-4 transition-transform 'rotate-180' : ''}`}
-                    stroke="currentColor"
-                  />
+                    {selectedPaymentType}
+                    <ChevronDownCircle
+                      className={`h-5 w-5 transition-transform ${openDropdown.includes('paymentType') ? 'rotate-180' : ''}`}
+                      stroke="currentColor"
+                    />
                   </button>
-                  
-                  {openDropdowns.includes('paymentType') && (
-                  <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
-                    style={{ width: '100%' }}>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Reguler');
-                        // setOpenDropdown(null);
-                      }}
-                    >
-                      Reguler
-                    </button>
-                    <button 
-                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={() => {
-                        setSelectedCategory('Langganan');
-                        // setOpenDropdown(null);
-                      }}
-                    >
-                      Langganan
-                    </button>
-                  </div>
+
+                  {openDropdown?.includes('paymentType') && (
+                    <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
+                      style={{ width: '100%' }}>
+                      <button
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedPaymentType('Reguler');
+                          toggleDropdown('paymentType');
+                        }}
+                      >
+                        Reguler
+                      </button>
+                      <button
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedPaymentType('Langganan');
+                          toggleDropdown('paymentType');
+                        }}
+                      >
+                        Langganan
+                      </button>
+                    </div>
                   )}
                 </div>
                 <Button
-                  onClick={() => router.push('./payment')}
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      selectedSlots: JSON.stringify(selectedSlots),
+                      locationId: locationId ?? '',
+                      paymentType: selectedPaymentType,
+                    });
+                    router.push(`./payment?${params.toString()}`);
+                  }}
                   className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'
+                  disabled={selectedSlots.length === 0}
                 >
                   BAYAR
                 </Button>
@@ -596,27 +729,34 @@ export default function SchedulesPage() {
             </div>
 
             {/* Dropdown details - show by default if any time slots are selected */}
-            {showDetails && (
+            {(showDetails || selectedSlots.length > 0) && (
               <div className='mt-2 border-t pt-3'>
                 <div className='space-y-2'>
-                  {selectedTimes.map((timeKey, idx) => {
-                    const [court, timeSlot] = timeKey.split('|');
+                  {selectedSlots.map((slot, idx) => {
+                    // Format tanggal lebih user-friendly
+                    const formattedDate = new Date(slot.date).toLocaleDateString('id-ID', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short'
+                    });
+
                     return (
-                      <div key={idx} className='flex items-center justify-between text-sm'>
+                      <div key={`${slot.date}-${slot.time}-${idx}`} className='flex items-center justify-between text-sm'>
                         <div>
-                          <p className='font-medium text-white'>{court}</p>
-                          <p className='text-white'>{timeSlot}</p>
+                          <p className='font-medium text-white'>{formattedDate}</p>
+                          <p className='text-white'>{slot.court} - {slot.time}</p>
                         </div>
-                          <p className='text-white'>Rp60.000</p>
+                        <p className='text-white'>Rp{slot.price.toLocaleString('id-ID')}</p>
                       </div>
                     );
                   })}
                 </div>
 
+                {/* Total */}
                 <div className='mt-3 flex justify-between border-t pt-3 text-white'>
                   <p className='font-bold'>Total</p>
                   <p className='font-bold'>
-                  Rp. {selectedTimes.length * 60000}
+                    Rp{calculateTotal().toLocaleString('id-ID')}
                   </p>
                 </div>
               </div>

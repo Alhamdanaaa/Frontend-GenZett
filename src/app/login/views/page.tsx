@@ -25,7 +25,7 @@ export default function LoginPage() {
       const data = await login({ email, password });
       Cookies.set("token", data.token);
       Cookies.set("role", data.user.role);
-
+      localStorage.setItem("token", data.token);
       if (data.user.role === "admin") {
         router.push("/dashboard");
       } else {
@@ -56,7 +56,7 @@ export default function LoginPage() {
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
           <form
             onSubmit={handleLogin}
-            className="bg-white p-10 rounded-3xl shadow-md w-full max-w-md space-y-6"
+            className="bg-white p-10 rounded-3xl w-full max-w-md space-y-6"
           >
             <h1 className="text-2xl font-bold text-center">Masuk Akun</h1>
             <p className="text-sm text-gray-500 text-center">

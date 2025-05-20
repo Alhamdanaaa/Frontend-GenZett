@@ -21,6 +21,8 @@ export default function RegisterPage() {
   const [show, setShow] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<{ [key: string]: string[] }>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +55,7 @@ export default function RegisterPage() {
       <div className="flex w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Form Kiri */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
-          <div className="w-full bg-white p-8 rounded-xl shadow-2xl border-2">
+          <div className="w-full bg-white p-8 rounded-xl">
             <h1 className="text-2xl font-bold text-center mb-4">Daftar Akun</h1>
             <p className="text-sm text-gray-500 text-center mb-4">
               Daftar untuk mulai reservasi lapangan favoritmu!
@@ -74,8 +76,10 @@ export default function RegisterPage() {
                     setError({});
                   }}
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
-                  required
                 />
+                {error?.name && (
+                  <p className="text-red-500 text-xs mt-1">{error.name[0]}</p>
+                )}
               </div>
 
               {/* Nomor HP */}
@@ -92,8 +96,10 @@ export default function RegisterPage() {
                     setError({});
                   }}
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
-                  required
                 />
+                {error?.phone && (
+                  <p className="text-red-500 text-xs mt-1">{error.phone[0]}</p>
+                )}
               </div>
 
               {/* Email */}
@@ -110,8 +116,10 @@ export default function RegisterPage() {
                     setError({});
                   }}
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
-                  required
                 />
+                {error?.email && (
+                  <p className="text-red-500 text-xs mt-1">{error.email[0]}</p>
+                )}
               </div>
 
               {/* Password */}
@@ -120,7 +128,7 @@ export default function RegisterPage() {
                   Kata Sandi
                 </label>
                 <input
-                  type={show ? "text" : "password"}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Buat kata sandi"
                   value={form.password}
                   onChange={(e) => {
@@ -128,14 +136,16 @@ export default function RegisterPage() {
                     setError({});
                   }}
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
-                  required
                 />
+                {error?.password && (
+                  <p className="text-red-500 text-xs mt-1">{error.password[0]}</p>
+                )}
                 <button
                   type="button"
-                  onClick={() => setShow(!show)}
+                  onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                 >
-                  {show ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
@@ -145,15 +155,24 @@ export default function RegisterPage() {
                   Konfirmasi Kata Sandi
                 </label>
                 <input
-                  type={show ? "text" : "password"}
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="Ulangi kata sandi"
                   value={form.password_confirmation}
                   onChange={(e) =>
                     setForm({ ...form, password_confirmation: e.target.value })
                   }
                   className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
-                  required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+                {error?.password && (
+                  <p className="text-red-500 text-xs mt-1">{error.password[0]}</p>
+                )}
               </div>
 
               {/* Error Message */}
