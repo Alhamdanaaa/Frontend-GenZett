@@ -4,6 +4,7 @@ import PaymentDetailsSection from "@/components/payment/PaymentDetailSection";
 import { useSearchParams } from "next/navigation";
 import UserLayout from "@/app/user/layout";
 import { useEffect, useState } from "react";
+import { getLocationById } from "@/lib/api/location";
 
 interface BookingSlot {
   date: string;
@@ -39,6 +40,7 @@ export default function PaymentPage() {
       setSubtotal(selectedSlots.reduce((sum, slot) => sum + slot.price, 0));
       
       // Anda bisa fetch nama lokasi berdasarkan locationId jika diperlukan
+      const fetchLocationName = getLocationById(Number(locationId));
       setLocation("Lapangan Futsal XYZ"); // Ganti dengan nama lokasi sebenarnya
     }
   }, [searchParams]);

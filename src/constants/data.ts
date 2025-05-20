@@ -15,7 +15,7 @@ export type Product = {
 export type Location = {
   locationId: number;
   imageUrl: string;
-  name: string;
+  locationName: string;
   sports: string[];
   countLap: number;
   description: string;

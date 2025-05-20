@@ -206,7 +206,7 @@ export default function SportsLocationPage() {
                           Cabang
                         </p>
                         <h3 className='text-lg font-bold text-gray-800'>
-                          {item.name || 'Unnamed Location'}
+                          {item.locationName || 'Unnamed Location'}
                         </h3>
                         <div className='mt-2 flex items-start gap-2 text-sm text-gray-600'>
                           <MapPin size={16} className='mt-0.5 flex-shrink-0' />

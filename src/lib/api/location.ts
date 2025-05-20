@@ -49,8 +49,8 @@ export async function updateLocation(locationId: number, data: Partial<Location>
   if (data.locationName) formData.append('locationName', data.locationName);
   if (data.description) formData.append('description', data.description);
   if (data.address) formData.append('address', data.address);
-  if (data.img && data.img.length > 0) {
-    formData.append('locationPath', data.img[0]); // contoh kalo mau upload file baru
+  if (data.imageUrl && data.imageUrl.length > 0) {
+    formData.append('locationPath', data.imageUrl[0]); // contoh kalo mau upload file baru
   }
 
   const res = await api.put(`/locations/${locationId}`, formData, {
