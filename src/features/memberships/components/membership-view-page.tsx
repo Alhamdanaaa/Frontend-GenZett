@@ -1,7 +1,7 @@
 import { Membership } from '@/constants/data';
 import { notFound } from 'next/navigation';
 import MembershipViewPageClient from './membership-view-page-client';
-import { fakeMemberships } from '@/constants/mock-api';
+import { getMembershipById } from '@/lib/api/membership';
 
 interface MembershipViewPageProps {
   membershipId: string;
@@ -9,17 +9,10 @@ interface MembershipViewPageProps {
 
 async function fetchMembership(membershipId: string): Promise<Membership | null> {
   try {
-    // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/memberships/${membershipId}`, {
-    //   cache: 'no-store'
-    // });
-    // if (!res.ok) {
-    //   throw new Error('Membership not found');
-    // }
-    // const data = await res.json();
-    const data = await fakeMemberships.getMembershipById(Number(membershipId));
-    return data.membership as Membership;
+    const membership = await getMembershipById(Number(membershipId));
+    return membership;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching membership:', error);
     return null;
   }
 }

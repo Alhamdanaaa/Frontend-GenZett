@@ -109,16 +109,25 @@ export type Schedule = {
 };
 
 // Tipe data Member
-export type Membership = {
-  membershipId: number;
-  location: string;
-  sport: string;
-  name: string;
-  description: string;
-  discount: string;
-  weeks: string;
+export type MembershipLocation = {
+  locationId: number;
+  locationName: string;
 };
 
+export type MembershipSport = {
+  sportId: number;
+  sportName: string;
+};
+
+export type Membership = {
+  membershipId: number;
+  name: string;
+  description: string;
+  discount: number;
+  weeks: number;
+  locationName: string;
+  sportName: string;
+};
 
 // Tipe data Time 
 export type Time = {

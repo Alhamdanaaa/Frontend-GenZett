@@ -26,8 +26,8 @@ const formSchema = z.object({
   sport: z.string().min(1, { message: 'Cabang olahraga wajib dipilih.' }),
   name: z.string().min(2, { message: 'Nama membership minimal 2 karakter.' }),
   description: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' }),
-  discount: z.string().min(1, { message: 'Diskon tidak boleh kosong.' }),
-  weeks: z.string().min(1, { message: 'Durasi minggu harus diisi.' })
+  discount: z.number().min(1, { message: 'Diskon tidak boleh kosong.' }),
+  weeks: z.number().min(1, { message: 'Durasi minggu harus diisi.' })
 });
 
 export default function MembershipForm({
@@ -38,13 +38,14 @@ export default function MembershipForm({
   pageTitle: string;
 }) {
   const defaultValues = {
-    location: initialData?.location || '',
-    sport: initialData?.sport || '',
-    name: initialData?.name || '',
-    description: initialData?.description || '',
-    discount: initialData?.discount || '',
-    weeks: initialData?.weeks || ''
+    location: initialData?.locationName ?? '',
+    sport: initialData?.sportName ?? '',
+    name: initialData?.name ?? '',
+    description: initialData?.description ?? '',
+    discount: Number(initialData?.discount ?? 0),
+    weeks: Number(initialData?.weeks ?? 1)
   };
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
