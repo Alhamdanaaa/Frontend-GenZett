@@ -15,7 +15,7 @@ export default function BookingSummary({ location, bookings }: {
     <div className="">
       <div className="text-gray-600">
         <h2 className="font-semibold text-lg text-black">Lokasi Cabang : <br /> {location}</h2>
-        <div className="mt-4 h-96 w- overflow-y-auto">
+        <div className="mt-4 h-96 w- overflow-y-auto hide-scrollbar">
           {bookings.map((booking, index) => (
             <div key={`booking-${index}`} className="mb-4">
               <p className="m-2">{booking.field}</p>
@@ -25,7 +25,7 @@ export default function BookingSummary({ location, bookings }: {
                     <p>{booking.date}</p>
                     <p>{time}</p>
                   </div>
-                  <p className="font-medium">Rp {booking.pricePerSlot.toLocaleString('id-ID')}</p>
+                  <span className="font-medium align-middle">Rp {booking.pricePerSlot.toLocaleString('id-ID')}</span>
                 </div>
               ))}
             </div>

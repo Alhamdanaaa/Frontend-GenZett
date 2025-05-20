@@ -20,7 +20,6 @@ export default function SchedulesPage() {
   const [showDetails, setShowDetails] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<string>(''); // format: 'YYYY-MM-DD'
-  const [selectedTimes] = useState<string[]>([]);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [selectedPaymentType, setSelectedPaymentType] = useState<string>('Reguler');
 
@@ -246,9 +245,11 @@ export default function SchedulesPage() {
     }, 0);
   };
 
-  console.log('Selected Slots:', selectedSlots);
-  console.log('Prices:', selectedSlots.map(slot => slot.price));
-  console.log('Total:', selectedSlots.reduce((sum, slot) => sum + slot.price, 0));
+  const minimumPrice = Math.min(...schedule.map(s => s.price || 0));
+  const formattedMinimumPrice = minimumPrice.toLocaleString('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+  });
   return (
     <UserLayout>
       {/* <div className='min-h-screen bg-[#f8f8f8]' suppressHydrationWarning> */}
@@ -268,7 +269,7 @@ export default function SchedulesPage() {
             <div className='flex flex-1 flex-col rounded-xl bg-white p-4 shadow-md'>
               <p className='text-base text-gray-500'>Mulai dari</p>
               <div className='flex items-end'>
-                <p className='text-xl font-semibold text-black'>Rp 60,000</p>
+                <p className='text-xl font-semibold text-black'>{formattedMinimumPrice}</p>
                 <span className='ml-1 text-sm text-gray-500'>/sesi</span>
               </div>
               <Button
@@ -609,7 +610,7 @@ export default function SchedulesPage() {
                             s.date === selectedDate && s.time === slot.time && s.court === court
                           );
                           const isBooked = slot.booked;
-                          const priceFormatted = `Rp${slot.price.toLocaleString('id-ID')}`;
+                          const priceFormatted = `Rp ${slot.price.toLocaleString('id-ID')}`;
 
                           return (
                             <button
@@ -662,14 +663,15 @@ export default function SchedulesPage() {
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <p className='text-sm font-medium text-white'>
-                  {selectedTimes.length} lapangan dipilih
+                  {selectedSlots.length} lapangan dipilih
                 </p>
                 <button
                   className='text-white flex items-center'
                   onClick={() => setShowDetails((prev) => !prev)}
+                  disabled={selectedSlots.length === 0}
                 >
                   <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform ${showDetails || selectedTimes.length > 0 ? 'rotate-180' : ''}`}
+                    className={`h-5 w-5 transition-transform ${showDetails ? 'rotate-180' : ''}`}
                     stroke="white"
                   />
                 </button>
@@ -729,24 +731,51 @@ export default function SchedulesPage() {
             </div>
 
             {/* Dropdown details - show by default if any time slots are selected */}
-            {(showDetails || selectedSlots.length > 0) && (
+            {showDetails && selectedSlots.length > 0 && (
               <div className='mt-2 border-t pt-3'>
-                <div className='space-y-2'>
-                  {selectedSlots.map((slot, idx) => {
-                    // Format tanggal lebih user-friendly
-                    const formattedDate = new Date(slot.date).toLocaleDateString('id-ID', {
+                <div className='space-y-4'>
+                  {/* Group slots by date and then by court */}
+                  {Object.entries(
+                    selectedSlots.reduce<Record<string, Record<string, typeof selectedSlots[0][]>>>((acc, slot) => {
+                      if (!acc[slot.date]) {
+                        acc[slot.date] = {};
+                      }
+                      if (!acc[slot.date][slot.court]) {
+                        acc[slot.date][slot.court] = [];
+                      }
+                      acc[slot.date][slot.court].push(slot);
+                      return acc;
+                    }, {})
+                  ).map(([dateString, courts]) => {
+                    const dateObj = new Date(dateString);
+                    const formattedDate = dateObj.toLocaleDateString('id-ID', {
                       weekday: 'short',
                       day: 'numeric',
                       month: 'short'
                     });
 
                     return (
-                      <div key={`${slot.date}-${slot.time}-${idx}`} className='flex items-center justify-between text-sm'>
-                        <div>
-                          <p className='font-medium text-white'>{formattedDate}</p>
-                          <p className='text-white'>{slot.court} - {slot.time}</p>
-                        </div>
-                        <p className='text-white'>Rp{slot.price.toLocaleString('id-ID')}</p>
+                      <div key={dateString}>
+                        {/* Date header */}
+                        <p className='font-medium text-white mb-2'>{formattedDate}</p>
+
+                        {/* Group by court */}
+                        {Object.entries(courts).map(([courtName, courtSlots]) => (
+                          <div key={`${dateString}-${courtName}`} className='ml-3 mb-3'>
+                            {/* Court name */}
+                            <p className='text-white font-medium space-y-1.5'>{courtName}</p>
+
+                            {/* Times list */}
+                            <div className='ml-3 space-y-1'>
+                              {courtSlots.map((slot, idx) => (
+                                <div key={`${slot.date}-${slot.time}-${idx}`} className='flex items-center justify-between text-sm'>
+                                  <p className='text-white'>{slot.time}</p>
+                                  <p className='text-white'>Rp {slot.price.toLocaleString('id-ID')}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     );
                   })}
@@ -756,7 +785,7 @@ export default function SchedulesPage() {
                 <div className='mt-3 flex justify-between border-t pt-3 text-white'>
                   <p className='font-bold'>Total</p>
                   <p className='font-bold'>
-                    Rp{calculateTotal().toLocaleString('id-ID')}
+                    Rp {calculateTotal().toLocaleString('id-ID')}
                   </p>
                 </div>
               </div>
