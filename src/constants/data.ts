@@ -14,8 +14,8 @@ export type Product = {
 // Tipe data untuk Location
 export type Location = {
   locationId: number;
-  img: string;
-  locationName: string;
+  imageUrl: string;
+  name: string;
   sports: string[];
   countLap: number;
   description: string;
@@ -119,6 +119,17 @@ export type Membership = {
   weeks: string;
 };
 
+
+// Tipe data Time 
+export type Time = {
+  timeId: number;
+  fieldId: number;
+  time: string;
+  status: 'available' | 'booked';
+  price: number;
+  created_at: string;
+  updated_at: string;
+}
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [

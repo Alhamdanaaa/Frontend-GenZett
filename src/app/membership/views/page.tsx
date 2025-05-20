@@ -130,8 +130,12 @@ export default function MembershipPage() {
                             </button>
                         </div>
                     </div>
-                    {/* <MemberCard members={memberships} /> */}
-                    <MemberCard />
+                    <MemberCard members={memberships} />
+                    <div className="flex justify-center mt-10">
+                        <button className="rounded-lg bg-orange-500 px-6 py-2 font-semibold text-white transition hover:bg-orange-600">
+                            Lihat Semua Paket Membership
+                        </button>
+                    </div>
                 </main>
             </UserLayout>
         </div>
