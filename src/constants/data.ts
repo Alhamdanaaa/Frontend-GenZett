@@ -99,12 +99,12 @@ export interface Reservation {
 
 // Tipe data Schedule
 export type Schedule = {
-  reservationId: number;
+  locationId: number;
   name: string;
-  fieldTime: string;
-  field: string;
-  sport: string;
   date: string;
+  fieldTime: string;
+  fieldName: string;
+  sport: string;
   paymentStatus: 'pending' | 'dp' | 'complete';
 };
 

@@ -19,19 +19,22 @@ export async function getLocationById(locationId: number): Promise<Location | nu
   //   console.error(error);
   //   return null;
   // }
-    }
-    export async function createLocation(data: {
-    img?: File[];
-    locationName: string;
-    address: string;
-    description: string;
-    }) {
+}
+export async function createLocation(data: {
+  img?: File[];
+  locationName: string;
+  address: string;
+  description: string;
+  }) {
   const formData = new FormData();
   console.log('data:', data);
   formData.append('locationName', data.locationName);
   formData.append('description', data.description);
   formData.append('address', data.address);
-//   formData.append('locationPath', data.img[0]); // kirim file
+  // Pastikan file ada sebelum mengirim
+  if (data.img && data.img.length > 0) {
+    formData.append('locationPath', data.img[0]); // kirim file dengan nama yang sesuai
+  }
 
   const res = await api.post('/locations', formData, {
     headers: {
