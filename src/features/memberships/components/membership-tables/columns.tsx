@@ -1,16 +1,19 @@
 'use client';
+
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Membership } from '@/constants/data';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
-import { LOCATION_OPTIONS, SPORTS_OPTIONS } from './options';
+import { useSportsOptions, useLocationsOptions } from './options';
 import dynamic from 'next/dynamic';
 
+// Lazy load CellAction (client component)
 const CellAction = dynamic(
   () => import('./cell-action').then(mod => mod.CellAction),
   { ssr: false, loading: () => <div>Loading...</div> }
 );
 
+// Export kolom sebagai fungsi yang langsung bisa dijalankan
 export const columns: ColumnDef<Membership>[] = [
   {
     id: 'name',
@@ -44,12 +47,12 @@ export const columns: ColumnDef<Membership>[] = [
     header: ({ column }: { column: Column<Membership, unknown> }) => (
       <DataTableColumnHeader column={column} title='Lokasi Cabang' />
     ),
-    cell: ({ cell }) => <div>{cell.getValue<Membership['locationName']>()}</div>,
+    cell: ({ cell }) => <div>{cell.getValue<Membership['locationId']>()}</div>,
     enableColumnFilter: true,
     meta: {
       label: 'Lokasi Cabang',
       variant: 'multiSelect',
-      options: LOCATION_OPTIONS
+      options: [] // Akan diisi oleh hook di component
     }
   },
   {
@@ -58,12 +61,12 @@ export const columns: ColumnDef<Membership>[] = [
     header: ({ column }: { column: Column<Membership, unknown> }) => (
       <DataTableColumnHeader column={column} title='Cabang Olahraga' />
     ),
-    cell: ({ cell }) => <div>{cell.getValue<Membership['sportName']>()}</div>,
+    cell: ({ cell }) => <div>{cell.getValue<Membership['sportId']>()}</div>,
     enableColumnFilter: true,
     meta: {
       label: 'Cabang Olahraga',
       variant: 'multiSelect',
-      options: SPORTS_OPTIONS
+      options: [] // Akan diisi oleh hook di component
     }
   },
   {
@@ -73,7 +76,7 @@ export const columns: ColumnDef<Membership>[] = [
     ),
     cell: ({ cell }) => <div>{cell.getValue<Membership['discount']>()}%</div>,
     meta: {
-      label: 'Harga'
+      label: 'Diskon'
     }
   },
   {
@@ -91,3 +94,32 @@ export const columns: ColumnDef<Membership>[] = [
     cell: ({ row }) => <CellAction data={row.original} />
   }
 ];
+
+// Fungsi hook useColumns yang menggunakan options dari hooks lainnya
+export function useMembershipColumns(): ColumnDef<Membership>[] {
+  const locationOptions = useLocationsOptions();
+  const sportsOptions = useSportsOptions();
+  
+  // Salin array kolom dan update meta.options untuk lokasi dan olahraga
+  return columns.map(column => {
+    if (column.id === 'location') {
+      return {
+        ...column,
+        meta: {
+          ...column.meta,
+          options: locationOptions
+        }
+      };
+    }
+    if (column.id === 'sport') {
+      return {
+        ...column,
+        meta: {
+          ...column.meta,
+          options: sportsOptions
+        }
+      };
+    }
+    return column;
+  });
+}

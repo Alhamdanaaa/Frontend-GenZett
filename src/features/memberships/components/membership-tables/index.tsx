@@ -10,30 +10,46 @@ import { useMemo } from 'react';
 interface MembershipTableParams<TData, TValue> {
   data: TData[];
   totalItems: number;
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<TData, TValue>[] | any; // Tambahkan 'any' untuk mengatasi masalah type
 }
 
-export function MembershipTable<TData, TValue>({
+export default function MembershipTable<TData = unknown, TValue = unknown>({
   data,
   totalItems,
   columns
 }: MembershipTableParams<TData, TValue>) {
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
 
-  const pageCount = useMemo(() => Math.ceil(totalItems / pageSize), [totalItems, pageSize]);
+  // Pastikan data dan columns valid sebelum digunakan
+  const safeData = Array.isArray(data) ? data : [];
+  // Jika columns adalah fungsi, maka panggil fungsinya
+  const safeColumns = typeof columns === 'function' 
+    ? columns() 
+    : (Array.isArray(columns) ? columns : []);
   
-  const { table } = useDataTable({
-    data: data ?? [],
-    columns,
-    pageCount,
-    shallow: false
-  });
+  const pageCount = useMemo(() => {
+    return Math.ceil((totalItems || 0) / (pageSize || 10));
+  }, [totalItems, pageSize]);
 
-  return (
-    <DataTable table={table}>
-      <DataTableToolbar table={table} />
-    </DataTable>
-  );
+  try {
+    const { table } = useDataTable({
+      data: safeData,
+      columns: safeColumns,
+      pageCount,
+      shallow: false
+    });
+
+    if (!table) {
+      return <p>Error: Tidak dapat membuat tabel</p>;
+    }
+
+    return (
+      <DataTable table={table}>
+        <DataTableToolbar table={table} />
+      </DataTable>
+    );
+  } catch (error) {
+    console.error('Error in MembershipTable:', error);
+    return <p>Terjadi kesalahan saat membuat tabel. Silakan coba lagi.</p>;
+  }
 }
-
-export default { MembershipTable };

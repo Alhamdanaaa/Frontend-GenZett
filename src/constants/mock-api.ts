@@ -1063,106 +1063,64 @@ export const fakeMemberships = {
         membershipId: 1,
         name: 'Paket Futsal Mingguan',
         description: 'Paket bermain futsal setiap hari Senin, Rabu, dan Jumat pukul 18.00 - 20.00 selama 4 minggu.',
-        price: 100000,
+        discount: 10.00,
         weeks: 4,
-        locations: {
-          locationId: 1,
-          locationName: 'GOR Utama'
-        },
-        sports: {
-          sportId: 1,
-          sportName: 'Futsal'
-        }
+        locationName: 'GOR Utama',
+        sportName: 'Futsal'
       },
       {
         membershipId: 2,
         name: 'Paket Badminton Akhir Pekan',
         description: 'Akses lapangan badminton setiap Sabtu dan Minggu pagi selama 6 minggu.',
-        price: 150000,
-        weeks: 6,
-        locations: {
-          locationId: 2,
-          locationName: 'Sport Center Kota'
-        },
-        sports: {
-          sportId: 2,
-          sportName: 'Badminton'
-        }
+        discount: 15.00,
+        weeks: 6, 
+        locationName: 'Sport Center Kota',
+        sportName: 'Badminton'
       },
       {
         membershipId: 3,
         name: 'Paket Latihan Basket Rutin',
         description: 'Paket latihan intensif 3 kali seminggu selama 8 minggu. Cocok untuk tim sekolah atau komunitas.',
-        price: 200000,
+        discount: 20.00,
         weeks: 8,
-        locations: {
-          locationId: 3,
-          locationName: 'Stadion Olahraga'
-        },
-        sports: {
-          sportId: 3,
-          sportName: 'Basketball'
-        }
+        locationName: 'Stadion Olahraga',
+        sportName: 'Basketball'
       },
       {
         membershipId: 4,
         name: 'Membership Voli Pro',
         description: 'Akses eksklusif ke lapangan voli setiap sore hari Senin-Jumat selama 5 minggu.',
-        price: 180000,
+        discount: 18.00,
         weeks: 5,
-        locations: {
-          locationId: 4,
-          locationName: 'Pusat Kebugaran'
-        },
-        sports: {
-          sportId: 4,
-          sportName: 'Volleyball'
-        }
+        locationName: 'Pusat Kebugaran',
+        sportName: 'Volleyball'
       },
       {
         membershipId: 5,
         name: 'Paket Tennis Premium',
         description: 'Reservasi otomatis setiap Selasa dan Kamis pagi selama 6 minggu dengan pelatih pendamping.',
-        price: 220000,
+        discount: 22.00,
         weeks: 6,
-        locations: {
-          locationId: 5,
-          locationName: 'Arena Olahraga'
-        },
-        sports: {
-          sportId: 5,
-          sportName: 'Tennis'
-        }
+        locationName: 'Arena Olahraga',
+        sportName: 'Tennis'
       },
       {
         membershipId: 6,
         name: 'Paket Mini Soccer Bulanan',
         description: 'Paket latihan dan permainan setiap akhir pekan selama 4 minggu untuk kelompok usia 12-18 tahun.',
-        price: 130000,
+        discount: 13.00,
         weeks: 4,
-        locations: {
-          locationId: 6,
-          locationName: 'Kompleks Olahraga'
-        },
-        sports: {
-          sportId: 6,
+          locationName: 'Kompleks Olahraga',
           sportName: 'Sepak Bola'
-        }
       },
       {
         membershipId: 7,
         name: 'Paket Handball Komunitas',
         description: 'Akses terjadwal untuk komunitas handball lokal selama 6 minggu dengan jadwal fleksibel.',
-        price: 140000,
+        discount: 14.00,
         weeks: 6,
-        locations: {
-          locationId: 7,
-          locationName: 'Lapangan Terpadu'
-        },
-        sports: {
-          sportId: 7,
-          sportName: 'Handball'
-        }
+        locationName: 'Lapangan Terpadu',
+        sportName: 'Handball'
       }
     ];
   },
@@ -1181,14 +1139,14 @@ export const fakeMemberships = {
     // Filter berdasarkan locationName yang ada di daftar locations
     if (locations.length > 0) {
       memberships = memberships.filter((membership) => 
-        locations.includes(membership.locations.locationName)
+        locations.includes(membership.locationName)
       );
     }
 
     // Filter berdasarkan sportName yang ada di daftar sports
     if (sports.length > 0) {
       memberships = memberships.filter((membership) => 
-        sports.includes(membership.sports.sportName)
+        sports.includes(membership.sportName)
       );
     }
 

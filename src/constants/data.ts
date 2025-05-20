@@ -108,25 +108,15 @@ export type Schedule = {
   paymentStatus: 'pending' | 'dp' | 'complete';
 };
 
-// Tipe data Member
-export type MembershipLocation = {
-  locationId: number;
-  locationName: string;
-};
-
-export type MembershipSport = {
-  sportId: number;
-  sportName: string;
-};
-
+// Tipe data Membership
 export type Membership = {
   membershipId: number;
   name: string;
   description: string;
+  locationId: number;
+  sportId: number;
   discount: number;
   weeks: number;
-  locationName: string;
-  sportName: string;
 };
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
