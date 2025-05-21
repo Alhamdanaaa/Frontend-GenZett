@@ -74,3 +74,8 @@ export async function getAllSports() {
   const res = await api.get(`/locations/sports`);
   return res.data;
 }
+export async function getAllLocations() {
+  const res = await api.get(`/locations/allLocations`);
+  return res.data;
+}
+

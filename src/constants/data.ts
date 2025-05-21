@@ -39,8 +39,8 @@ export type Field = {
   name: string;
   location: string;
   sport: string;
-  jamMulai: string;
-  jamTutup: string;
+  startHour: string;
+  endHour: string;
   description: string;
   created_at: string;
   updated_at: string;

@@ -37,8 +37,8 @@ export default function FieldDetailDialog({
           <DetailRow label='Nama Lapangan' value={data.name} />
           <DetailRow label='Lokasi Cabang' value={data.location} />
           <DetailRow label='Cabang Olahraga' value={data.sport} />
-          <DetailRow label='Jam Mulai' value={data.jamMulai} />
-          <DetailRow label='Jam Tutup' value={data.jamTutup} />
+          <DetailRow label='Jam Mulai' value={data.startHour?.slice(0, 5)} />
+          <DetailRow label='Jam Tutup' value={data.endHour?.slice(0, 5)} />
           <DetailRow label='Deskripsi' value={data.description} />
         </div>
       </DialogContent>
