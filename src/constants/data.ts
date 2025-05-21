@@ -14,7 +14,7 @@ export type Product = {
 // Tipe data untuk Location
 export type Location = {
   locationId: number;
-  img: string;
+  imageUrl: string;
   locationName: string;
   sports: string[];
   countLap: number;
@@ -39,8 +39,8 @@ export type Field = {
   name: string;
   location: string;
   sport: string;
-  jamMulai: string;
-  jamTutup: string;
+  startHour: string;
+  endHour: string;
   description: string;
   created_at: string;
   updated_at: string;
@@ -99,12 +99,12 @@ export interface Reservation {
 
 // Tipe data Schedule
 export type Schedule = {
-  reservationId: number;
+  locationId: number;
   name: string;
-  fieldTime: string;
-  field: string;
-  sport: string;
   date: string;
+  fieldTime: string;
+  fieldName: string;
+  sport: string;
   paymentStatus: 'pending' | 'dp' | 'complete';
 };
 
@@ -118,6 +118,17 @@ export type Membership = {
   discount: number;
   weeks: number;
 };
+
+// Tipe data Time 
+export type Time = {
+  timeId: number;
+  fieldId: number;
+  time: string;
+  status: 'available' | 'booked';
+  price: number;
+  created_at: string;
+  updated_at: string;
+}
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [

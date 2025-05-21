@@ -1,7 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 import { Field } from '@/constants/data';
+import { ColumnDef } from '@tanstack/react-table';
 
 const FieldTable = dynamic(
   () => import('./field-tables').then(mod => mod.FieldTable),
@@ -11,10 +13,25 @@ const FieldTable = dynamic(
 type Props = {
   data: Field[];
   totalItems: number;
-  columns: any;
+  locationOptions: { label: string; value: string }[];
+  sportOptions: { label: string; value: string }[];
 };
 
-export default function FieldTableWrapper({ data, totalItems, columns }: Props) {
+export default function FieldTableWrapper({ data, totalItems, locationOptions, sportOptions }: Props) {
+  const [columns, setColumns] = useState<ColumnDef<Field>[]>([]);
+
+  useEffect(() => {
+    const loadColumns = async () => {
+      const { getColumns } = await import('./field-tables/columns');
+      const cols = getColumns(locationOptions, sportOptions);
+      setColumns(cols);
+    };
+
+    loadColumns();
+  }, [locationOptions, sportOptions]);
+
+  if (columns.length === 0) return <p>Loading columns...</p>;
+
   return (
     <FieldTable data={data} totalItems={totalItems} columns={columns} />
   );

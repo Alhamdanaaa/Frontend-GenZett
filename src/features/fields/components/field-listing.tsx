@@ -1,11 +1,9 @@
-import { fakeFields } from '@/constants/mock-api';
+import { getFields } from '@/lib/api/field';
+// import { getLocations, getSports } from '@/lib/api/options';
 import { searchParamsCache } from '@/lib/searchparams';
 import FieldTableWrapper from './field-table-wrapper';
-
-const getColumns = async () => {
-  const { columns } = await import('./field-tables/columns');
-  return columns;
-};
+import { getAllLocations } from '@/lib/api/location';
+import { getAllSports } from '@/lib/api/sports';
 
 export default async function FieldListingPage() {
   const page = searchParamsCache.get('page');
@@ -13,23 +11,37 @@ export default async function FieldListingPage() {
   const pageLimit = searchParamsCache.get('perPage');
   const locations = searchParamsCache.get('location');
   const sports = searchParamsCache.get('sport');
-  
+
   const filters = {
-    page,
-    limit: pageLimit,
+    page: page?.toString(),
+    limit: pageLimit?.toString(),
     ...(search && { search }),
-    ...(locations && { locations: locations }),
-    ...(sports && { sports: sports })
+    ...(locations && { locations }),
+    ...(sports && { sports })
   };
 
-  const data = await fakeFields.getFields(filters);
-  const columns = await getColumns();
+  const data = await getFields(filters);
+  const [locationData, sportData] = await Promise.all([
+    getAllLocations(),
+    getAllSports()
+  ]);
+
+  const locationOptions = locationData.map((loc: any) => ({
+    label: loc.name,
+    value: String(loc.id),
+  }));
+
+  const sportOptions = sportData.map((sport: any) => ({
+    label: sport.name,
+    value: String(sport.id),
+  }));
 
   return (
     <FieldTableWrapper
       data={data.fields}
       totalItems={data.totalFields}
-      columns={columns}
+      locationOptions={locationOptions}
+      sportOptions={sportOptions}
     />
   );
 }

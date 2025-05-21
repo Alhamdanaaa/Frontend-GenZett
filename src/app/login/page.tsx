@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import LoginPage from "@/features/auth/components/login-page";
+import LoginPage from "@/app/login/views/page";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -7,23 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  let stars = 3000; // Default value
-
-  try {
-    const response = await fetch(
-      "https://api.github.com/repos/kiranism/next-shadcn-dashboard-starter",
-      {
-        next: { revalidate: 86400 },
-      }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      stars = data.stargazers_count || stars;
-    }
-  } catch (error) {
-    // fallback value
-  }
-
   return <LoginPage />;
 }

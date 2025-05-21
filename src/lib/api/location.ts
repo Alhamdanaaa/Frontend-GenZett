@@ -19,19 +19,22 @@ export async function getLocationById(locationId: number): Promise<Location | nu
   //   console.error(error);
   //   return null;
   // }
-    }
-    export async function createLocation(data: {
-    img?: File[];
-    locationName: string;
-    address: string;
-    description: string;
-    }) {
+}
+export async function createLocation(data: {
+  img?: File[];
+  locationName: string;
+  address: string;
+  description: string;
+  }) {
   const formData = new FormData();
   console.log('data:', data);
   formData.append('locationName', data.locationName);
   formData.append('description', data.description);
   formData.append('address', data.address);
-//   formData.append('locationPath', data.img[0]); // kirim file
+  // Pastikan file ada sebelum mengirim
+  if (data.img && data.img.length > 0) {
+    formData.append('locationPath', data.img[0]); // kirim file dengan nama yang sesuai
+  }
 
   const res = await api.post('/locations', formData, {
     headers: {
@@ -49,8 +52,8 @@ export async function updateLocation(locationId: number, data: Partial<Location>
   if (data.locationName) formData.append('locationName', data.locationName);
   if (data.description) formData.append('description', data.description);
   if (data.address) formData.append('address', data.address);
-  if (data.img && data.img.length > 0) {
-    formData.append('locationPath', data.img[0]); // contoh kalo mau upload file baru
+  if (data.imageUrl && data.imageUrl.length > 0) {
+    formData.append('locationPath', data.imageUrl[0]); // contoh kalo mau upload file baru
   }
 
   const res = await api.put(`/locations/${locationId}`, formData, {
@@ -71,3 +74,8 @@ export async function getAllSports() {
   const res = await api.get(`/locations/sports`);
   return res.data;
 }
+export async function getAllLocations() {
+  const res = await api.get(`/locations/allLocations`);
+  return res.data;
+}
+

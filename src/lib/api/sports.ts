@@ -13,13 +13,14 @@ export async function getSports(params: FilterParams) {
 }
 
 export async function getSportById(sportId: number): Promise<Sport | null> {
-  // try {
+  try {
     const res = await api.get(`/sports/${sportId}`);
     return res.data.sport;
-  // } catch (error) {
-  //   console.error(error);
-  //   return null;
-  // }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return null;
+  }
 }
 
 export async function createSport(data: Partial<Sport>) {
@@ -34,5 +35,9 @@ export async function updateSport(sportId: number, data: Partial<Sport>) {
 
 export async function deleteSport(sportId: number) {
   const res = await api.delete(`/sports/${sportId}`);
+  return res.data;
+}
+export async function getAllSports() {
+  const res = await api.get(`/locations/allSports`);
   return res.data;
 }
