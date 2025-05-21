@@ -39,8 +39,8 @@ export type Field = {
   name: string;
   location: string;
   sport: string;
-  jamMulai: string;
-  jamTutup: string;
+  startHour: string;
+  endHour: string;
   description: string;
   created_at: string;
   updated_at: string;
@@ -99,12 +99,12 @@ export interface Reservation {
 
 // Tipe data Schedule
 export type Schedule = {
-  reservationId: number;
+  locationId: number;
   name: string;
-  fieldTime: string;
-  field: string;
-  sport: string;
   date: string;
+  fieldTime: string;
+  fieldName: string;
+  sport: string;
   paymentStatus: 'pending' | 'dp' | 'complete';
 };
 

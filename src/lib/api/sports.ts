@@ -37,3 +37,7 @@ export async function deleteSport(sportId: number) {
   const res = await api.delete(`/sports/${sportId}`);
   return res.data;
 }
+export async function getAllSports() {
+  const res = await api.get(`/locations/allSports`);
+  return res.data;
+}

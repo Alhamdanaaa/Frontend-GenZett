@@ -1053,213 +1053,213 @@ fakeAdmins.initialize();
 
 
 // Mock data store untuk membership
-export const fakeMemberships = {
-  records: [] as Membership[],
+// export const fakeMemberships = {
+//   records: [] as Membership[],
 
-  // Inisialisasi data membership dengan struktur baru
-  initialize() {
-    this.records = [
-      {
-        membershipId: 1,
-        name: 'Paket Futsal Mingguan',
-        description: 'Paket bermain futsal setiap hari Senin, Rabu, dan Jumat pukul 18.00 - 20.00 selama 4 minggu.',
-        price: 100000,
-        weeks: 4,
-        locations: {
-          locationId: 1,
-          locationName: 'GOR Utama'
-        },
-        sports: {
-          sportId: 1,
-          sportName: 'Futsal'
-        }
-      },
-      {
-        membershipId: 2,
-        name: 'Paket Badminton Akhir Pekan',
-        description: 'Akses lapangan badminton setiap Sabtu dan Minggu pagi selama 6 minggu.',
-        price: 150000,
-        weeks: 6,
-        locations: {
-          locationId: 2,
-          locationName: 'Sport Center Kota'
-        },
-        sports: {
-          sportId: 2,
-          sportName: 'Badminton'
-        }
-      },
-      {
-        membershipId: 3,
-        name: 'Paket Latihan Basket Rutin',
-        description: 'Paket latihan intensif 3 kali seminggu selama 8 minggu. Cocok untuk tim sekolah atau komunitas.',
-        price: 200000,
-        weeks: 8,
-        locations: {
-          locationId: 3,
-          locationName: 'Stadion Olahraga'
-        },
-        sports: {
-          sportId: 3,
-          sportName: 'Basketball'
-        }
-      },
-      {
-        membershipId: 4,
-        name: 'Membership Voli Pro',
-        description: 'Akses eksklusif ke lapangan voli setiap sore hari Senin-Jumat selama 5 minggu.',
-        price: 180000,
-        weeks: 5,
-        locations: {
-          locationId: 4,
-          locationName: 'Pusat Kebugaran'
-        },
-        sports: {
-          sportId: 4,
-          sportName: 'Volleyball'
-        }
-      },
-      {
-        membershipId: 5,
-        name: 'Paket Tennis Premium',
-        description: 'Reservasi otomatis setiap Selasa dan Kamis pagi selama 6 minggu dengan pelatih pendamping.',
-        price: 220000,
-        weeks: 6,
-        locations: {
-          locationId: 5,
-          locationName: 'Arena Olahraga'
-        },
-        sports: {
-          sportId: 5,
-          sportName: 'Tennis'
-        }
-      },
-      {
-        membershipId: 6,
-        name: 'Paket Mini Soccer Bulanan',
-        description: 'Paket latihan dan permainan setiap akhir pekan selama 4 minggu untuk kelompok usia 12-18 tahun.',
-        price: 130000,
-        weeks: 4,
-        locations: {
-          locationId: 6,
-          locationName: 'Kompleks Olahraga'
-        },
-        sports: {
-          sportId: 6,
-          sportName: 'Sepak Bola'
-        }
-      },
-      {
-        membershipId: 7,
-        name: 'Paket Handball Komunitas',
-        description: 'Akses terjadwal untuk komunitas handball lokal selama 6 minggu dengan jadwal fleksibel.',
-        price: 140000,
-        weeks: 6,
-        locations: {
-          locationId: 7,
-          locationName: 'Lapangan Terpadu'
-        },
-        sports: {
-          sportId: 7,
-          sportName: 'Handball'
-        }
-      }
-    ];
-  },
+//   // Inisialisasi data membership dengan struktur baru
+//   initialize() {
+//     this.records = [
+//       {
+//         membershipId: 1,
+//         name: 'Paket Futsal Mingguan',
+//         description: 'Paket bermain futsal setiap hari Senin, Rabu, dan Jumat pukul 18.00 - 20.00 selama 4 minggu.',
+//         discount: 100000,
+//         weeks: 4,
+//         locations: {
+//           locationId: 1,
+//           locationName: 'GOR Utama'
+//         },
+//         sports: {
+//           sportId: 1,
+//           sportName: 'Futsal'
+//         }
+//       },
+//       {
+//         membershipId: 2,
+//         name: 'Paket Badminton Akhir Pekan',
+//         description: 'Akses lapangan badminton setiap Sabtu dan Minggu pagi selama 6 minggu.',
+//         discount: 150000,
+//         weeks: 6,
+//         locations: {
+//           locationId: 2,
+//           locationName: 'Sport Center Kota'
+//         },
+//         sports: {
+//           sportId: 2,
+//           sportName: 'Badminton'
+//         }
+//       },
+//       {
+//         membershipId: 3,
+//         name: 'Paket Latihan Basket Rutin',
+//         description: 'Paket latihan intensif 3 kali seminggu selama 8 minggu. Cocok untuk tim sekolah atau komunitas.',
+//         discount: 200000,
+//         weeks: 8,
+//         locations: {
+//           locationId: 3,
+//           locationName: 'Stadion Olahraga'
+//         },
+//         sports: {
+//           sportId: 3,
+//           sportName: 'Basketball'
+//         }
+//       },
+//       {
+//         membershipId: 4,
+//         name: 'Membership Voli Pro',
+//         description: 'Akses eksklusif ke lapangan voli setiap sore hari Senin-Jumat selama 5 minggu.',
+//         discount: 180000,
+//         weeks: 5,
+//         locations: {
+//           locationId: 4,
+//           locationName: 'Pusat Kebugaran'
+//         },
+//         sports: {
+//           sportId: 4,
+//           sportName: 'Volleyball'
+//         }
+//       },
+//       {
+//         membershipId: 5,
+//         name: 'Paket Tennis Premium',
+//         description: 'Reservasi otomatis setiap Selasa dan Kamis pagi selama 6 minggu dengan pelatih pendamping.',
+//         discount: 220000,
+//         weeks: 6,
+//         locations: {
+//           locationId: 5,
+//           locationName: 'Arena Olahraga'
+//         },
+//         sports: {
+//           sportId: 5,
+//           sportName: 'Tennis'
+//         }
+//       },
+//       {
+//         membershipId: 6,
+//         name: 'Paket Mini Soccer Bulanan',
+//         description: 'Paket latihan dan permainan setiap akhir pekan selama 4 minggu untuk kelompok usia 12-18 tahun.',
+//         discount: 130000,
+//         weeks: 4,
+//         locations: {
+//           locationId: 6,
+//           locationName: 'Kompleks Olahraga'
+//         },
+//         sports: {
+//           sportId: 6,
+//           sportName: 'Sepak Bola'
+//         }
+//       },
+//       {
+//         membershipId: 7,
+//         name: 'Paket Handball Komunitas',
+//         description: 'Akses terjadwal untuk komunitas handball lokal selama 6 minggu dengan jadwal fleksibel.',
+//         discount: 140000,
+//         weeks: 6,
+//         locations: {
+//           locationId: 7,
+//           locationName: 'Lapangan Terpadu'
+//         },
+//         sports: {
+//           sportId: 7,
+//           sportName: 'Handball'
+//         }
+//       }
+//     ];
+//   },
 
-  async getAll({
-    locations = [],
-    sports = [],
-    search
-  }: {
-    locations?: string[];
-    sports?: string[];
-    search?: string;
-  }) {
-    let memberships = [...this.records];
+//   async getAll({
+//     locations = [],
+//     sports = [],
+//     search
+//   }: {
+//     locations?: string[];
+//     sports?: string[];
+//     search?: string;
+//   }) {
+//     let memberships = [...this.records];
 
-    // Filter berdasarkan locationName yang ada di daftar locations
-    if (locations.length > 0) {
-      memberships = memberships.filter((membership) => 
-        locations.includes(membership.locations.locationName)
-      );
-    }
+//     // Filter berdasarkan locationName yang ada di daftar locations
+//     if (locations.length > 0) {
+//       memberships = memberships.filter((membership) => 
+//         locations.includes(membership.locations.locationName)
+//       );
+//     }
 
-    // Filter berdasarkan sportName yang ada di daftar sports
-    if (sports.length > 0) {
-      memberships = memberships.filter((membership) => 
-        sports.includes(membership.sports.sportName)
-      );
-    }
+//     // Filter berdasarkan sportName yang ada di daftar sports
+//     if (sports.length > 0) {
+//       memberships = memberships.filter((membership) => 
+//         sports.includes(membership.sports.sportName)
+//       );
+//     }
 
-    // Pencarian berdasarkan nama dan deskripsi
-    if (search) {
-      memberships = matchSorter(memberships, search, {
-        keys: ['name', 'description', 'locationName', 'sportName']
-      });
-    }
+//     // Pencarian berdasarkan nama dan deskripsi
+//     if (search) {
+//       memberships = matchSorter(memberships, search, {
+//         keys: ['name', 'description', 'locationName', 'sportName']
+//       });
+//     }
 
-    return memberships;
-  },
+//     return memberships;
+//   },
 
-  async getMemberships({
-    page = 1,
-    limit = 10,
-    locations,
-    sports,
-    search
-  }: {
-    page?: number;
-    limit?: number;
-    locations?: string;
-    sports?: string;
-    search?: string;
-  }) {
-    const locationArray = locations ? locations.split('.') : [];
-    const sportArray = sports ? sports.split('.') : [];
+//   async getMemberships({
+//     page = 1,
+//     limit = 10,
+//     locations,
+//     sports,
+//     search
+//   }: {
+//     page?: number;
+//     limit?: number;
+//     locations?: string;
+//     sports?: string;
+//     search?: string;
+//   }) {
+//     const locationArray = locations ? locations.split('.') : [];
+//     const sportArray = sports ? sports.split('.') : [];
 
-    const allMemberships = await this.getAll({
-      locations: locationArray,
-      sports: sportArray,
-      search
-    });
+//     const allMemberships = await this.getAll({
+//       locations: locationArray,
+//       sports: sportArray,
+//       search
+//     });
 
-    const totalMemberships = allMemberships.length;
-    const offset = (page - 1) * limit;
-    const paginatedMemberships = allMemberships.slice(offset, offset + limit);
+//     const totalMemberships = allMemberships.length;
+//     const offset = (page - 1) * limit;
+//     const paginatedMemberships = allMemberships.slice(offset, offset + limit);
 
-    return {
-      success: true,
-      time: new Date().toISOString(),
-      message: 'Data membership untuk keperluan testing',
-      total_memberships: totalMemberships,
-      offset,
-      limit,
-      memberships: paginatedMemberships
-    };
-  },
+//     return {
+//       success: true,
+//       time: new Date().toISOString(),
+//       message: 'Data membership untuk keperluan testing',
+//       total_memberships: totalMemberships,
+//       offset,
+//       limit,
+//       memberships: paginatedMemberships
+//     };
+//   },
 
-  async getMembershipById(id: number): Promise<{
-    success: boolean;
-    message?: string;
-    membership?: Membership;
-  }> {
-    const found = this.records.find((item: Membership) => item.membershipId === id);
-    if (!found) {
-      return {
-        success: false,
-        message: `Membership dengan ID ${id} tidak ditemukan`
-      };
-    }
+//   async getMembershipById(id: number): Promise<{
+//     success: boolean;
+//     message?: string;
+//     membership?: Membership;
+//   }> {
+//     const found = this.records.find((item: Membership) => item.membershipId === id);
+//     if (!found) {
+//       return {
+//         success: false,
+//         message: `Membership dengan ID ${id} tidak ditemukan`
+//       };
+//     }
 
-    return {
-      success: true,
-      membership: found
-    };
-  }
-};
+//     return {
+//       success: true,
+//       membership: found
+//     };
+//   }
+// };
 
-fakeMemberships.initialize();
+// fakeMemberships.initialize();
 
 
 export const fakeSchedules = {
@@ -1269,18 +1269,18 @@ export const fakeSchedules = {
     const sports: Schedule['sport'][] = ['Futsal', 'Badminton', 'Basketball', 'Volleyball', 'Tennis', 'Sepak Bola', 'Handball'];
     const paymentStatuses: Schedule['paymentStatus'][] = ['pending', 'dp', 'complete'];
 
-    const generateRandomScheduleData = (reservationId: number): Schedule => {
+    const generateRandomScheduleData = (locationId: number): Schedule => {
       const startDate = faker.date.between({ from: '2024-01-01', to: '2024-12-31' });
 
       return {
-        reservationId,
+        locationId,
         name: `${faker.person.firstName()} ${faker.person.lastName()}`,
         fieldTime: faker.helpers.arrayElement([
           '08:00', '09:00', '10:00', '11:00',
           '13:00', '14:00', '15:00', '16:00',
           '17:00', '18:00', '19:00', '20:00'
         ]),
-        field: `Field ${faker.number.int({ min: 1, max: 5 })}`,
+        fieldName: `Field ${faker.number.int({ min: 1, max: 5 })}`,
         sport: faker.helpers.arrayElement(sports),
         date: startDate.toISOString().split('T')[0],
         paymentStatus: faker.helpers.arrayElement(paymentStatuses)

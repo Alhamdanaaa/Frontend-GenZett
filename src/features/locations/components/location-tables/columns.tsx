@@ -17,7 +17,7 @@ const CellAction = dynamic(
 export const columns: ColumnDef<Location>[] = [
   {
     accessorKey: 'img',
-    header: 'GAMBAR',
+    header: 'Gambar',
     meta:{
       label: 'Gambar'
     },
@@ -25,7 +25,7 @@ export const columns: ColumnDef<Location>[] = [
       return (
         <div className='relative aspect-square w-16 h-16'>
           <Image
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/locations/${row.getValue('img')}`}
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${row.getValue('img')}`}
             alt= ''
             // alt={row.getValue('name')}
             fill
@@ -38,9 +38,7 @@ export const columns: ColumnDef<Location>[] = [
   {
     id: 'name',
     accessorKey: 'locationName',
-    header: ({ column }: { column: Column<Location, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Nama Lokasi' />
-    ),
+    header: 'Nama Lokasi',
     cell: ({ cell }) => <div>{cell.getValue<Location['locationName']>()}</div>,
     meta: {
       label: 'Nama Lokasi',
@@ -53,9 +51,7 @@ export const columns: ColumnDef<Location>[] = [
   {
     id: 'sport',
     accessorKey: 'sports',
-    header: ({ column }: { column: Column<Location, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Cabang Olahraga' />
-    ),
+    header: 'Cabang Olahraga',
     cell: ({ cell }) => {
       const sports = cell.getValue<Location['sports']>();
       return (
@@ -84,9 +80,7 @@ export const columns: ColumnDef<Location>[] = [
   },
   {
     accessorKey: 'countLap',
-    header: ({ column }: { column: Column<Location, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Jumlah Lapangan' />
-    ),
+    header: 'Jumlah Lapangan',
     cell: ({ cell }) => {
       const count = cell.getValue<Location['countLap']>();
       return <div>{count} Lapangan</div>;
