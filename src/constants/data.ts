@@ -119,6 +119,11 @@ export type Membership = {
   weeks: number;
 };
 
+export type MembershipWithNames = Membership & {
+  locationName: string;
+  sportName: string;
+};
+
 // Tipe data Time 
 export type Time = {
   timeId: number;

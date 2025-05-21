@@ -3,7 +3,6 @@ import api from "../axios";
 import { Membership } from '@/constants/data';
 
 type FilterParams = {
-
   page?: string;
   limit?: string;
   search?: string;
@@ -19,7 +18,7 @@ export async function getMembershipById(membershipId: number): Promise<Membershi
     const res = await api.get(`/memberships/${membershipId}`);
     return res.data.membership;
   } catch (error) {
-    console.error(error);
+    console.error('API error in getMembershipById:', error);
     return null;
   }
 }
@@ -36,3 +35,7 @@ export async function createMembership(data: {
   return res.data;
 }
 
+export async function updateMembership(membershipId: number, data: Partial<Membership>) {
+  const res = await api.put(`/memberships/${membershipId}`, data);
+  return res.data;
+}

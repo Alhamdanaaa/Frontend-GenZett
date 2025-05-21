@@ -1,53 +1,52 @@
+import { getMemberships } from '@/lib/api/membership';
 import { searchParamsCache } from '@/lib/searchparams';
 import MembershipTableWrapper from './membership-table-wrapper';
-import { getMemberships } from '@/lib/api/membership';
-
-const getColumns = async () => {
-  try {
-    // Pastikan mengimpor columns dengan benar
-    const { useMembershipColumns } = await import('./membership-tables/columns');
-    // Jika columns adalah fungsi (tidak langsung nilai kolom), panggil fungsinya
-    return useMembershipColumns;
-  } catch (error) {
-    console.error('Error loading columns:', error);
-    return []; // Kembalikan array kosong jika gagal memuat columns
-  }
-};
+import { getAllLocations } from '@/lib/api/location';
+import { getAllSports } from '@/lib/api/sports';
 
 export default async function MembershipListingPage() {
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
-  const sports = searchParamsCache.get('sport');
-  const locations = searchParamsCache.get('location');
   const pageLimit = searchParamsCache.get('perPage');
-  
+  const locations = searchParamsCache.get('location');
+  const sports = searchParamsCache.get('sport');
+
   const filters = {
-    page: page?.toString() || '1', // Default ke halaman 1 jika undefined
-    limit: pageLimit?.toString() || '10', // Default ke 10 item per halaman
+    page: page?.toString(),
+    limit: pageLimit?.toString(),
     ...(search && { search }),
-    ...(sports && { sports: sports.split(',').map(Number) }),   
-    ...(locations && { locations: locations.split(',').map(Number) })
+    ...(sports && { sports }),
+    ...(locations && { locations }),
   };
 
+  const data = await getMemberships(filters);
+
   try {
-    // Pastikan mendapatkan data dengan benar
-    const memberships = await getMemberships(filters);
-    const columns = await getColumns();
-    
-    // Pastikan data dan kolom valid sebelum meneruskannya
-    const safeData = memberships?.data || [];
-    const totalItems = Array.isArray(safeData) ? safeData.length : 0;
-    
+    const [locationData, sportData] = await Promise.all([
+      getAllLocations(),
+      getAllSports()
+    ]);
+
+    const locationOptions = locationData.map((loc: any) => ({
+      label: loc.name,
+      value: String(loc.id),
+    }));
+
+    const sportOptions = sportData.map((sport: any) => ({
+      label: sport.name,
+      value: String(sport.id),
+    }));
+
     return (
       <MembershipTableWrapper
-        data={safeData}
-        totalItems={totalItems}
-        columns={columns}
+        data={data.data ?? []}
+        totalItems={data.totalMemberships ?? 0}
+        locationOptions={locationOptions}
+        sportOptions={sportOptions}
       />
     );
   } catch (error) {
     console.error('Error in MembershipListingPage:', error);
-    // Tampilkan pesan error jika gagal memuat data
     return (
       <div className="p-4 text-red-500">
         Terjadi kesalahan saat memuat data. Silakan coba lagi nanti.

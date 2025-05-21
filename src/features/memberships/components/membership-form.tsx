@@ -1,7 +1,9 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -18,13 +20,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { useSportsOptions, useLocationsOptions } from './membership-tables/options';
 import { Membership } from '@/constants/data';
-import { createMembership } from '@/lib/api/membership'; // Pastikan path ini benar
+import { createMembership, updateMembership } from '@/lib/api/membership';
+import { useRouter } from 'next/navigation';
 
-// Schema validasi dengan zod
+// Schema validasi dengan Zod
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Nama membership minimal 2 karakter.' }),
   description: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' }),
-  // locations dan sports berupa string, karena dari Select single pilihan
   sports: z.string().nonempty({ message: 'Cabang olahraga wajib dipilih.' }),
   locations: z.string().nonempty({ message: 'Lokasi wajib dipilih.' }),
   discount: z.coerce.number().min(0, { message: 'Diskon tidak boleh negatif.' }),
@@ -49,7 +51,7 @@ export default function MembershipForm({
     defaultValues: {
       name: initialData?.name ?? '',
       description: initialData?.description ?? '',
-      locations: initialData?.locationId?.toString() ?? '', // pastikan ini string ID
+      locations: initialData?.locationId?.toString() ?? '',
       sports: initialData?.sportId?.toString() ?? '',
       discount: initialData?.discount ?? 0,
       weeks: initialData?.weeks ?? 1
@@ -57,11 +59,12 @@ export default function MembershipForm({
     mode: 'onBlur'
   });
 
+  const router = useRouter();
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
 
-      // Payload harus sesuai tipe data backend: lokasi dan olahraga sebagai number ID
       const payload = {
         name: values.name,
         description: values.description,
@@ -71,19 +74,23 @@ export default function MembershipForm({
         weeks: values.weeks
       };
 
-      console.log('Payload to submit:', payload);
+      // console.log('Payload to submit:', payload);
 
-      await createMembership(payload);
-
-      if (onSuccess) onSuccess();
-      form.reset();
-    } catch (error: any) {
-      // Tangani error dengan log pesan error dari backend bila ada
-      if (error.response?.data) {
-        console.error('Error submitting membership:', error.response.data);
+      if (initialData) {
+        // Edit existing membership
+        await updateMembership(initialData.membershipId, payload);
       } else {
-        console.error('Error submitting membership:', error.message);
+        // Create new membership
+        await createMembership(payload);
       }
+
+      // Jalankan callback eksternal (jika ada)
+      if (onSuccess) onSuccess();
+
+      // Redirect ke halaman daftar membership
+      router.push('/dashboard/membership');
+    } catch (error: any) {
+      console.error('Gagal menyimpan membership:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -200,11 +207,11 @@ export default function MembershipForm({
                 name="discount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Diskon</FormLabel>
+                    <FormLabel>Diskon (%)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        step="5"
+                        step={5}
                         min={0}
                         placeholder="Contoh: 10"
                         {...field}
