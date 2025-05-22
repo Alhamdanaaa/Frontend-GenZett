@@ -16,7 +16,7 @@ export async function getMemberships(params: FilterParams) {
 export async function getMembershipById(membershipId: number): Promise<Membership | null> {
   try {
     const res = await api.get(`/memberships/${membershipId}`);
-    return res.data.membership;
+    return res.data.data as Membership;
   } catch (error) {
     console.error('API error in getMembershipById:', error);
     return null;
