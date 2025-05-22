@@ -1,4 +1,4 @@
-import { fakeUsers } from '@/constants/mock-api';
+import { getUsers } from '@/lib/api/user';
 import { searchParamsCache } from '@/lib/searchparams';
 import UserTableWrapper from './user-list-table-wrapper';
 
@@ -13,12 +13,12 @@ export default async function UserListListingPage() {
   const pageLimit = searchParamsCache.get('perPage');
   
   const filters = {
-    page,
-    limit: pageLimit,
+    page: page?.toString(),
+    limit: pageLimit?.toString(),
     ...(search && { search })
   };
 
-  const data = await fakeUsers.getUsers(filters);
+  const data = await getUsers(filters); // Ambil semua data user
   const columns = await getColumns();
 
   return (
