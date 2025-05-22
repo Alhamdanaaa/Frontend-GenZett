@@ -237,13 +237,14 @@ export default function MembershipForm({
                     <FormControl>
                       <Input
                         type="number"
-                        step={5}
+                        // step={5}
                         min={0}
-                        placeholder="Contoh: 10"
+                        placeholder="Contoh: 1"
                         {...field}
+                        value={field.value === 0 ? '' : field.value}
                         onChange={(e) => {
-                          const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
-                          field.onChange(value);
+                          const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                          field.onChange(val);
                         }}
                       />
                     </FormControl>
@@ -263,9 +264,13 @@ export default function MembershipForm({
                       <Input
                         type="number"
                         min={1}
-                        placeholder="Contoh: 4 minggu"
+                        placeholder="Contoh: 1"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 1)}
+                        value={field.value === 1 ? '' : field.value}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          field.onChange(val === '' ? 1 : parseInt(val, 10));
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
