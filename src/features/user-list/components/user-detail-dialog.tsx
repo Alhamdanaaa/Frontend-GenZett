@@ -37,8 +37,7 @@ export default function UserDetailDialog({
           {/* <DetailRow label='Username' value={data.username} /> */}
           <DetailRow label='Nama Lengkap' value={data.name} />
           <DetailRow label='Email' value={data.email} />
-          <DetailRow label='Nomor Telepon' value={data.phone} />
-          <DetailRow label='Dibuat Pada' value={formatDate(data.created_at)} />
+          <DetailRow label='Nomor Telepon' value={data.phone || undefined} />
         </div>
       </DialogContent>
     </Dialog>
