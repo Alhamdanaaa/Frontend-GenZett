@@ -49,13 +49,13 @@ export type Field = {
 // Tipe data User
 export type User = {
   userId: number;
-  username: string;
-  password: string;
+  role: 'user' | 'admin' | 'superadmin';
   name: string;
   email: string;
-  phone: string;
-  created_at: string;
-  updated_at: string;
+  phone: string | null;
+  // password: string;
+  // created_at: string;
+  // updated_at: string;
 };
 
 // Tipe data Admin
