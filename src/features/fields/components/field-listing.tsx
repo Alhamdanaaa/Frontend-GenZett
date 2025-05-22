@@ -1,5 +1,4 @@
 import { getFields } from '@/lib/api/field';
-// import { getLocations, getSports } from '@/lib/api/options';
 import { searchParamsCache } from '@/lib/searchparams';
 import FieldTableWrapper from './field-table-wrapper';
 import { getAllLocations } from '@/lib/api/location';
