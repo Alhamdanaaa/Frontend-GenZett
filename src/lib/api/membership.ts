@@ -39,3 +39,8 @@ export async function updateMembership(membershipId: number, data: Partial<Membe
   const res = await api.put(`/memberships/${membershipId}`, data);
   return res.data;
 }
+
+export async function deleteMembership(membershipId: number) {
+  const res = await api.delete(`/memberships/${membershipId}`);
+  return res.data;
+}
