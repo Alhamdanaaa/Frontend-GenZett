@@ -46,25 +46,25 @@ export async function createLocation(data: {
 }
 
 
-export async function updateLocation(locationId: number, data: Partial<Location>) {
+export async function updateLocation(locationId: number, data: Partial<Location> & { img?: File[] }) {
   const formData = new FormData();
-  console.log('data:', data);
+
   if (data.locationName) formData.append('locationName', data.locationName);
   if (data.description) formData.append('description', data.description);
   if (data.address) formData.append('address', data.address);
-  if (data.imageUrl && data.imageUrl.length > 0) {
-    formData.append('locationPath', data.imageUrl[0]); // contoh kalo mau upload file baru
+  if (data.img && data.img.length > 0) {
+    formData.append('locationPath', data.img[0]); // sesuai dengan nama di Laravel
   }
 
-  const res = await api.put(`/locations/${locationId}`, formData, {
+  formData.append('_method', 'PUT'); // spoofing method
+  const res = await api.post(`/locations/${locationId}`, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   });
 
   return res.data;
 }
-
 
 export async function deleteLocation(locationId: number) {
   const res = await api.delete(`/locations/${locationId}`);
