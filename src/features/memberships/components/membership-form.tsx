@@ -19,11 +19,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { useSportsOptions, useLocationsOptions } from './membership-tables/options';
-import { Membership } from '@/constants/data';
+import { MembershipWithNames } from '@/constants/data';
 import { createMembership, updateMembership } from '@/lib/api/membership';
 import { useRouter } from 'next/navigation';
 
-// Schema validasi dengan Zod
+// Skema validasi Zod
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Nama membership minimal 2 karakter.' }),
   description: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' }),
@@ -33,35 +33,64 @@ const formSchema = z.object({
   weeks: z.coerce.number().min(1, { message: 'Durasi minggu harus diisi.' })
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 export default function MembershipForm({
   initialData,
   pageTitle,
   onSuccess
 }: {
-  initialData: Membership | null;
+  initialData: MembershipWithNames | null;
   pageTitle: string;
   onSuccess?: () => void;
 }) {
-  const sportsOptions = useSportsOptions();
-  const locationsOptions = useLocationsOptions();
+  const router = useRouter();
+  const isEdit = Boolean(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const locationsOptions = useLocationsOptions();
+  const sportsOptions = useSportsOptions();
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: initialData?.name ?? '',
-      description: initialData?.description ?? '',
-      locations: initialData?.locationId?.toString() ?? '',
-      sports: initialData?.sportId?.toString() ?? '',
-      discount: initialData?.discount ?? 0,
-      weeks: initialData?.weeks ?? 1
+      name: '',
+      description: '',
+      sports: '',
+      locations: '',
+      discount: 0,
+      weeks: 1,
     },
-    mode: 'onBlur'
   });
 
-  const router = useRouter();
+  useEffect(() => {
+    if (!initialData || locationsOptions.length === 0 || sportsOptions.length === 0) return;
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const locationName = initialData.locationName ?? '';
+    const sportName = initialData.sportName ?? '';
+
+    const selectedLocation = locationsOptions.find(
+      (loc) =>
+        typeof loc.label === 'string' &&
+        loc.label.toLowerCase() === locationName.toLowerCase()
+    );
+    const selectedSport = sportsOptions.find(
+      (sport) =>
+        typeof sport.label === 'string' &&
+        sport.label.toLowerCase() === sportName.toLowerCase()
+    );
+
+    form.reset({
+      name: initialData.name || '',
+      description: initialData.description || '',
+      sports: selectedSport?.value ?? '',
+      locations: selectedLocation?.value ?? '',
+      discount: Number(initialData.discount) || 0,
+      weeks: initialData.weeks || 1,
+    });
+  }, [initialData, locationsOptions, sportsOptions, form]);
+
+  const onSubmit = async (values: FormValues) => {
     try {
       setIsSubmitting(true);
 
@@ -74,22 +103,15 @@ export default function MembershipForm({
         weeks: values.weeks
       };
 
-      // console.log('Payload to submit:', payload);
-
-      if (initialData) {
-        // Edit existing membership
+      if (isEdit && initialData) {
         await updateMembership(initialData.membershipId, payload);
       } else {
-        // Create new membership
         await createMembership(payload);
       }
 
-      // Jalankan callback eksternal (jika ada)
       if (onSuccess) onSuccess();
-
-      // Redirect ke halaman daftar membership
       router.push('/dashboard/membership');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Gagal menyimpan membership:', error);
     } finally {
       setIsSubmitting(false);
@@ -153,7 +175,9 @@ export default function MembershipForm({
                         disabled={locationsOptions.length === 0}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={locationsOptions.length === 0 ? 'Loading...' : 'Pilih lokasi'} />
+                          <SelectValue placeholder="Pilih lokasi">
+                            {locationsOptions.find(opt => opt.value === field.value)?.label}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {locationsOptions.map((location) => (
@@ -183,7 +207,9 @@ export default function MembershipForm({
                         disabled={sportsOptions.length === 0}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={sportsOptions.length === 0 ? 'Loading...' : 'Pilih olahraga'} />
+                          <SelectValue placeholder="Pilih olahraga">
+                            {sportsOptions.find(opt => opt.value === field.value)?.label}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {sportsOptions.map((sport) => (
