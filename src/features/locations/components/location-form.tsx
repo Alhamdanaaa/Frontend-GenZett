@@ -114,8 +114,7 @@ const formSchema = (isEdit: boolean) =>
       if (isEdit) {
         await updateLocation(initialData!.locationId, values);
       } else {
-        const res = await createLocation(values);
-        router.push(`/locations/${res.location.locationId}`);
+        await createLocation(values);
       }
 
       router.push('/dashboard/location');

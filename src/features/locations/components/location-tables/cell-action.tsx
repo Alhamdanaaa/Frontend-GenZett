@@ -3,6 +3,7 @@ import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Location } from '@/constants/data';
+import { deleteLocation } from '@/lib/api/location';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -12,11 +13,23 @@ interface CellActionProps {
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+      setLoading(true);
+      try {
+        await deleteLocation(Number(data.locationId));
+        setOpen(false);
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+        alert('Terjadi kesalahan saat menghapus data');
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <>
