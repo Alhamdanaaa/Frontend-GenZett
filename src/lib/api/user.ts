@@ -39,3 +39,8 @@ export async function updateUser(userId: number, data: Partial<User>) {
         id: user.userId,
     };
 }
+
+export async function deleteUser(userId: number) {
+    const res = await api.delete(`/users/${userId}`);
+    return res.data;
+}
