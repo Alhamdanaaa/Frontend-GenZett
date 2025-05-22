@@ -12,7 +12,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { User } from '@/constants/data';
+import { updateUser } from '@/lib/api/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -26,8 +28,8 @@ const formSchema = z.object({
   email: z.string().email({
     message: 'Email tidak valid.'
   }),
-  phone: z.string().regex(/^\+62\s?8\d{9,10}$/, {
-    message: 'Nomor telepon harus dimulai dengan +62 8 dan 9-10 digit.'
+  phone: z.string().regex(/^(\+62|08)\d{8,11}$/, {
+    message: 'Nomor telepon harus dimulai dengan +62 atau 08 dan terdiri dari 10-12 digit.'
   })
 });
 
@@ -39,7 +41,6 @@ export default function UserForm({
   pageTitle: string;
 }) {
   const defaultValues = {
-    // username: initialData?.username || '',
     name: initialData?.name || '',
     email: initialData?.email || '',
     phone: initialData?.phone || '+62 8'
@@ -50,9 +51,23 @@ export default function UserForm({
     values: defaultValues
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Logika submit form akan diimplementasikan di sini
-    console.log('Form submitted:', values);
+  const router = useRouter();
+  const isEdit = !!initialData;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      // Logika untuk menyimpan data user baru atau mengupdate data user yang sudah ada
+      if (isEdit) {
+        await updateUser(initialData!.id, values);
+      } else {
+        // router.push(`/users/${res.user.userId}`);
+      }
+
+      // Redirect kembali ke halaman daftar user
+      router.push('/dashboard/user');
+    } catch (error) {
+      console.error('Gagal menyimpan user:', error);
+    }
   }
 
   return (
@@ -66,19 +81,6 @@ export default function UserForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              {/* <FormField
-                control={form.control}
-                name='username'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Masukkan username' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
               <FormField
                 control={form.control}
                 name='name'

@@ -52,7 +52,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               <Button className='shadow-md'
                 variant="outline"
                 size="sm"
-                onClick={() => router.push(`/dashboard/user/${data.userId}`)}
+                onClick={() => {
+                  router.push(`/dashboard/user/${data.id}`);
+                }}
               >
                 <IconEdit className="h-4 w-4 stroke-amber-500" />
               </Button>
