@@ -8,6 +8,7 @@ import { deleteSport } from '@/lib/api/sports';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Sport;
@@ -21,16 +22,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     setLoading(true);
     try {
-      await deleteSport(Number(data.sportId)); // cukup panggil dan biarkan throw jika error
+      await deleteSport(Number(data.sportId));
       setOpen(false);
-      router.refresh(); // Refresh data
-    } catch (error) {
-      console.error(error);
-      alert('Terjadi kesalahan saat menghapus data');
+      router.refresh();
+      toast.success("Data berhasil dihapus");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menghapus data';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
 
 
   return (
