@@ -7,9 +7,9 @@ import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { lazy, useState,Suspense } from 'react';
 
-const AdminDetailDialog = lazy(() => 
-  import('../admin-list-detail-dialog')
-);
+// const AdminDetailDialog = lazy(() => 
+//   import('../admin-list-detail-dialog')
+// );
 
 interface CellActionProps {
   data: Admin;
@@ -18,7 +18,7 @@ interface CellActionProps {
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
+  // const [showDetail, setShowDetail] = useState(false);
   const router = useRouter();
 
   const onConfirm = async () => {};
@@ -33,19 +33,19 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       />
       <div className="flex flex-row gap-2">
         <TooltipProvider>
-          <Tooltip>
+          {/* <Tooltip>
             <TooltipTrigger asChild>
               <Button className='shadow-md'
                 variant="outline"
                 size="sm"
                 onClick={() => setShowDetail(true)}
               >
-                <IconEye className="h-4 w-4 stroke-blue-600" />
+                <IconEye className="h-4 w-4 stroke-blue-600" /> */}
                 {/* <IconListDetails className="h-4 w-4 stroke-blue-600" /> */}
-              </Button>
+              {/* </Button>
             </TooltipTrigger>
             <TooltipContent>Detail</TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -75,16 +75,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </TooltipProvider>
       </div>
 
-      {showDetail && (
+      {/* {showDetail && (
         <Suspense fallback={<div>Loading...</div>}>
           <AdminDetailDialog
-            data={data}
             trigger={<div style={{display: 'none'}} />}
             open={showDetail}
             onOpenChange={setShowDetail}
+            data={data}
           />
         </Suspense>
-      )}
+      )} */}
     </>
   );
 };
