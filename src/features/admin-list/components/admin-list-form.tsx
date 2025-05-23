@@ -35,8 +35,8 @@ const getFormSchema = (isEdit: boolean) => {
   const baseSchema = {
     name: z.string().min(2, { message: 'Nama minimal 2 karakter.' }),
     email: z.string().email({ message: 'Email tidak valid.' }),
-    phone: z.string().regex(/^08\d{9,10}$/, {
-      message: 'Nomor telepon harus dimulai dengan 08 dan diikuti 9-10 digit.'
+    phone: z.string().regex(/^(\+62|08)\d{8,11}$/, {
+      message: 'Nomor telepon harus dimulai dengan +62 atau 08 dan terdiri dari 10-12 digit.'
     }),
     locationId: z.string({ required_error: 'Lokasi harus dipilih.' })
   };

@@ -43,7 +43,7 @@ export default function UserForm({
   const defaultValues = {
     name: initialData?.name || '',
     email: initialData?.email || '',
-    phone: initialData?.phone || '+62 8'
+    phone: initialData?.phone || '08'
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -120,7 +120,7 @@ export default function UserForm({
                     <FormControl>
                       <Input 
                         type='tel'
-                        placeholder='Contoh: +62 8123456789' 
+                        placeholder='Contoh: 081234567890' 
                         {...field} 
                       />
                     </FormControl>
