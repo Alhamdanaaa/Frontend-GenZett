@@ -49,7 +49,7 @@ export type Field = {
 // Tipe data User
 export type User = {
   id: number;
-  role: 'user' | 'admin' | 'superadmin';
+  // role: 'user' | 'admin' | 'superadmin';
   name: string;
   email: string;
   phone: string | null;
@@ -59,16 +59,35 @@ export type User = {
 };
 
 // Tipe data Admin
-export type Admin = {
-  adminId: number;
-  username: string;
-  password: string;
+// Untuk tampilan/listing dari API (GET /admins)
+export type AdminOutput = {
+  id: number;
   name: string;
   email: string;
   phone: string;
-  location: string;
-  created_at: string;
-  updated_at: string;
+  location: string; // lokasi dalam bentuk nama
+  // created_at: string;
+  // updated_at: string;
+};
+
+// Untuk input saat create admin (POST /admins)
+export type AdminCreateInput = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  password_confirmation: string;
+  locationId: number;
+};
+
+// Untuk input saat edit admin (PUT /admins/:id)
+export type AdminUpdateInput = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  password_confirmation?: string;
+  locationId?: number;
 };
 
 interface ReservationDetail {
