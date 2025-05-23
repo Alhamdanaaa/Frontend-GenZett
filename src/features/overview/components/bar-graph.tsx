@@ -163,15 +163,15 @@ export default function BarGraph() {
     <Card className='@container/card !pt-3'>
       <CardHeader className='flex flex-col items-stretch space-y-0 border-b !p-0 sm:flex-row'>
         <div className='flex flex-1 flex-col justify-center gap-1 px-6 !py-0'>
-          <CardTitle>Bar Chart - Interactive</CardTitle>
+          <CardTitle>Grafik reservasi harian</CardTitle>
           <CardDescription>
             <span className='hidden @[540px]/card:block'>
-              Total for the last 3 months
+              Jumlah untuk 3 bulan terakhir
             </span>
-            <span className='@[540px]/card:hidden'>Last 3 months</span>
+            <span className='@[540px]/card:hidden'>3 bulan terakhir</span>
           </CardDescription>
         </div>
-        <div className='flex'>
+        {/* <div className='flex'>
           {['desktop', 'mobile', 'error'].map((key) => {
             const chart = key as keyof typeof chartConfig;
             if (!chart || total[key as keyof typeof total] === 0) return null;
@@ -191,7 +191,7 @@ export default function BarGraph() {
               </button>
             );
           })}
-        </div>
+        </div> */}
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
         <ChartContainer
