@@ -2,7 +2,7 @@
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Admin } from '@/constants/data';
+import { AdminUpdateInput as Admin } from '@/constants/data';
 import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { lazy, useState,Suspense } from 'react';
@@ -52,7 +52,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               <Button className='shadow-md'
                 variant="outline"
                 size="sm"
-                onClick={() => router.push(`/dashboard/admin/${data.adminId}`)}
+                onClick={() => router.push(`/dashboard/admin/${data.id}`)}
               >
                 <IconEdit className="h-4 w-4 stroke-amber-500" />
               </Button>
