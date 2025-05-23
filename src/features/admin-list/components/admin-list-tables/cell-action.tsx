@@ -3,6 +3,7 @@ import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AdminUpdateInput as Admin } from '@/constants/data';
+import { deleteAdmin } from '@/lib/api/admin';
 import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { lazy, useState,Suspense } from 'react';
@@ -16,12 +17,24 @@ interface CellActionProps {
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   // const [showDetail, setShowDetail] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    setLoading(true);
+    try {
+      await deleteAdmin(Number(data.id)); // cukup panggil dan biarkan throw jika error
+      setOpen(false);
+      router.refresh(); // Refresh data
+    } catch (error) {
+      console.error(error);
+      alert('Terjadi kesalahan saat menghapus data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
