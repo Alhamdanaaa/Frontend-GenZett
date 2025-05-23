@@ -7,7 +7,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 
 const AdminTable = dynamic(
   () => import('./admin-list-tables').then(mod => mod.AdminTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
+  { ssr: false }
 );
 
 type Props = {
