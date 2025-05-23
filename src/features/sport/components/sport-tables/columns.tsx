@@ -14,9 +14,7 @@ export const columns: ColumnDef<Sport>[] = [
   {
     id: 'name',
     accessorKey: 'sportName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Nama Cabang Olahraga' />
-    ),
+    header: 'Nama Cabang Olahraga',
     cell: ({ cell }) => <div>{cell.getValue<Sport['sportName']>()}</div>,
     filterFn: 'includesString',
     meta: {
@@ -38,9 +36,7 @@ export const columns: ColumnDef<Sport>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: ({ column }: { column: Column<Sport, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Deskripsi' />
-    ),
+    header:'Deskripsi' ,
     meta:{
       label: 'Deskripsi'
     }
