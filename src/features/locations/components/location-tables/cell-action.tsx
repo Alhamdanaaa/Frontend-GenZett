@@ -7,6 +7,7 @@ import { deleteLocation } from '@/lib/api/location';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Location;
@@ -17,19 +18,20 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {
-      setLoading(true);
-      try {
-        await deleteLocation(Number(data.locationId));
-        setOpen(false);
-        router.refresh();
-      } catch (error) {
-        console.error(error);
-        alert('Terjadi kesalahan saat menghapus data');
-      } finally {
-        setLoading(false);
-      }
-    };
+const onConfirm = async () => {
+    setLoading(true);
+    try {
+      await deleteLocation(Number(data.locationId));
+      setOpen(false);
+      router.refresh();
+      toast.success("Data berhasil dihapus");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menghapus data';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
