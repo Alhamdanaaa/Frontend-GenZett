@@ -82,6 +82,7 @@ export type AdminCreateInput = {
 
 // Untuk input saat edit admin (PUT /admins/:id)
 export type AdminUpdateInput = {
+  id?: number;
   name?: string;
   email?: string;
   phone?: string;
