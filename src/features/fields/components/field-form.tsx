@@ -20,9 +20,10 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Field } from '@/constants/data';
+import { createField, updateField } from '@/lib/api/field';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { LOCATION_OPTIONS, SPORTS_OPTIONS } from './field-tables/options';
 import * as z from 'zod';
 
 const formSchema = z.object({
@@ -35,10 +36,10 @@ const formSchema = z.object({
   sport: z.string({
     required_error: 'Cabang olahraga harus dipilih.'
   }),
-  jamMulai: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+  startHour: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
     message: 'Format jam mulai harus HH:MM (24 jam).'
   }),
-  jamTutup: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+  endHour: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
     message: 'Format jam tutup harus HH:MM (24 jam).'
   }),
   description: z.string().min(10, {
@@ -48,28 +49,43 @@ const formSchema = z.object({
 
 export default function FieldForm({
   initialData,
-  pageTitle
+  pageTitle,
+  locationOptions,
+  sportOptions,
 }: {
   initialData: Field | null;
   pageTitle: string;
+  locationOptions: { value: string; label: string }[];
+  sportOptions: { value: string; label: string }[];
 }) {
   const defaultValues = {
-    name: initialData?.name || '',
-    location: initialData?.location || '',
-    sport: initialData?.sport || '',
-    jamMulai: initialData?.jamMulai || '09:00',
-    jamTutup: initialData?.jamTutup || '23:00',
-    description: initialData?.description || ''
+    name: initialData?.name ?? '',
+    location: initialData?.location ? String(initialData.location) : '',
+    sport: initialData?.sport ? String(initialData.sport) : '',
+    startHour: initialData?.startHour?.slice(0, 5) ?? '08:00',
+    endHour: initialData?.endHour?.slice(0, 5) ?? '23:00',
+    description: initialData?.description ?? ''
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: defaultValues
   });
+  const router = useRouter();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Logika submit form akan diimplementasikan di sini
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log('Form submitted:', values);
+    try {
+      if (initialData) {
+        await updateField(initialData.id, values);
+      } else {
+        await createField(values);
+      }
+      
+      router.push('/dashboard/field');
+    } catch (error) {
+      console.error('Gagal menyimpan lapangan:', error);
+    }
   }
 
   return (
@@ -112,7 +128,7 @@ export default function FieldForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {LOCATION_OPTIONS.map((location) => (
+                        {locationOptions.map((location) => (
                           <SelectItem key={location.value} value={location.value}>
                             {location.label}
                           </SelectItem>
@@ -139,7 +155,7 @@ export default function FieldForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {SPORTS_OPTIONS.map((sport) => (
+                        {sportOptions.map((sport) => (
                           <SelectItem key={sport.value} value={sport.value}>
                             {sport.label}
                           </SelectItem>
@@ -152,32 +168,53 @@ export default function FieldForm({
               />
               <FormField
                 control={form.control}
-                name='jamMulai'
+                name='startHour'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Jam Mulai</FormLabel>
                     <FormControl>
-                      <Input 
-                        type='time' 
-                        placeholder='Jam Mulai' 
-                        {...field} 
+                      <Input
+                        type='time'
+                        step={3600}  // step 3600 detik = 1 jam
+                        placeholder='Jam Mulai'
+                        {...field}
+                        onChange={(e) => {
+                          // Pastikan menit selalu 00, meski user coba ubah
+                          const time = e.target.value;
+                          // time biasanya dalam format "HH:MM"
+                          const [hour] = time.split(':');
+                          const fixedTime = `${hour}:00`;
+                          field.onChange(fixedTime);
+                        }}
+                        value={field.value}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name='jamTutup'
+                name='endHour'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Jam Tutup</FormLabel>
                     <FormControl>
-                      <Input 
-                        type='time' 
-                        placeholder='Jam Tutup' 
-                        {...field} 
+                      <Input
+                        type='time'
+                        step={3600}  // step 3600 detik = 1 jam
+                        placeholder='Jam Tutup'
+                        {...field}
+                        onChange={(e) => {
+                          // Pastikan menit selalu 00, meski user coba ubah
+                          const time = e.target.value;
+                          // time biasanya dalam format "HH:MM"
+                          const [hour] = time.split(':');
+                          const fixedTime = `${hour}:00`;
+                          field.onChange(fixedTime);
+                        }}
+                        value={field.value}
                       />
                     </FormControl>
                     <FormMessage />

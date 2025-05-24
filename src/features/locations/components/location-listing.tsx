@@ -1,11 +1,7 @@
 import { searchParamsCache } from '@/lib/searchparams';
 import LocationTableWrapper from './location-table-wrapper';
 import { getLocations } from '@/lib/api/location';
-
-const getColumns = async () => {
-  const { columns } = await import('./location-tables/columns');
-  return columns;
-};
+import { getAllSports } from '@/lib/api/sports';
 
 export default async function LocationListingPage() {
   const page = searchParamsCache.get('page');
@@ -21,13 +17,18 @@ export default async function LocationListingPage() {
   };
 
   const data = await getLocations(filters);
-  const columns = await getColumns();
+  const sportData = await getAllSports();
+
+  const sportOptions = sportData.map((sport: any) => ({
+    label: sport.name,
+    value: String(sport.id),
+  }));
 
   return (
     <LocationTableWrapper
       data={data.locations}
       totalItems={data.totalLocations}
-      columns={columns}
+      sportOptions={sportOptions}
     />
   );
 }

@@ -1,20 +1,18 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
-import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Location } from '@/constants/data';
-import { Column, ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
-import Image from 'next/image';
-import { SPORTS_OPTIONS } from './options';
+import Image from 'next/image';import { SPORTS_OPTIONS } from './options';
 import dynamic from 'next/dynamic';
-import { getAllSports } from '@/lib/api/location';
 
-const CellAction = dynamic(
-  () => import('./cell-action').then(mod => mod.CellAction),
-  { ssr: false, loading: () => <div>Loading...</div> }
-);
+const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAction), { ssr: false });
 
-export const columns: ColumnDef<Location>[] = [
+export function getColumns(
+  sportOptions: { label: string; value: string }[]
+): ColumnDef<Location>[] {
+
+return[
   {
     accessorKey: 'img',
     header: 'Gambar',
@@ -26,8 +24,7 @@ export const columns: ColumnDef<Location>[] = [
         <div className='relative aspect-square w-16 h-16'>
           <Image
             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${row.getValue('img')}`}
-            alt= ''
-            // alt={row.getValue('name')}
+            alt=''
             fill
             className='rounded-lg object-cover'
           />
@@ -68,14 +65,7 @@ export const columns: ColumnDef<Location>[] = [
     meta: {
       label: 'Cabang Olahraga',
       variant: 'select',
-      options: SPORTS_OPTIONS
-      // options: async () => {
-      //   const sports = await getAllSports();
-      //   return sports.map(sport => ({
-      //     label: sport.sportName,
-      //     value: sport.sportId
-      //   }));
-      // }
+      options: sportOptions
     }
   },
   {
@@ -104,4 +94,4 @@ export const columns: ColumnDef<Location>[] = [
     id: 'actions',
     cell: ({ row }) => <CellAction data={row.original} />
   }
-];
+]};
