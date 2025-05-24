@@ -120,16 +120,22 @@ export default function HistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   function getCookie(name: string): string | null {
-      const value = `; ${document.cookie}`
-      const parts = value.split(`; ${name}=`)
-      if (parts.length === 2) return parts.pop()!.split(";").shift() || null
-      return null
-    }
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop()!.split(";").shift() || null
+    return null
+  }
   
-    const token = getCookie("token")
-    if (!token) {
-      redirect('/login')
-    }
+  const token = getCookie("token")
+  if (!token) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops... you are not logged in!',
+      text: 'Please login first',
+    })    
+    
+    redirect('/login')
+  }
 
   const handleSort = (key: keyof typeof bookingsData[0]) => {
     let direction: "asc" | "desc" = "asc"
@@ -297,7 +303,7 @@ export default function HistoryPage() {
               <TableHeader label="Aksi" />
             </tr>
           </thead>
-            <tbody>
+            <tbody className="text-gray-700">
               {currentEntries.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="text-center py-2">Data tidak ditemukan</td>

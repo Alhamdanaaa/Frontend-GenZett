@@ -59,7 +59,7 @@ export default function ProfilePage() {
   }, [token])
 
   const handleSave = async (updated: { name: string; phone: string }) => {
-    const result = await window.Swal?.fire({
+    const result = await Swal.fire({
       title: 'Simpan Perubahan?',
       text: 'Apakah kamu yakin ingin menyimpan perubahan profil?',
       icon: 'question',
@@ -91,13 +91,13 @@ export default function ProfilePage() {
         phone: updated.phone,
       }))
 
-      window.Swal?.fire({
+      Swal.fire({
         icon: 'success',
         title: 'Berhasil!',
         text: 'Profil berhasil diperbarui.',
       })
     } else {
-      window.Swal?.fire({
+      Swal.fire({
         icon: 'error',
         title: 'Gagal!',
         text: data.message || 'Terjadi kesalahan saat menyimpan data.',
