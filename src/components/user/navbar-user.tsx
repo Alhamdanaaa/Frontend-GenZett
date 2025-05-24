@@ -135,7 +135,7 @@ export default function NavbarUser() {
               )}
             >
               <Link
-                href="/profile"
+                href="/user/profile"
                 onClick={() => setDesktopDropdownOpen(false)}
                 className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
               >
