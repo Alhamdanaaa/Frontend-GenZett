@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils"
 import BookingDetailModal from "@/components/modal/BookingDetailModal"
 import { ChevronUp, ChevronDown, Search } from "lucide-react"
 import Image from "next/image"
+import { redirect } from 'next/navigation'
+import { jwtDecode } from 'jwt-decode'
 
 const bookingsData = [
   {
@@ -116,6 +118,18 @@ export default function HistoryPage() {
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  function getCookie(name: string): string | null {
+      const value = `; ${document.cookie}`
+      const parts = value.split(`; ${name}=`)
+      if (parts.length === 2) return parts.pop()!.split(";").shift() || null
+      return null
+    }
+  
+    const token = getCookie("token")
+    if (!token) {
+      redirect('/login')
+    }
 
   const handleSort = (key: keyof typeof bookingsData[0]) => {
     let direction: "asc" | "desc" = "asc"
