@@ -35,12 +35,12 @@ export default function EditProfileModal({
   }, [onClose])
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center text-gray-700">
       <div
         ref={modalRef}
         className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 space-y-4"
       >
-        <h2 className="text-lg font-semibold mb-4">Edit Profil</h2>
+        <h2 className="text-lg font-semibold mb-4 text-gray-700">Edit Profil</h2>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Username</label>
