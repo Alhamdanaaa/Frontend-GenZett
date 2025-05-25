@@ -1,4 +1,3 @@
-import { Schedule } from "@/constants/data";
 import api from "../axios";
 
 type FilterParams = {
@@ -6,13 +5,41 @@ type FilterParams = {
   locationId?: string;
   sport?: string;
 };
+
+export interface ScheduleItem {
+  locationId: number;
+  name: string;
+  date: string;
+  fieldTime: string;
+  fieldName: string;
+  sport: string;
+  paymentStatus: 'pending' | 'complete' | 'dp';
+}
+
+export interface FieldItem {
+  fieldId: number;
+  fieldName: string;
+  sportName: string;
+  locationId: number;
+}
+
 export async function getSchedules(params: FilterParams) {
   const res = await api.get("/schedules", { params });
   return res.data;
 }
 
+// API untuk mendapatkan lapangan berdasarkan cabang olahraga
+export async function getFieldsBySport(sport: string, locationId?: string) {
+  const params: Record<string, string> = { sport };
+  if (locationId) {
+    params.locationId = locationId;
+  }
+  const res = await api.get("/fields", { params });
+  return res.data;
+}
+
 // Fungsi untuk mendapatkan semua waktu operasional dari semua lapangan
-export function getAllOperatingHours(schedules: Schedule[]): string[] {
+export function getAllOperatingHours(schedules: ScheduleItem[]): string[] {
   // Set digunakan untuk menghilangkan duplikat
   const uniqueTimesSet = new Set<string>();
   
@@ -41,7 +68,7 @@ export function getAllOperatingHours(schedules: Schedule[]): string[] {
 }
 
 // Fungsi untuk mendapatkan semua nama lapangan dari data jadwal
-export function getAllFieldNames(schedules: Schedule[]): string[] {
+export function getAllFieldNames(schedules: ScheduleItem[]): string[] {
   // Set digunakan untuk menghilangkan duplikat
   const uniqueFieldsSet = new Set<string>();
   
@@ -57,4 +84,15 @@ export function getAllFieldNames(schedules: Schedule[]): string[] {
     const bNum = parseInt(b.match(/\d+/)?.[0] || '0');
     return aNum - bNum;
   });
+}
+
+// Fungsi untuk mendapatkan nama lapangan dari API fields
+export function getFieldNamesFromFields(fields: FieldItem[]): string[] {
+  return fields
+    .map(field => field.fieldName)
+    .sort((a, b) => {
+      const aNum = parseInt(a.match(/\d+/)?.[0] || '0');
+      const bNum = parseInt(b.match(/\d+/)?.[0] || '0');
+      return aNum - bNum;
+    });
 }

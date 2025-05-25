@@ -32,7 +32,7 @@ export default function ScheduleListingPage({
 
     // Limit fields to improve performance
     const allFields = Array.from(
-      new Set(scheduleData.map((item) => item.field))
+      new Set(scheduleData.map((item) => item.fieldName))
     ).sort(
       (a, b) =>
         parseInt(a.match(/\d+/)?.[0] ?? '0') -

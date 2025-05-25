@@ -1,19 +1,19 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { DataTableColumnHeader } from './data-table-column-header';
+import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import React from 'react';
 import { Schedule } from '@/constants/data';
 
 export type ScheduleRow = {
   time: string;
-  [field: string]: React.ReactNode;
+  [fieldName: string]: React.ReactNode;
 };
 
 export function generateColumns(fieldNames: string[]): ColumnDef<ScheduleRow>[] {
   const timeColumn: ColumnDef<ScheduleRow> = {
     accessorKey: 'time',
-    header: () => <div className="w-[50px]">Waktu</div>,
+    header: () => <div className="w-[80px]">Waktu</div>,
     cell: ({ cell }) => (
-      <div className="w-[50px] overflow-hidden truncate">
+      <div className="w-[80px] overflow-hidden truncate">
         {cell.getValue() as string}
       </div>
     ),
@@ -21,14 +21,14 @@ export function generateColumns(fieldNames: string[]): ColumnDef<ScheduleRow>[] 
   };
 
   const fieldColumns: ColumnDef<ScheduleRow>[] = fieldNames.map((fieldName) => {
-    const accessorKey = fieldName.replace(/\s+/g, '_'); // "Field 2" => "Field_2"
+    const accessorKey = fieldName.replace(/\s+/g, '_'); // "Lapangan 2" => "Lapangan_2"
 
     return {
       accessorKey,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={fieldName} />
       ),
-      cell: ({ cell }) => <div>{cell.getValue() as React.ReactNode}</div>,
+      cell: ({ cell }) => <div className="min-w-[100px] text-center">{cell.getValue() as React.ReactNode}</div>,
       meta: { label: fieldName },
     };
   });
@@ -37,15 +37,19 @@ export function generateColumns(fieldNames: string[]): ColumnDef<ScheduleRow>[] 
 }
 
 // Optimized table data generation
-export function generateTableData(schedules: Schedule[], fieldNames: string[]): ScheduleRow[] {
-  const operatingHours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
+export function generateTableData(
+  schedules: Schedule[], 
+  fieldNames: string[], 
+  // operatingHours: string[]
+): ScheduleRow[] {
+  const operatingHours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
   return operatingHours.map((hour) => {
     const row: ScheduleRow = { time: hour };
 
-    fieldNames.forEach((field) => {
-      const key = field.replace(/\s+/g, '_');
+    fieldNames.forEach((fieldName) => {
+      const key = fieldName.replace(/\s+/g, '_');
       const match = schedules.find(
-        (s) => s.fieldTime === hour && s.field === field
+        (s) => s.fieldTime === hour && s.fieldName === fieldName
       );
 
       if (match) {
@@ -53,12 +57,15 @@ export function generateTableData(schedules: Schedule[], fieldNames: string[]): 
           <div className={`rounded px-2 py-1 text-xs text-white ${
             match.paymentStatus === 'complete' ? 'bg-green-500'
             : match.paymentStatus === 'pending' ? 'bg-yellow-500'
-            : 'bg-blue-500'}`}>
+            : match.paymentStatus === 'dp' ? 'bg-blue-500'
+            : 'bg-gray-500'}`}>
             {match.name}
           </div>
         );
       } else {
-        row[key] = '-';
+        row[key] = (
+          <div className="text-gray-400">-</div>
+        );
       }
     });
 
