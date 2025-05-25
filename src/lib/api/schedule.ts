@@ -1,12 +1,7 @@
 import api from "../axios";
 
-type FilterParams = {
-  date?: string;
-  locationId?: string;
-  sport?: string;
-};
-
-export interface ScheduleItem {
+// lib/api/schedule.ts
+export type Schedule = {
   locationId: number;
   name: string;
   date: string;
@@ -14,85 +9,83 @@ export interface ScheduleItem {
   fieldName: string;
   sport: string;
   paymentStatus: 'pending' | 'complete' | 'dp';
-}
+};
 
-export interface FieldItem {
+export type Field = {
   fieldId: number;
-  fieldName: string;
-  sportName: string;
-  locationId: number;
-}
+  name: string;
+  times: string[];
+};
 
-export async function getSchedules(params: FilterParams) {
-  const res = await api.get("/schedules", { params });
-  return res.data;
-}
+export type ScheduleApiResponse = {
+  schedules: Schedule[];
+  fields: Field[];
+};
 
-// API untuk mendapatkan lapangan berdasarkan cabang olahraga
-export async function getFieldsBySport(sport: string, locationId?: string) {
-  const params: Record<string, string> = { sport };
-  if (locationId) {
-    params.locationId = locationId;
+export async function getScheduleData(params?: {
+  date?: string;
+  sport?: string;
+  locationId?: number;
+}): Promise<ScheduleApiResponse> {
+  // console.log('Before filtering:', params?.date);
+console.log('Filtering in lib/api/schedule.ts:', [params]);
+// console.log('Filtering for sport:', p);
+// console.log('Filtering for locationId:', locationId);
+
+  try {
+    const response = await api.get<ScheduleApiResponse>("/schedules", {
+      params: params, // otomatis dikonversi jadi query string oleh axios
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching schedule data:", error);
+    return {
+      schedules: [],
+      fields: [],
+    };
   }
-  const res = await api.get("/fields", { params });
-  return res.data;
 }
 
-// Fungsi untuk mendapatkan semua waktu operasional dari semua lapangan
-export function getAllOperatingHours(schedules: ScheduleItem[]): string[] {
-  // Set digunakan untuk menghilangkan duplikat
-  const uniqueTimesSet = new Set<string>();
-  
-  // Tambahkan waktu dari jadwal yang ada
-  schedules.forEach(schedule => {
-    if (schedule.fieldTime) {
-      uniqueTimesSet.add(schedule.fieldTime);
-    }
-  });
-  
-  // Default operating hours jika tidak ada data
-  if (uniqueTimesSet.size === 0) {
-    return ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
-  }
-  
-  // Konversi set ke array dan urutkan berdasarkan waktu
-  return Array.from(uniqueTimesSet).sort((a, b) => {
-    const [aHour, aMinute] = a.split(':').map(Number);
-    const [bHour, bMinute] = b.split(':').map(Number);
-    
-    if (aHour !== bHour) {
-      return aHour - bHour;
-    }
-    return aMinute - bMinute;
-  });
-}
 
-// Fungsi untuk mendapatkan semua nama lapangan dari data jadwal
-export function getAllFieldNames(schedules: ScheduleItem[]): string[] {
-  // Set digunakan untuk menghilangkan duplikat
-  const uniqueFieldsSet = new Set<string>();
-  
-  schedules.forEach(schedule => {
-    if (schedule.fieldName) {
-      uniqueFieldsSet.add(schedule.fieldName);
-    }
-  });
-  
-  // Konversi set ke array dan urutkan berdasarkan nomor lapangan (jika ada)
-  return Array.from(uniqueFieldsSet).sort((a, b) => {
-    const aNum = parseInt(a.match(/\d+/)?.[0] || '0');
-    const bNum = parseInt(b.match(/\d+/)?.[0] || '0');
+// Get unique field names for a specific sport and location
+export function getFieldNamesForSport(
+  fields: Field[], 
+  schedules: Schedule[], 
+  sport: string, 
+  locationId?: number
+): string[] {
+  // Get field names from schedules that match the sport filter
+  const fieldNamesFromSchedules = schedules
+    .filter(s => sport === 'all' || s.sport === sport)
+    .filter(s => !locationId || s.locationId === locationId)
+    .map(s => s.fieldName);
+
+  // Get all unique field names and sort them
+  const allFieldNames = Array.from(new Set([
+    ...fieldNamesFromSchedules,
+    ...fields.map(f => f.name)
+  ]));
+
+  return allFieldNames.sort((a, b) => {
+    // Sort by extracting numbers from field names
+    const aNum = parseInt(a.match(/\d+/)?.[0] ?? '0');
+    const bNum = parseInt(b.match(/\d+/)?.[0] ?? '0');
     return aNum - bNum;
   });
 }
 
-// Fungsi untuk mendapatkan nama lapangan dari API fields
-export function getFieldNamesFromFields(fields: FieldItem[]): string[] {
-  return fields
-    .map(field => field.fieldName)
-    .sort((a, b) => {
-      const aNum = parseInt(a.match(/\d+/)?.[0] || '0');
-      const bNum = parseInt(b.match(/\d+/)?.[0] || '0');
-      return aNum - bNum;
-    });
+// Filter schedules by date, sport, and location
+export function filterSchedules(
+  schedules: Schedule[],
+  selectedDate: string,
+  selectedSport: string,
+  locationId?: number
+): Schedule[] {
+  return schedules.filter(schedule => {
+    const matchDate = schedule.date === selectedDate;
+    const matchSport = selectedSport === 'all' || schedule.sport === selectedSport;
+    const matchLocation = !locationId || schedule.locationId === locationId;
+    
+    return matchDate && matchSport && matchLocation;
+  });
 }
