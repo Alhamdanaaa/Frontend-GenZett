@@ -10,6 +10,8 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import './globals.css';
 import './theme.css';
 import { ClerkProvider } from '@clerk/nextjs';
+import Script from "next/script";
+
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -38,7 +40,7 @@ export default async function RootLayout({
     <ClerkProvider> {/* <-- Bungkus semua di sini */}
       <html lang='en' suppressHydrationWarning>
         <head>
-          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <Script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" strategy="afterInteractive"/>
           <script
             dangerouslySetInnerHTML={{
               __html: `
