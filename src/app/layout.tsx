@@ -38,6 +38,7 @@ export default async function RootLayout({
     <ClerkProvider> {/* <-- Bungkus semua di sini */}
       <html lang='en' suppressHydrationWarning>
         <head>
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
           <script
             dangerouslySetInnerHTML={{
               __html: `

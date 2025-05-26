@@ -62,3 +62,7 @@ export async function getSportsByLocation(locationId: string | number) {
     const res = await api.get(`/reservations/sport/${locationId}`); 
     return res.data;
 }
+export async function confirmPayment(reservationId: number) {
+    const res = await api.post(`/reservations/${reservationId}/pay`);
+    return res.data;
+}

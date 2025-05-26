@@ -203,7 +203,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Dashboard admin',
-    url: '/dashboard/overview',
+    url: '/dashboard/overview-admin',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
