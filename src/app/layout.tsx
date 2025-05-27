@@ -19,8 +19,8 @@ const META_THEME_COLORS = {
 };
 
 export const metadata: Metadata = {
-  title: 'Next Shadcn',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  title: 'Resport - Reservasi Sport Center',
+  description: 'Sistem Reservasi Sport Center Online'
 };
 
 export const viewport: Viewport = {

@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
 
-  if (pathname.startsWith('/_next') || pathname.includes('.')) {
+  if (pathname.startsWith('/_next') || pathname.includes('.') || pathname === '/unauthorized') {
     return NextResponse.next();
   }
 
@@ -35,7 +35,6 @@ export function middleware(request: NextRequest) {
     const role = decoded.role;
 
     if (['admin', 'superadmin'].includes(role || '')) {
-
       if (!pathname.startsWith('/dashboard')) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
@@ -52,5 +51,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|unauthorized).*)',
+  ],
 };
