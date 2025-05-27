@@ -1,4 +1,3 @@
-
 import HistoryPage from './views/page';
 import { Metadata } from 'next';
 
