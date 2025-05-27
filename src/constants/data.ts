@@ -105,7 +105,7 @@ export type Schedule = {
   fieldTime: string;
   fieldName: string;
   sport: string;
-  paymentStatus: 'pending' | 'dp' | 'complete';
+  paymentStatus: 'pending' | 'dp' | 'complete' | 'closed';
 };
 
 // Tipe data Member
@@ -139,109 +139,6 @@ export type Time = {
   created_at: string;
   updated_at: string;
 }
-
-//Info: The following data is used for the sidebar navigation and Cmd K bar.
-export const navItems: NavItem[] = [
-  {
-    title: 'Dashboard',
-    url: '/dashboard/overview',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
-  },
-  {
-    title: 'Lokasi Cabang',
-    url: '/dashboard/location',
-    icon: 'location',
-    shortcut: ['l', 'l'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Lapangan',
-    url: '/dashboard/field',
-    icon: 'field',
-    shortcut: ['f', 'f'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Cabang Olahraga',
-    url: '/dashboard/sport',
-    icon: 'sport',
-    shortcut: ['s', 's'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Paket Langganan',
-    url: '/dashboard/membership',
-    icon: 'member',
-    shortcut: ['m', 'm'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Pengguna',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'userPen',
-    isActive: true,
-
-    items: [
-      {
-        title: 'Admin',
-        url: '/dashboard/admin',
-        shortcut: ['a', 'a']
-      },
-      {
-        title: 'User',
-        url: '/dashboard/user',
-        shortcut: ['u', 'u']
-      }
-    ]
-  },
-  {
-    title: 'Dashboard admin',
-    url: '/dashboard/overview-admin',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
-  },
-  {
-    title: 'Reservasi Lapangan',
-    url: '/dashboard/reservation',
-    icon: 'reservation',
-    shortcut: ['r', 'r'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Jadwal Lapangan',
-    url: '/dashboard/schedule',
-    icon: 'timeline',
-    shortcut: ['l', 'l'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Lapangan-admin',
-    url: '/dashboard/field',
-    icon: 'field',
-    shortcut: ['s', 's'],
-    isActive: false,
-    items: [] // No child items
-  },
-  // {
-  //   title: 'Anggota Member',
-  //   url: '/dashboard/member',
-  //   icon: 'user',
-  //   shortcut: ['m', 'm'],
-  //   isActive: false,
-  //   items: [] // No child items
-  // },
-];
 
 export interface SaleUser {
   id: number;

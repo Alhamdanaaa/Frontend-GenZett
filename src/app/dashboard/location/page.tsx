@@ -4,10 +4,12 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import LocationListingPage from '@/features/locations/components/location-listing';
+import { getServerUserRole } from '@/hooks/use-user-role';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
@@ -20,6 +22,10 @@ type pageProps = {
 };
 
 export default async function Page(props: pageProps) {
+  const role = await getServerUserRole();
+  if (!role || !['superadmin'].includes(role)) {
+    redirect('/unauthorized');
+  }
   const searchParams = await props.searchParams;
   // Allow nested RSCs to access the search params (in a type-safe way)
   searchParamsCache.parse(searchParams);

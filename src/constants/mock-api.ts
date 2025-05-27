@@ -170,146 +170,146 @@ export const fakeProducts = {
 fakeProducts.initialize();
 
 
-// Mock location data store
-export const fakeLocations = {
-  records: [] as Location[], // Menyimpan daftar objek lokasi
+// // Mock location data store
+// export const fakeLocations = {
+//   records: [] as Location[], // Menyimpan daftar objek lokasi
 
-  // Inisialisasi dengan data contoh
-  initialize() {
-    const sampleLocations: Location[] = [];
+//   // Inisialisasi dengan data contoh
+//   initialize() {
+//     const sampleLocations: Location[] = [];
     
-    // Daftar cabang olahraga yang mungkin
-    const sportsList = [
-      'Futsal', 
-      'Badminton', 
-      'Basketball', 
-      'Volleyball', 
-      'Tennis', 
-      'Sepak Bola', 
-      'Handball'
-    ];
+//     // Daftar cabang olahraga yang mungkin
+//     const sportsList = [
+//       'Futsal', 
+//       'Badminton', 
+//       'Basketball', 
+//       'Volleyball', 
+//       'Tennis', 
+//       'Sepak Bola', 
+//       'Handball'
+//     ];
 
-    function generateRandomLocationData(id: number): Location {
-      // Pilih beberapa cabang olahraga secara acak
-      const locationSports = faker.helpers.arrayElements(sportsList, { min: 1, max: 3 });
+//     function generateRandomLocationData(id: number): Location {
+//       // Pilih beberapa cabang olahraga secara acak
+//       const locationSports = faker.helpers.arrayElements(sportsList, { min: 1, max: 3 });
       
-      return {
-        locationId: id,
-        img: `https://api.slingacademy.com/public/sample-photos/${id}.jpeg`,
-        locationName: `${faker.location.city()} Sport Center`,
-        sports: locationSports,
-        countLap: faker.number.int({ min: 2, max: 10 }),
-        description: faker.lorem.paragraph(),
-        address: faker.location.streetAddress(),
-        created_at: faker.date
-          .between({ from: '2022-01-01', to: '2023-12-31' })
-          .toISOString(),
-        updated_at: faker.date.recent().toISOString()
-      };
-    }
+//       return {
+//         locationId: id,
+//         img: `https://api.slingacademy.com/public/sample-photos/${id}.jpeg`,
+//         locationName: `${faker.location.city()} Sport Center`,
+//         sports: locationSports,
+//         countLap: faker.number.int({ min: 2, max: 10 }),
+//         description: faker.lorem.paragraph(),
+//         address: faker.location.streetAddress(),
+//         created_at: faker.date
+//           .between({ from: '2022-01-01', to: '2023-12-31' })
+//           .toISOString(),
+//         updated_at: faker.date.recent().toISOString()
+//       };
+//     }
 
-    // Generate 15 lokasi
-    for (let i = 1; i <= 15; i++) {
-      sampleLocations.push(generateRandomLocationData(i));
-    }
+//     // Generate 15 lokasi
+//     for (let i = 1; i <= 15; i++) {
+//       sampleLocations.push(generateRandomLocationData(i));
+//     }
 
-    this.records = sampleLocations;
-  },
+//     this.records = sampleLocations;
+//   },
 
-  // Ambil semua lokasi dengan filter opsional
-  // Optimized getAll method
-  async getAll({
-    sports = [],
-    search
-  }: {
-    sports?: string[];
-    search?: string;
-  }) {
-    let locations = [...this.records];
+//   // Ambil semua lokasi dengan filter opsional
+//   // Optimized getAll method
+//   async getAll({
+//     sports = [],
+//     search
+//   }: {
+//     sports?: string[];
+//     search?: string;
+//   }) {
+//     let locations = [...this.records];
 
-    // Filter based on sports efficiently
-    if (sports.length > 0) {
-      const sportsSet = new Set(sports);
-      locations = locations.filter((location) =>
-        location.sports.some(sport => sportsSet.has(sport))
-      );
-    }
+//     // Filter based on sports efficiently
+//     if (sports.length > 0) {
+//       const sportsSet = new Set(sports);
+//       locations = locations.filter((location) =>
+//         location.sports.some(sport => sportsSet.has(sport))
+//       );
+//     }
 
-    // Optimize search by checking direct matches first
-    if (search) {
-      const searchLower = search.toLowerCase();
-      locations = locations.filter(location => 
-        location.locationName.toLowerCase().includes(searchLower) ||
-        location.description.toLowerCase().includes(searchLower) ||
-        location.sports.some(sport => sport.toLowerCase().includes(searchLower))
-      );
-    }
+//     // Optimize search by checking direct matches first
+//     if (search) {
+//       const searchLower = search.toLowerCase();
+//       locations = locations.filter(location => 
+//         location.locationName.toLowerCase().includes(searchLower) ||
+//         location.description.toLowerCase().includes(searchLower) ||
+//         location.sports.some(sport => sport.toLowerCase().includes(searchLower))
+//       );
+//     }
 
-    return locations;
-  },
+//     return locations;
+//   },
 
-  // Optimized getLocations method - remove artificial delay
-  async getLocations({
-    page = 1,
-    limit = 10,
-    sports,
-    search
-  }: {
-    page?: number;
-    limit?: number;
-    sports?: string;
-    search?: string;
-  }) {
-    // Remove the artificial delay
-    // await new Promise(resolve => setTimeout(resolve, 1000));
+//   // Optimized getLocations method - remove artificial delay
+//   async getLocations({
+//     page = 1,
+//     limit = 10,
+//     sports,
+//     search
+//   }: {
+//     page?: number;
+//     limit?: number;
+//     sports?: string;
+//     search?: string;
+//   }) {
+//     // Remove the artificial delay
+//     // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const sportsArray = sports ? sports.split('.') : [];
-    const allLocations = await this.getAll({
-      sports: sportsArray,
-      search
-    });
-    const totalLocations = allLocations.length;
+//     const sportsArray = sports ? sports.split('.') : [];
+//     const allLocations = await this.getAll({
+//       sports: sportsArray,
+//       search
+//     });
+//     const totalLocations = allLocations.length;
 
-    // Pagination logic
-    const offset = (page - 1) * limit;
-    const paginatedLocations = allLocations.slice(offset, offset + limit);
+//     // Pagination logic
+//     const offset = (page - 1) * limit;
+//     const paginatedLocations = allLocations.slice(offset, offset + limit);
 
-    return {
-      success: true,
-      time: new Date().toISOString(),
-      message: 'Data lokasi untuk keperluan testing',
-      totalLocations: totalLocations,
-      offset,
-      limit,
-      locations: paginatedLocations
-    };
-  },
+//     return {
+//       success: true,
+//       time: new Date().toISOString(),
+//       message: 'Data lokasi untuk keperluan testing',
+//       totalLocations: totalLocations,
+//       offset,
+//       limit,
+//       locations: paginatedLocations
+//     };
+//   },
 
-  // Optimized getLocationById - remove artificial delay
-  async getLocationById(id: number) {
-    // Remove the artificial delay
-    // await new Promise(resolve => setTimeout(resolve, 1000));
+//   // Optimized getLocationById - remove artificial delay
+//   async getLocationById(id: number) {
+//     // Remove the artificial delay
+//     // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const location = this.records.find((location) => location.locationId === id);
+//     const location = this.records.find((location) => location.locationId === id);
 
-    if (!location) {
-      return {
-        success: false,
-        message: `Lokasi dengan ID ${id} tidak ditemukan`
-      };
-    }
+//     if (!location) {
+//       return {
+//         success: false,
+//         message: `Lokasi dengan ID ${id} tidak ditemukan`
+//       };
+//     }
 
-    return {
-      success: true,
-      time: new Date().toISOString(),
-      message: `Lokasi dengan ID ${id} ditemukan`,
-      location
-    };
-  }
-};
+//     return {
+//       success: true,
+//       time: new Date().toISOString(),
+//       message: `Lokasi dengan ID ${id} ditemukan`,
+//       location
+//     };
+//   }
+// };
 
-// Initialize example locations
-fakeLocations.initialize();
+// // Initialize example locations
+// fakeLocations.initialize();
 
 // Data sport
 // export const fakeSports = {
@@ -401,170 +401,170 @@ fakeLocations.initialize();
 
 
 // Mock field data store
-export const fakeFields = {
-  records: [] as Field[], // Menyimpan daftar objek lapangan
+// export const fakeFields = {
+//   records: [] as Field[], // Menyimpan daftar objek lapangan
 
-  // Inisialisasi dengan data contoh
-  initialize() {
-    const sampleFields: Field[] = [];
+//   // Inisialisasi dengan data contoh
+//   initialize() {
+//     const sampleFields: Field[] = [];
 
-    // Daftar cabang olahraga yang mungkin
-    const sportsList = [
-      'Futsal',
-      'Badminton',
-      'Basketball',
-      'Volleyball',
-      'Tennis',
-      'Sepak Bola',
-      'Handball'
-    ];
+//     // Daftar cabang olahraga yang mungkin
+//     const sportsList = [
+//       'Futsal',
+//       'Badminton',
+//       'Basketball',
+//       'Volleyball',
+//       'Tennis',
+//       'Sepak Bola',
+//       'Handball'
+//     ];
 
-    // Daftar lokasi
-    const locationsList = [
-      'GOR Utama',
-      'Sport Center Kota',
-      'Stadion Olahraga',
-      'Pusat Kebugaran',
-      'Arena Olahraga',
-      'Kompleks Olahraga',
-      'Lapangan Terpadu'
-    ];
+//     // Daftar lokasi
+//     const locationsList = [
+//       'GOR Utama',
+//       'Sport Center Kota',
+//       'Stadion Olahraga',
+//       'Pusat Kebugaran',
+//       'Arena Olahraga',
+//       'Kompleks Olahraga',
+//       'Lapangan Terpadu'
+//     ];
 
-    function generateRandomFieldData(id: number): Field {
-      return {
-        id,
-        name: `Lapangan ${faker.helpers.arrayElement(sportsList)} ${id}`,
-        location: faker.helpers.arrayElement(locationsList),
-        sport: faker.helpers.arrayElement(sportsList),
-        jamMulai: '09:00',
-        jamTutup: '23:00',
-        description: faker.lorem.paragraph(),
-        created_at: faker.date
-          .between({ from: '2022-01-01', to: '2023-12-31' })
-          .toISOString(),
-        updated_at: faker.date.recent().toISOString()
-      };
-    }
+//     function generateRandomFieldData(id: number): Field {
+//       return {
+//         id,
+//         name: `Lapangan ${faker.helpers.arrayElement(sportsList)} ${id}`,
+//         location: faker.helpers.arrayElement(locationsList),
+//         sport: faker.helpers.arrayElement(sportsList),
+//         jamMulai: '09:00',
+//         jamTutup: '23:00',
+//         description: faker.lorem.paragraph(),
+//         created_at: faker.date
+//           .between({ from: '2022-01-01', to: '2023-12-31' })
+//           .toISOString(),
+//         updated_at: faker.date.recent().toISOString()
+//       };
+//     }
 
-    // Generate 50 lapangan
-    for (let i = 1; i <= 50; i++) {
-      sampleFields.push(generateRandomFieldData(i));
-    }
+//     // Generate 50 lapangan
+//     for (let i = 1; i <= 50; i++) {
+//       sampleFields.push(generateRandomFieldData(i));
+//     }
 
-    this.records = sampleFields;
-  },
+//     this.records = sampleFields;
+//   },
 
-  // Ambil semua lapangan dengan filter opsional
-  async getAll({
-    locations = [],
-    sports = [],
-    search
-  }: {
-    locations?: string[];
-    sports?: string[];
-    search?: string;
-  }) {
-    let fields = [...this.records];
+//   // Ambil semua lapangan dengan filter opsional
+//   async getAll({
+//     locations = [],
+//     sports = [],
+//     search
+//   }: {
+//     locations?: string[];
+//     sports?: string[];
+//     search?: string;
+//   }) {
+//     let fields = [...this.records];
 
-    // Filter berdasarkan location
-    if (locations.length > 0) {
-      fields = fields.filter((field) =>
-        locations.includes(field.location)
-      );
-    }
+//     // Filter berdasarkan location
+//     if (locations.length > 0) {
+//       fields = fields.filter((field) =>
+//         locations.includes(field.location)
+//       );
+//     }
 
-    // Filter berdasarkan cabang olahraga
-    if (sports.length > 0) {
-      fields = fields.filter((field) =>
-        sports.includes(field.sport)
-      );
-    }
+//     // Filter berdasarkan cabang olahraga
+//     if (sports.length > 0) {
+//       fields = fields.filter((field) =>
+//         sports.includes(field.sport)
+//       );
+//     }
 
-    // Pencarian di berbagai field
-    if (search) {
-      fields = matchSorter(fields, search, {
-        keys: ['name', 'location', 'sport', 'description']
-      });
-    }
+//     // Pencarian di berbagai field
+//     if (search) {
+//       fields = matchSorter(fields, search, {
+//         keys: ['name', 'location', 'sport', 'description']
+//       });
+//     }
 
-    return fields;
-  },
+//     return fields;
+//   },
 
-  // Ambil lapangan dengan pagination
-  async getFields({
-    page = 1,
-    limit = 10,
-    locations,
-    sports,
-    search
-  }: {
-    page?: number;
-    limit?: number;
-    locations?: string;
-    sports?: string;
-    search?: string;
-  }) {
-    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+//   // Ambil lapangan dengan pagination
+//   async getFields({
+//     page = 1,
+//     limit = 10,
+//     locations,
+//     sports,
+//     search
+//   }: {
+//     page?: number;
+//     limit?: number;
+//     locations?: string;
+//     sports?: string;
+//     search?: string;
+//   }) {
+//     // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    const locationArray = locations ? locations.split('.') : [];
-    const sportArray = sports ? sports.split('.') : [];
+//     const locationArray = locations ? locations.split('.') : [];
+//     const sportArray = sports ? sports.split('.') : [];
 
-    const allFields = await this.getAll({
-      locations: locationArray,
-      sports: sportArray,
-      search
-    });
+//     const allFields = await this.getAll({
+//       locations: locationArray,
+//       sports: sportArray,
+//       search
+//     });
 
-    const totalFields = allFields.length;
+//     const totalFields = allFields.length;
 
-    // Logika pagination
-    const offset = (page - 1) * limit;
-    const paginatedFields = allFields.slice(offset, offset + limit);
+//     // Logika pagination
+//     const offset = (page - 1) * limit;
+//     const paginatedFields = allFields.slice(offset, offset + limit);
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
+//     // Waktu saat ini
+//     const currentTime = new Date().toISOString();
 
-    // Kembalikan respons dengan pagination
-    return {
-      success: true,
-      time: currentTime,
-      message: 'Data lapangan untuk keperluan testing',
-      totalFields: totalFields,
-      offset,
-      limit,
-      fields: paginatedFields
-    };
-  },
+//     // Kembalikan respons dengan pagination
+//     return {
+//       success: true,
+//       time: currentTime,
+//       message: 'Data lapangan untuk keperluan testing',
+//       totalFields: totalFields,
+//       offset,
+//       limit,
+//       fields: paginatedFields
+//     };
+//   },
 
-  // Ambil lapangan berdasarkan ID
-  async getFieldById(id: number) {
-    // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
+//   // Ambil lapangan berdasarkan ID
+//   async getFieldById(id: number) {
+//     // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulasi delay
 
-    // Cari lapangan berdasarkan ID
-    const field = this.records.find((field) => field.id === id);
+//     // Cari lapangan berdasarkan ID
+//     const field = this.records.find((field) => field.id === id);
 
-    if (!field) {
-      return {
-        success: false,
-        message: `Lapangan dengan ID ${id} tidak ditemukan`
-      };
-    }
+//     if (!field) {
+//       return {
+//         success: false,
+//         message: `Lapangan dengan ID ${id} tidak ditemukan`
+//       };
+//     }
 
-    // Waktu saat ini
-    const currentTime = new Date().toISOString();
+//     // Waktu saat ini
+//     const currentTime = new Date().toISOString();
 
-    return {
-      success: true,
-      time: currentTime,
-      message: `Lapangan dengan ID ${id} ditemukan`,
-      field
-    };
-  }
-};
+//     return {
+//       success: true,
+//       time: currentTime,
+//       message: `Lapangan dengan ID ${id} ditemukan`,
+//       field
+//     };
+//   }
+// };
 
 
-// Inisialisasi lapangan contoh
-fakeFields.initialize();
+// // Inisialisasi lapangan contoh
+// fakeFields.initialize();
 
 
 
@@ -1262,109 +1262,109 @@ fakeAdmins.initialize();
 // fakeMemberships.initialize();
 
 
-export const fakeSchedules = {
-  records: [] as Schedule[],
+// export const fakeSchedules = {
+//   records: [] as Schedule[],
 
-  initialize() {
-    const sports: Schedule['sport'][] = ['Futsal', 'Badminton', 'Basketball', 'Volleyball', 'Tennis', 'Sepak Bola', 'Handball'];
-    const paymentStatuses: Schedule['paymentStatus'][] = ['pending', 'dp', 'complete'];
+//   initialize() {
+//     const sports: Schedule['sport'][] = ['Futsal', 'Badminton', 'Basketball', 'Volleyball', 'Tennis', 'Sepak Bola', 'Handball'];
+//     const paymentStatuses: Schedule['paymentStatus'][] = ['pending', 'dp', 'complete'];
 
-    const generateRandomScheduleData = (locationId: number): Schedule => {
-      const startDate = faker.date.between({ from: '2024-01-01', to: '2024-12-31' });
+//     const generateRandomScheduleData = (locationId: number): Schedule => {
+//       const startDate = faker.date.between({ from: '2024-01-01', to: '2024-12-31' });
 
-      return {
-        locationId,
-        name: `${faker.person.firstName()} ${faker.person.lastName()}`,
-        fieldTime: faker.helpers.arrayElement([
-          '08:00', '09:00', '10:00', '11:00',
-          '13:00', '14:00', '15:00', '16:00',
-          '17:00', '18:00', '19:00', '20:00'
-        ]),
-        fieldName: `Field ${faker.number.int({ min: 1, max: 5 })}`,
-        sport: faker.helpers.arrayElement(sports),
-        date: startDate.toISOString().split('T')[0],
-        paymentStatus: faker.helpers.arrayElement(paymentStatuses)
-      };
-    };
+//       return {
+//         locationId,
+//         name: `${faker.person.firstName()} ${faker.person.lastName()}`,
+//         fieldTime: faker.helpers.arrayElement([
+//           '08:00', '09:00', '10:00', '11:00',
+//           '13:00', '14:00', '15:00', '16:00',
+//           '17:00', '18:00', '19:00', '20:00'
+//         ]),
+//         fieldName: `Field ${faker.number.int({ min: 1, max: 5 })}`,
+//         sport: faker.helpers.arrayElement(sports),
+//         date: startDate.toISOString().split('T')[0],
+//         paymentStatus: faker.helpers.arrayElement(paymentStatuses)
+//       };
+//     };
 
-    this.records = Array.from({ length: 100 }, (_, i) => generateRandomScheduleData(i + 1));
-  },
+//     this.records = Array.from({ length: 100 }, (_, i) => generateRandomScheduleData(i + 1));
+//   },
 
-  async getAll({
-    sport = [],
-    dateStart,
-    dateEnd,
-    paymentStatus = []
-  }: {
-    sport?: string[];
-    dateStart?: string;
-    dateEnd?: string;
-    paymentStatus?: string[];
-  }) {
-    let schedules = [...this.records];
+//   async getAll({
+//     sport = [],
+//     dateStart,
+//     dateEnd,
+//     paymentStatus = []
+//   }: {
+//     sport?: string[];
+//     dateStart?: string;
+//     dateEnd?: string;
+//     paymentStatus?: string[];
+//   }) {
+//     let schedules = [...this.records];
 
-    if (sport.length > 0) {
-      schedules = schedules.filter(schedule => sport.includes(schedule.sport));
-    }
+//     if (sport.length > 0) {
+//       schedules = schedules.filter(schedule => sport.includes(schedule.sport));
+//     }
 
-    if (dateStart && dateEnd) {
-      const start = new Date(dateStart);
-      const end = new Date(dateEnd);
-      schedules = schedules.filter(schedule => {
-        const scheduleDate = new Date(schedule.date);
-        return scheduleDate >= start && scheduleDate <= end;
-      });
-    }
+//     if (dateStart && dateEnd) {
+//       const start = new Date(dateStart);
+//       const end = new Date(dateEnd);
+//       schedules = schedules.filter(schedule => {
+//         const scheduleDate = new Date(schedule.date);
+//         return scheduleDate >= start && scheduleDate <= end;
+//       });
+//     }
 
-    if (paymentStatus.length > 0) {
-      schedules = schedules.filter(schedule => paymentStatus.includes(schedule.paymentStatus));
-    }
+//     if (paymentStatus.length > 0) {
+//       schedules = schedules.filter(schedule => paymentStatus.includes(schedule.paymentStatus));
+//     }
 
-    return schedules;
-  },
+//     return schedules;
+//   },
 
-  async getSchedules({
-    page = 1,
-    limit = 10,
-    sport,
-    dateStart,
-    dateEnd,
-    paymentStatus
-  }: {
-    page?: number;
-    limit?: number;
-    sport?: string;
-    dateStart?: string;
-    dateEnd?: string;
-    paymentStatus?: string;
-  }) {
-    // await new Promise(resolve => setTimeout(resolve, 1000));
+//   async getSchedules({
+//     page = 1,
+//     limit = 10,
+//     sport,
+//     dateStart,
+//     dateEnd,
+//     paymentStatus
+//   }: {
+//     page?: number;
+//     limit?: number;
+//     sport?: string;
+//     dateStart?: string;
+//     dateEnd?: string;
+//     paymentStatus?: string;
+//   }) {
+//     // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const sportArray = sport ? sport.split(',') : [];
-    const paymentStatusArray = paymentStatus ? paymentStatus.split(',') : [];
+//     const sportArray = sport ? sport.split(',') : [];
+//     const paymentStatusArray = paymentStatus ? paymentStatus.split(',') : [];
 
-    const allSchedules = await this.getAll({
-      sport: sportArray,
-      dateStart,
-      dateEnd,
-      paymentStatus: paymentStatusArray
-    });
+//     const allSchedules = await this.getAll({
+//       sport: sportArray,
+//       dateStart,
+//       dateEnd,
+//       paymentStatus: paymentStatusArray
+//     });
 
-    const totalSchedules = allSchedules.length;
-    const offset = Math.max((page - 1) * limit, 0);
-    const paginatedSchedules = allSchedules.slice(offset, offset + limit);
+//     const totalSchedules = allSchedules.length;
+//     const offset = Math.max((page - 1) * limit, 0);
+//     const paginatedSchedules = allSchedules.slice(offset, offset + limit);
 
-    return {
-      success: true,
-      time: new Date().toISOString(),
-      message: 'Data jadwal untuk keperluan testing',
-      total_schedules: totalSchedules,
-      offset,
-      limit,
-      schedules: paginatedSchedules
-    };
-  }
-};
+//     return {
+//       success: true,
+//       time: new Date().toISOString(),
+//       message: 'Data jadwal untuk keperluan testing',
+//       total_schedules: totalSchedules,
+//       offset,
+//       limit,
+//       schedules: paginatedSchedules
+//     };
+//   }
+// };
 
-// Inisialisasi data palsu
-fakeSchedules.initialize();
+// // Inisialisasi data palsu
+// fakeSchedules.initialize();

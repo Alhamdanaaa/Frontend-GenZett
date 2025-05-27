@@ -68,7 +68,7 @@ export function DataTablePagination<TData>({
         </div>
         <div className='flex items-center space-x-2'>
           <Button
-            aria-label='Go to first page'
+            aria-label='Pergi ke halaman pertama'
             variant='outline'
             size='icon'
             className='hidden size-8 lg:flex'
@@ -78,7 +78,7 @@ export function DataTablePagination<TData>({
             <ChevronsLeft />
           </Button>
           <Button
-            aria-label='Go to previous page'
+            aria-label='Pergi ke halaman sebelumnya'
             variant='outline'
             size='icon'
             className='size-8'
@@ -88,7 +88,7 @@ export function DataTablePagination<TData>({
             <ChevronLeftIcon />
           </Button>
           <Button
-            aria-label='Go to next page'
+            aria-label='Pergi ke halaman selanjutnya'
             variant='outline'
             size='icon'
             className='size-8'
@@ -98,7 +98,7 @@ export function DataTablePagination<TData>({
             <ChevronRightIcon />
           </Button>
           <Button
-            aria-label='Go to last page'
+            aria-label='Pergi ke halaman terakhir'
             variant='outline'
             size='icon'
             className='hidden size-8 lg:flex'

@@ -1,5 +1,5 @@
 'use client';
-import { navItems } from '@/constants/data';
+
 import {
   KBarAnimator,
   KBarPortal,
@@ -8,22 +8,33 @@ import {
   KBarSearch
 } from 'kbar';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import RenderResults from './render-result';
 import useThemeSwitching from './use-theme-switching';
+import { getUserRole } from '@/lib/api/auth';
+import { getNavItemsByRole } from '@/types';
 
 export default function KBar({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [role, setRole] = useState<string | null>(null);
 
-  // These action are for the navigation
+  // Mendapatkan role user sekali saat mount
+  useEffect(() => {
+    const r = getUserRole();
+    setRole(r);
+  }, []);
+
+  // Supaya hook lain tetap terpanggil walaupun role belum ada
+  const navItems = useMemo(() => {
+    return role ? getNavItemsByRole(role) : [];
+  }, [role]);
+
   const actions = useMemo(() => {
-    // Define navigateTo inside the useMemo callback to avoid dependency array issues
     const navigateTo = (url: string) => {
       router.push(url);
     };
 
     return navItems.flatMap((navItem) => {
-      // Only include base action if the navItem has a real URL and is not just a container
       const baseAction =
         navItem.url !== '#'
           ? {
@@ -32,12 +43,11 @@ export default function KBar({ children }: { children: React.ReactNode }) {
               shortcut: navItem.shortcut,
               keywords: navItem.title.toLowerCase(),
               section: 'Navigation',
-              subtitle: `Go to ${navItem.title}`,
+              subtitle: `Pergi ke ${navItem.title}`,
               perform: () => navigateTo(navItem.url)
             }
           : null;
 
-      // Map child items into actions
       const childActions =
         navItem.items?.map((childItem) => ({
           id: `${childItem.title.toLowerCase()}Action`,
@@ -45,14 +55,13 @@ export default function KBar({ children }: { children: React.ReactNode }) {
           shortcut: childItem.shortcut,
           keywords: childItem.title.toLowerCase(),
           section: navItem.title,
-          subtitle: `Go to ${childItem.title}`,
+          subtitle: `Pergi ke ${childItem.title}`,
           perform: () => navigateTo(childItem.url)
         })) ?? [];
 
-      // Return only valid actions (ignoring null base actions for containers)
       return baseAction ? [baseAction, ...childActions] : childActions;
     });
-  }, [router]);
+  }, [router, navItems]);
 
   return (
     <KBarProvider actions={actions}>
@@ -62,7 +71,6 @@ export default function KBar({ children }: { children: React.ReactNode }) {
 }
 const KBarComponent = ({ children }: { children: React.ReactNode }) => {
   useThemeSwitching();
-
   return (
     <>
       <KBarPortal>

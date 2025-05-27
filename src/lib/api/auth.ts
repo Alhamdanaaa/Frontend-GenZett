@@ -1,5 +1,6 @@
 import api from "../axios";
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 type LoginPayload = {
   email: string;
   password: string;
@@ -79,4 +80,23 @@ export const useLogout = () => {
     handleLogout
   };
 };
+
+export function getUserRole(): string | null {
+  if (typeof document === 'undefined') return null;
+
+  const token = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('token='))
+    ?.split('=')[1];
+
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode<{ role?: string }>(token);
+    return decoded.role || null;
+  } catch {
+    return null;
+  }
+}
+
 
