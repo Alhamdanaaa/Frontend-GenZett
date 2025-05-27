@@ -33,10 +33,20 @@ export async function getReservationById(reservationId: number): Promise<Reserva
     }
 }
 
-export async function createReservation(data: Partial<Reservation>) {
-    const res = await api.post('/reservations', data);
-    return res.data;
-}
+    export async function createReservation(data: Partial<Reservation>) {
+        const res = await api.post('/reservations', data);
+        // create payment
+        if (!res.data || !res.data.id) {
+            throw new Error('Failed to create reservation');
+        } else {
+            const paymentData = {
+                reservationId: res.data.id,
+                totalpaid: res.data.total,
+            };
+            await api.post('/payments', paymentData);
+        }
+        return res.data;
+    }
 
 export async function updateReservation(reservationId: number, data: Partial<Reservation>) {
     const res = await api.put(`/reservations/${reservationId}`, data);
@@ -64,5 +74,10 @@ export async function getSportsByLocation(locationId: string | number) {
 }
 export async function confirmPayment(reservationId: number) {
     const res = await api.post(`/reservations/${reservationId}/pay`);
+    return res.data;
+}
+export async function getMinimumPrice(locationId: string | number) {
+    const res = await api.get(`/reservations/${locationId}/minimumPrice`);
+    // const res = await api.get(`/reservations/minimumPrice`);
     return res.data;
 }

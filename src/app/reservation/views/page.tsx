@@ -1,24 +1,28 @@
+/* eslint-disable no-console */
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import UserLayout from '@/app/user/layout';
-import { MapPin, Loader2 } from 'lucide-react';
-import { getLocations, getSports } from '@/lib/api/reservation';
+import { MapPin, Loader2, Wallet } from 'lucide-react';
+import { getLocations, getSports, getMinimumPrice } from '@/lib/api/reservation';
 import { Location } from '@/constants/data';
+// import { useSession } from 'next-auth/react';
 
 export default function SportsLocationPage() {
   const router = useRouter();
+  // const { data: session, status } = useSession();
   const [sports, setSports] = useState<string[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
+  type LocationWithMinPrice = Location & { minPrice?: string };
+  const [locations, setLocations] = useState<LocationWithMinPrice[]>([]);
   const [selectedSport, setSelectedSport] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const sportDropdownRef = useRef<HTMLDivElement>(null);
-  
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -54,52 +58,74 @@ export default function SportsLocationPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        let sportData: string[] = [];
+        // Fetch sports data
         const sportsResponse = await getSports();
-        if (sportsResponse && sportsResponse.data) {
-          if (Array.isArray(sportsResponse.data)) {
-            // Direct array of strings
-            sportData = sportsResponse.data.filter((sport: any) => typeof sport === 'string');
-          }
-        }
+        const sportData = sportsResponse?.data?.filter((sport: any) => typeof sport === 'string') || [];
         setSports(sportData);
 
+        // Fetch locations with minimum prices
         const locationResponse = await getLocations({});
-        // Ensure that locations are properly formatted with all required fields
         if (locationResponse.data && Array.isArray(locationResponse.data)) {
-          setLocations(locationResponse.data);
-        } else {
-          setError('Invalid location data format received');
+          const locationsWithPrices = await Promise.all(
+            locationResponse.data.map(async (location: { locationId: string | number; locationName: any; }) => {
+              try {
+                const priceResponse = await getMinimumPrice(location.locationId);
+                return {
+                  ...location,
+                  minPrice: priceResponse.success ? priceResponse.minPrice : 'Harga tidak tersedia'
+                };
+              } catch (error) {
+                console.error(`Failed to get price for ${location.locationName}`, error);
+                return {
+                  ...location,
+                  minPrice: 'Harga tidak tersedia'
+                };
+              }
+            })
+          );
+          setLocations(locationsWithPrices);
+          console.log('Locations with prices:', locationsWithPrices);
         }
       } catch (error) {
-        console.error(`Gagal memuat data: `, error);
-        setError('Failed to load data');
+        setError('Gagal memuat data lokasi');
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
 
-  async function handleFilter() {
+  const handleFilter = async () => {
     setLoading(true);
     try {
-      const response = await getLocations({sport: selectedSport});
-      if (response.data && Array.isArray(response.data)) {
-        setLocations(response.data);
-      } else {
-        setError('Invalid location data format received');
+      const response = await getLocations({ sport: selectedSport });
+      if (response.data) {
+        const filteredLocations = await Promise.all(
+          response.data.map(async (location: { locationId: string | number; }) => {
+            const priceResponse = await getMinimumPrice(location.locationId);
+            return {
+              ...location,
+              minPrice: priceResponse.success ? priceResponse.minPrice : 'Harga tidak tersedia'
+            };
+          })
+        );
+        setLocations(filteredLocations);
       }
     } catch (error) {
-      console.error('Error filtering locations:', error);
-      setError('Failed to filter locations');
+      setError('Gagal memfilter lokasi');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleCardClick = (item: Location) => {
+    // if (!session) {
+    //   // Redirect to login page if not authenticated
+    //   router.push('/auth/login?callbackUrl=' + encodeURIComponent(window.location.pathname));
+    //   return;
+    // }
+
     if (item.locationId) {
       router.push(`/reservation/schedule?locationId=${item.locationId}`);
     } else {
@@ -120,7 +146,7 @@ export default function SportsLocationPage() {
 
   return (
     <UserLayout>
-      <main className='bg-white text-gray-800 overflow-auto hide-scrollbar'>
+      <main className='text-gray-800 overflow-auto hide-scrollbar'>
         <div className='mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-5 md:py-10'>
           <div className='mb-6 flex justify-center'>
             <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4'>
@@ -185,7 +211,7 @@ export default function SportsLocationPage() {
                     className='cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-xl'
                     onClick={() => handleCardClick(item)}
                   >
-                    <div className='relative h-48 w-full'>
+                    <div className='relative h-48 w-full min-w-[320px]'>
                       <Image
                         src={item.imageUrl || '/images/futsal.png'}
                         alt='Lapangan'
@@ -193,8 +219,9 @@ export default function SportsLocationPage() {
                         objectFit='cover'
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/images/futsal.png';
-                          target.onerror = null; // Prevent error loop
+                          target.src = '/images/futsal.png'; // 
+                          // target.src = `/images/${item.imageUrl || 'futsal.png'}`;
+                          target.onerror = null;
                         }}
                         unoptimized={process.env.NODE_ENV === 'development'}
                         className='rounded-t-xl'
@@ -230,11 +257,23 @@ export default function SportsLocationPage() {
                           )}
                         </div>
                       </div>
-                      <p className='mt-4 text-sm text-gray-600'>
-                        <span className='text-base font-bold text-black'>
-                          {item.address || 'No address available'}
-                        </span>
-                      </p>
+                      <div className='mt-4 text-sm text-gray-600'>
+                        {item.minPrice ? (
+                          <div className='mt-2 flex items-center gap-1'>
+                            {/* <span className='text-base text-gray-600'> */}
+                              <div className='flex items-start gap-2'>
+                                <Wallet size={16} className='mt-0.5 flex-shrink-0' />
+                                <span className='text-sm text-gray-500'>Mulai</span>
+                                <p className='leading-snug font-bold'>{item.minPrice}</p>
+                                <span className='text-xs text-gray-500'>/sesi</span>
+                              </div>
+                            {/* </span> */}
+                          </div>
+                        ) : (
+                          <div className='mt-2 text-sm text-gray-500'>Harga tidak tersedia</div>
+                        )}
+                      </div>
+
                     </div>
                   </div>
                 ))

@@ -131,6 +131,11 @@ export default function SchedulesPage() {
     // Isi time slots
     filtered.forEach((slot) => {
       const court = slot.court;
+      
+      if (!slots[court]) {
+        slots[court] = [];
+      }
+
       if (!slots[court]) {
         console.warn(`Court ${court} not found in courts list`);
         return;
@@ -203,6 +208,13 @@ export default function SchedulesPage() {
     setTimeSlotsByCourt(slots);
   }, [schedule, selectedDate, courts]);
 
+  useEffect(() => {
+    if (selectedSlots.length > 0) {
+      setShowDetails(true);
+    }
+  }, [selectedSlots]);
+
+
   const toggleDropdown = (dropdownName: string) => {
     setOpenDropdown(prev =>
       prev.includes(dropdownName)
@@ -234,6 +246,27 @@ export default function SchedulesPage() {
       }
     });
   };
+
+  const handlePayment = useCallback(() => {
+    if (selectedSlots.length === 0) return;
+
+    const userId = localStorage.getItem('userId');
+    // Cek apakah userId ada, jika tidak redirect ke halaman login
+    if (!userId) {
+      router.push('/login');
+      return;
+    }
+    // Membuat URLSearchParams untuk encoding otomatis
+    const params = new URLSearchParams({
+      selectedSlots: JSON.stringify(selectedSlots),
+      locationId: locationId ?? '',
+      paymentType: selectedPaymentType,
+      userId: userId,
+    });
+
+    // Navigasi ke halaman payment dengan query parameters
+    router.push(`/reservation/payment?${params.toString()}`);
+  }, [selectedSlots, locationId, selectedPaymentType, router]);
 
   const calculateTotal = () => {
     return selectedSlots.reduce((sum, slot) => {
@@ -714,14 +747,7 @@ export default function SchedulesPage() {
                   )}
                 </div>
                 <Button
-                  onClick={() => {
-                    const params = new URLSearchParams({
-                      selectedSlots: JSON.stringify(selectedSlots),
-                      locationId: locationId ?? '',
-                      paymentType: selectedPaymentType,
-                    });
-                    router.push(`./payment?${params.toString()}`);
-                  }}
+                  onClick={handlePayment}
                   className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'
                   disabled={selectedSlots.length === 0}
                 >

@@ -25,6 +25,8 @@ export default function PaymentPage() {
     const locationId = searchParams.get('locationId');
     const paymentType = searchParams.get('paymentType');
 
+
+
     if (selectedSlotsParam) {
       const selectedSlots: BookingSlot[] = JSON.parse(selectedSlotsParam);
 
@@ -41,7 +43,17 @@ export default function PaymentPage() {
       
       // Anda bisa fetch nama lokasi berdasarkan locationId jika diperlukan
       const fetchLocationName = getLocationById(Number(locationId));
-      setLocation("Lapangan Futsal XYZ"); // Ganti dengan nama lokasi sebenarnya
+      fetchLocationName
+        .then((response) => {
+          if (response && response.locationName) {
+            setLocation(response.locationName);
+          } else {
+            setLocation("Lapangan Futsal XYZ");
+          }
+        })
+        .catch(() => {
+          setLocation("Gagal mengambil lokasi");
+        });
     }
   }, [searchParams]);
 
