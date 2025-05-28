@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import Cookies from "js-cookie";
 import { login } from "@/lib/api/auth";
 

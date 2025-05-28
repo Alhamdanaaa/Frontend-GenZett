@@ -1,19 +1,34 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { DataTableColumnHeader } from './data-table-column-header';
+import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import React from 'react';
-import { Schedule } from '@/constants/data';
+
+export type Schedule = {
+  locationId: number;
+  name: string;
+  date: string;
+  fieldTime: string;
+  fieldName: string;
+  sport: string;
+  paymentStatus: 'pending' | 'complete' | 'dp';
+};
+
+export type Field = {
+  fieldId: number;
+  name: string;
+  times: string[];
+};
 
 export type ScheduleRow = {
   time: string;
-  [field: string]: React.ReactNode;
+  [fieldName: string]: React.ReactNode;
 };
 
 export function generateColumns(fieldNames: string[]): ColumnDef<ScheduleRow>[] {
   const timeColumn: ColumnDef<ScheduleRow> = {
     accessorKey: 'time',
-    header: () => <div className="w-[50px]">Waktu</div>,
+    header: () => <div className="w-[80px]">Waktu</div>,
     cell: ({ cell }) => (
-      <div className="w-[50px] overflow-hidden truncate">
+      <div className="w-[80px] overflow-hidden truncate">
         {cell.getValue() as string}
       </div>
     ),
@@ -21,14 +36,18 @@ export function generateColumns(fieldNames: string[]): ColumnDef<ScheduleRow>[] 
   };
 
   const fieldColumns: ColumnDef<ScheduleRow>[] = fieldNames.map((fieldName) => {
-    const accessorKey = fieldName.replace(/\s+/g, '_'); // "Field 2" => "Field_2"
+    const accessorKey = fieldName.replace(/\s+/g, '_'); // "Lapangan Futsal 1" => "Lapangan_Futsal_1"
 
     return {
       accessorKey,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={fieldName} />
       ),
-      cell: ({ cell }) => <div>{cell.getValue() as React.ReactNode}</div>,
+      cell: ({ cell }) => (
+        <div className="min-w-[100px] text-center">
+          {cell.getValue() as React.ReactNode}
+        </div>
+      ),
       meta: { label: fieldName },
     };
   });
@@ -36,29 +55,78 @@ export function generateColumns(fieldNames: string[]): ColumnDef<ScheduleRow>[] 
   return [timeColumn, ...fieldColumns];
 }
 
-// Optimized table data generation
-export function generateTableData(schedules: Schedule[], fieldNames: string[]): ScheduleRow[] {
-  const operatingHours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
-  return operatingHours.map((hour) => {
-    const row: ScheduleRow = { time: hour };
+// Generate available time slots for a specific field and date
+export function getAvailableTimesForField(
+  fields: Field[], 
+  fieldName: string, 
+  schedules: Schedule[], 
+  selectedDate: string
+): string[] {
+  // Find the field configuration
+  const field = fields.find(f => f.name === fieldName);
+  if (!field) return [];
 
-    fieldNames.forEach((field) => {
-      const key = field.replace(/\s+/g, '_');
-      const match = schedules.find(
-        (s) => s.fieldTime === hour && s.field === field
+  // Get booked times for this field on the selected date
+  const bookedTimes = schedules
+    .filter(s => s.fieldName === fieldName && s.date === selectedDate)
+    .map(s => s.fieldTime);
+
+  // Return only available times (not booked)
+  return field.times.filter(time => !bookedTimes.includes(time));
+}
+
+// Enhanced table data generation with availability information
+export function generateTableData(
+  schedules: Schedule[], 
+  fields: Field[],
+  fieldNames: string[], 
+  selectedDate: string
+): ScheduleRow[] {
+  // Get all unique time slots from all fields
+  const allTimes = Array.from(
+    new Set(fields.flatMap(f => f.times))
+  ).sort();
+
+  return allTimes.map((time) => {
+    const row: ScheduleRow = { time };
+
+    fieldNames.forEach((fieldName) => {
+      const key = fieldName.replace(/\s+/g, '_');
+      
+      // Check if there's a booking for this time and field
+      const booking = schedules.find(
+        (s) => s.fieldTime === time && s.fieldName === fieldName && s.date === selectedDate
       );
 
-      if (match) {
+      // Check if this time slot is available for this field
+      const field = fields.find(f => f.name === fieldName);
+      const isTimeAvailable = field?.times.includes(time) || false;
+
+      if (booking) {
+        // Show booking information
         row[key] = (
-          <div className={`rounded px-2 py-1 text-xs text-white ${
-            match.paymentStatus === 'complete' ? 'bg-green-500'
-            : match.paymentStatus === 'pending' ? 'bg-yellow-500'
-            : 'bg-blue-500'}`}>
-            {match.name}
+          <div className={`rounded px-2 py-1 text-xs text-white font-medium ${
+            booking.paymentStatus === 'complete' ? 'bg-green-500'
+            : booking.paymentStatus === 'pending' ? 'bg-yellow-500'
+            : booking.paymentStatus === 'dp' ? 'bg-blue-500'
+            : 'bg-gray-500'
+          }`}>
+            {booking.name}
+          </div>
+        );
+      } else if (isTimeAvailable) {
+        // Show available slot
+        row[key] = (
+          <div 
+          className="text-green-600 text-xs font-medium bg-green-50 rounded px-2 py-1 border border-green-200">
+            Tersedia
           </div>
         );
       } else {
-        row[key] = '-';
+        // Time slot not available for this field
+        row[key] = (
+          <div className="text-gray-400 text-xs">-</div>
+        );
       }
     });
 

@@ -1,5 +1,6 @@
 import api from "../axios";
-
+import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 type LoginPayload = {
   email: string;
   password: string;
@@ -46,7 +47,7 @@ export async function register(payload: RegisterPayload) {
 }
 
 export async function logout() {
-  const token = localStorage.getItem("token"); // Ambil token dari localStorage
+  const token = localStorage.getItem("token");
   const res = await api.post(
     "/logout",
     {},
@@ -58,4 +59,44 @@ export async function logout() {
   );
   return res.data;
 }
+
+export const useLogout = () => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    // Clear all auth-related storage
+    localStorage.removeItem('token');
+    document.cookie = 'token=; Max-Age=-99999999;';
+    document.cookie = 'role=; Max-Age=0; path=/;';
+    router.push('/');
+  };
+
+  return {
+    handleLogout
+  };
+};
+
+export function getUserRole(): string | null {
+  if (typeof document === 'undefined') return null;
+
+  const token = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('token='))
+    ?.split('=')[1];
+
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode<{ role?: string }>(token);
+    return decoded.role || null;
+  } catch {
+    return null;
+  }
+}
+
 

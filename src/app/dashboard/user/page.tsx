@@ -2,7 +2,9 @@ import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
+import { getServerUserRole } from '@/hooks/use-user-role';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
+import { redirect } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { lazy, Suspense } from 'react';
 
@@ -19,6 +21,10 @@ type pageProps = {
 };
 
 export default async function Page(props: pageProps) {
+  const role = await getServerUserRole();
+  if (!role || !['superadmin'].includes(role)) {
+    redirect('/unauthorized');
+  }
   const searchParams = await props.searchParams;
   searchParamsCache.parse(searchParams);
   const key = serialize({ ...searchParams });

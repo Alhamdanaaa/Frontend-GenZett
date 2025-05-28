@@ -1,65 +1,82 @@
-import { useEffect, useState } from 'react';
-import { Schedule } from '@/constants/data';
-import { fakeSchedules } from '@/constants/mock-api';
+// features/schedule/hooks/use-schedule-data.ts
+import { useState, useEffect } from 'react';
+import { getScheduleData, type Schedule, type Field, type ScheduleApiResponse } from '@/lib/api/schedule';
 
 export function useScheduleData() {
-  const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
+  const [data, setData] = useState<ScheduleApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        // Inisialisasi data jika belum
-        if (fakeSchedules.records.length === 0) {
-          fakeSchedules.initialize();
-        }
-        
-        // Gunakan fungsi existing dari mock-api
-        const response = await fakeSchedules.getSchedules({
-          limit: 50 // Batasi jumlah data
-        });
-        
-        setScheduleData(response.schedules);
+        setError(null);
+        const result = await getScheduleData();
+        console.log('result', result);
+        setData(result);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching schedule data:', err);
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
     fetchData();
   }, []);
 
-  return { scheduleData, isLoading, error };
+  return {
+    schedules: data?.schedules || [],
+    fields: data?.fields || [],
+    isLoading,
+    error,
+    refetch: () => {
+      setIsLoading(true);
+      getScheduleData().then(setData).catch(setError).finally(() => setIsLoading(false));
+    }
+  };
 }
-// 'use client';
-// import { useEffect, useState } from 'react';
-// import { Schedule } from '@/constants/data';
-// import { getScheduleData } from '@/services/schedule-service';
+// // features/schedule/hooks/use-schedule-data.ts
+// import { useState, useEffect } from 'react';
+// import { getScheduleData, type ScheduleApiResponse } from '@/lib/api/schedule';
 
-// export function useScheduleData() {
-//   const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
+// export function useScheduleData(filters: {
+//   date?: Date;
+//   sport?: string;
+//   locationId?: number;
+// }) {
+//   const [data, setData] = useState<ScheduleApiResponse | null>(null);
 //   const [isLoading, setIsLoading] = useState(true);
-//   const [error, setError] = useState<Error | null>(null);
+//   const [error, setError] = useState<string | null>(null);
+
+//   const fetchData = async () => {
+//     try {
+//       setIsLoading(true);
+//       setError(null);
+//       const result = await getScheduleData({
+//         date: filters.date?.toISOString().split('T')[0],
+//         sport: filters.sport !== 'all' ? filters.sport : undefined,
+//         locationId: filters.locationId || 1, // default ke 1
+//       });
+//       setData(result);
+//     } catch (err) {
+//       setError(err instanceof Error ? err.message : 'An error occurred');
+//       console.error('Error fetching schedule data:', err);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
 
 //   useEffect(() => {
-//     async function fetchData() {
-//       try {
-//         setIsLoading(true);
-//         // Get data from the optimized service
-//         const data = await getScheduleData();
-//         setScheduleData(data);
-//       } catch (err) {
-//         setError(err instanceof Error ? err : new Error('Unknown error'));
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     }
-
 //     fetchData();
-//   }, []);
+//   }, [filters.date, filters.sport, filters.locationId]);
 
-//   return { scheduleData, isLoading, error };
+//   return {
+//     schedules: data?.schedules || [],
+//     fields: data?.fields || [],
+//     isLoading,
+//     error,
+//     refetch: fetchData,
+//   };
 // }

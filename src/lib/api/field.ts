@@ -14,6 +14,14 @@ interface FieldPayload {
   startHour: string; 
   endHour: string; 
 }
+interface FieldPayload {
+  name: string;
+  location: string;
+  sport: string;
+  description: string;
+  startHour: string; 
+  endHour: string; 
+}
 export async function getFields(params: FilterParams) {
   const res = await api.get("/fields", { params });
   return res.data;
@@ -39,6 +47,7 @@ export async function createField(data: FieldPayload) {
   };
 
   const res = await api.post('/fields', payload);
+  console.log(payload);
   return res.data;
 }
 
@@ -54,5 +63,9 @@ export async function updateField(fieldId: number, data: FieldPayload) {
   };
 
   const res = await api.post(`/fields/${fieldId}`, payload);
+  return res.data;
+}
+export async function deleteField(fieldId: number) {
+  const res = await api.delete(`/fields/${fieldId}`);
   return res.data;
 }

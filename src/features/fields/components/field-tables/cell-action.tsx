@@ -10,6 +10,8 @@ import {
 } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { lazy, Suspense, useState } from 'react';
+import { deleteField } from '@/lib/api/field';
+import { toast } from 'sonner';
 
 const FieldDetailDialog = lazy(() =>
   import('../field-detail-dialog')
@@ -20,14 +22,25 @@ interface CellActionProps {
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const router = useRouter();
 
   const onConfirm = async () => {
-    // logic hapus
-  };
+      setLoading(true);
+      try {
+        await deleteField(Number(data.id));
+        setOpen(false);
+        router.refresh();
+        toast.success("Lapangan berhasil dihapus");
+      } catch (error: any) {
+        const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menghapus data';
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <>
