@@ -41,12 +41,6 @@ export default async function Page(props: pageProps) {
             title='Data User'
             description='Kelola data user'
           />
-          {/* <Link
-            href='/dashboard/user/new'
-            className={cn(buttonVariants(), 'text-xs md:text-sm')}
-          >
-            <IconPlus className='mr-2 h-4 w-4' /> Tambah
-          </Link> */}
         </div>
         <Separator />
         <Suspense

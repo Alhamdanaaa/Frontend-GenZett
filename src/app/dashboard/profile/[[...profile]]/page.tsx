@@ -4,7 +4,6 @@ import { getUserFromServer } from '@/hooks/use-user';
 export default async function ProfilePage() {
   const user = await getUserFromServer();
 
-  // Konversi locationId jika ada
   const formattedUser = user
     ? {
         ...user,

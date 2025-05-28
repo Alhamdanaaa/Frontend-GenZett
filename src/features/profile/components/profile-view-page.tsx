@@ -30,16 +30,25 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [locationName, setLocationName] = useState('-');
+  const [currentUser, setCurrentUser] = useState<User | null>(user)
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser))
+    }
+  }, [])
+
 
   useEffect(() => {
     const fetchLocation = async () => {
-      if (user?.locationId) {
-        const res = await getLocationById(Number(user.locationId));
+      if (currentUser?.locationId) {
+        const res = await getLocationById(Number(currentUser.locationId));
         setLocationName(res?.locationName || 'Tidak Diketahui');
       }
     };
     fetchLocation();
-  }, [user?.locationId]);
+  }, [currentUser?.locationId]);
 
   const handleLogout = async () => {
     const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
@@ -83,7 +92,7 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
     }
   };
 
-  if (!user) return <div className="w-full p-6">Memuat...</div>;
+  if (!currentUser) return <div className="w-full p-6">Memuat...</div>;
 
   return (
     <div className="w-full px-6 py-10">
@@ -93,14 +102,14 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
             <IconUser className="h-16 w-16" />
             <div>
               <CardTitle className="text-xl sm:text-2xl font-semibold">
-                {user.name || 'Tanpa Nama'}
+                {currentUser.name || 'Tanpa Nama'}
               </CardTitle>
-              <p className="text-muted-foreground text-sm">{user.email}</p>
+              <p className="text-muted-foreground text-sm">{currentUser.email}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => router.push('/user')}>Edit Profil</Button>
-            <Button variant="secondary">Ubah Password</Button>
+            <Button variant="outline" onClick={() => router.push('/dashboard/profile/edit-profile')}>Edit Profil</Button>
+            <Button variant="outline" onClick={() => router.push('/dashboard/profile/edit-password')}>Ubah Password</Button>
             <Button
               variant="destructive"
               onClick={handleLogout}
@@ -117,17 +126,17 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
           <div>
             <h3 className="text-lg font-medium mb-4">Informasi Akun</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InfoItem icon={<IconUser className="h-5 w-5 text-blue-600" />} label="Nama Lengkap" value={user.name || '-'} />
-              <InfoItem icon={<IconMail className="h-5 w-5 text-green-600" />} label="Email" value={user.email || '-'} />
+              <InfoItem icon={<IconUser className="h-5 w-5 text-blue-600" />} label="Nama Lengkap" value={currentUser.name || '-'} />
+              <InfoItem icon={<IconMail className="h-5 w-5 text-green-600" />} label="Email" value={currentUser.email || '-'} />
               <InfoItem icon={<IconMapPin className="h-5 w-5 text-rose-600" />} label="Cabang" value={locationName || '-'} />
-              <InfoItem icon={<IconPhone className="h-5 w-5 text-teal-600" />} label="Nomor Telepon" value={user.phone || '-'} />
-              <InfoItem icon={<IconShield className="h-5 w-5 text-purple-600" />} label="Role" value={user.role} />
+              <InfoItem icon={<IconPhone className="h-5 w-5 text-teal-600" />} label="Nomor Telepon" value={currentUser.phone || '-'} />
+              <InfoItem icon={<IconShield className="h-5 w-5 text-purple-600" />} label="Role" value={currentUser.role} />
               <InfoItem
                 icon={<IconCalendarEvent className="h-5 w-5 text-yellow-600" />}
                 label="Bergabung Sejak"
                 value={
-                  user.created_at
-                    ? new Date(user.created_at).toLocaleDateString('id-ID', {
+                  currentUser.created_at
+                    ? new Date(currentUser.created_at).toLocaleDateString('id-ID', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
