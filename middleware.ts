@@ -15,7 +15,15 @@ export function middleware(request: NextRequest) {
   if (token && authPaths.includes(pathname)) {
     try {
       const decoded = jwtDecode(token) as { role?: string };
-      const redirectUrl = ['admin', 'superadmin'].includes(decoded.role || '') ? '/dashboard/overview' : '/';
+      const role = decoded.role;
+
+      const redirectUrl =
+        role === 'admin'
+          ? '/dashboard/overview-admin'
+          : role === 'superadmin'
+          ? '/dashboard/overview'
+          : '/';
+
       return NextResponse.redirect(new URL(redirectUrl, request.url));
     } catch {
       return NextResponse.next();
@@ -34,14 +42,16 @@ export function middleware(request: NextRequest) {
     const decoded = jwtDecode(token) as { role?: string };
     const role = decoded.role;
 
-    if (['admin', 'superadmin'].includes(role || '')) {
-      if (!pathname.startsWith('/dashboard')) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
-    } else if (role === 'user') {
-      if (pathname.startsWith('/dashboard')) {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
+    if (role === 'admin' && !pathname.startsWith('/dashboard/overview-admin')) {
+      return NextResponse.redirect(new URL('/dashboard/overview-admin', request.url));
+    }
+
+    if (role === 'superadmin' && !pathname.startsWith('/dashboard/overview')) {
+      return NextResponse.redirect(new URL('/dashboard/overview', request.url));
+    }
+
+    if (role === 'user' && pathname.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/', request.url));
     }
   } catch {
     return NextResponse.redirect(new URL('/login', request.url));
