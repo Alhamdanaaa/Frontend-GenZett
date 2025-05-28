@@ -98,5 +98,17 @@ export function getUserRole(): string | null {
     return null;
   }
 }
+export function getUser(): LoginResponse["user"] | null {
+  if (typeof window === "undefined") return null;
+
+  const user = localStorage.getItem("user");
+  if (!user) return null;
+
+  try {
+    return JSON.parse(user);
+  } catch {
+    return null;
+  }
+}
 
 

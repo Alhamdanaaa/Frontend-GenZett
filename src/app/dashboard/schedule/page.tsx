@@ -3,7 +3,7 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import ScheduleListingPageWrapper from '@/features/schedule/components/schedule-listing-page-wrapper';
-import { getServerUserRole } from '@/hooks/use-user-role';
+import { getServerUserRole } from '@/hooks/use-user';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 

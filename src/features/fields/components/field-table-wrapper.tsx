@@ -15,20 +15,21 @@ type Props = {
   totalItems: number;
   locationOptions: { label: string; value: string }[];
   sportOptions: { label: string; value: string }[];
+  isAdmin: boolean;  // tambah prop isAdmin
 };
 
-export default function FieldTableWrapper({ data, totalItems, locationOptions, sportOptions }: Props) {
+export default function FieldTableWrapper({ data, totalItems, locationOptions, sportOptions, isAdmin }: Props) {
   const [columns, setColumns] = useState<ColumnDef<Field>[]>([]);
 
   useEffect(() => {
     const loadColumns = async () => {
       const { getColumns } = await import('./field-tables/columns');
-      const cols = getColumns(locationOptions, sportOptions);
+      const cols = getColumns(locationOptions, sportOptions, isAdmin);
       setColumns(cols);
     };
 
     loadColumns();
-  }, [locationOptions, sportOptions]);
+  }, [locationOptions, sportOptions, isAdmin]);
 
   if (columns.length === 0) return <p>Loading columns...</p>;
 
