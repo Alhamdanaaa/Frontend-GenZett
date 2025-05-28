@@ -1,25 +1,10 @@
-// import { UserProfile } from '@clerk/nextjs';
-
-// export default function ProfileViewPage() {
-//   return (
-//     <div className='flex w-full flex-col p-4'>
-//       <UserProfile />
-//     </div>
-//   );
-// }
-
-//   useEffect(() => {
-  //   fetch('/api/me')
-  //     .then((res) => res.json())
-  //     .then(setUser);
-  // }, []);
 'use client';
 
-import { useUser } from '@clerk/nextjs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Card, CardContent, CardHeader, CardTitle
+} from '@/components/ui/card';
 import {
   IconMail,
   IconUser,
@@ -28,9 +13,75 @@ import {
   IconPhone,
   IconMapPin
 } from '@tabler/icons-react';
+import { getLocationById } from '@/lib/api/location';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
-export default function ProfileViewPage() {
-  const { user } = useUser();
+type User = {
+  name: string;
+  email: string;
+  phone?: string;
+  locationId?: string;
+  role: string;
+  created_at?: string;
+};
+
+export default function ProfileViewPage({ user }: { user: User | null }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [locationName, setLocationName] = useState('-');
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      if (user?.locationId) {
+        const res = await getLocationById(Number(user.locationId));
+        setLocationName(res?.locationName || 'Tidak Diketahui');
+      }
+    };
+    fetchLocation();
+  }, [user?.locationId]);
+
+  const handleLogout = async () => {
+    const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
+    if (!confirmed) return;
+    setLoading(true);
+
+    try {
+      const token =
+        localStorage.getItem('token') ||
+        document.cookie
+          .split('; ')
+          .find((row) => row.startsWith('token='))
+          ?.split('=')[1];
+
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Logout error:', error.message);
+        if ((error as any).isAxiosError) {
+          const axiosError = error as any;
+          console.error('HTTP Status:', axiosError.response?.status);
+          console.error('Response Data:', axiosError.response?.data);
+        }
+      } else {
+        console.error('Unknown error during logout:', error);
+      }
+    } finally {
+      localStorage.removeItem('token');
+      document.cookie = 'token=; Max-Age=0; path=/;';
+      document.cookie = 'role=; Max-Age=0; path=/;';
+      router.push('/login');
+    }
+  };
 
   if (!user) return <div className="w-full p-6">Memuat...</div>;
 
@@ -39,21 +90,24 @@ export default function ProfileViewPage() {
       <Card className="w-full shadow-md">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={user.imageUrl} />
-              <AvatarFallback>{user.firstName?.[0]}{user.lastName?.[0]}</AvatarFallback>
-            </Avatar>
+            <IconUser className="h-16 w-16" />
             <div>
               <CardTitle className="text-xl sm:text-2xl font-semibold">
-                {user.username || 'Tanpa Nama'}
+                {user.name || 'Tanpa Nama'}
               </CardTitle>
-              <p className="text-muted-foreground text-sm">{user.primaryEmailAddress?.emailAddress}</p>
+              <p className="text-muted-foreground text-sm">{user.email}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => window.location.href = '/user'}>Edit Profil</Button>
+            <Button variant="outline" onClick={() => router.push('/user')}>Edit Profil</Button>
             <Button variant="secondary">Ubah Password</Button>
-            <Button variant="destructive" onClick={() => window.location.href = '/sign-out'}>Keluar</Button>
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+              disabled={loading}
+            >
+              {loading ? 'Keluar...' : 'Keluar'}
+            </Button>
           </div>
         </CardHeader>
 
@@ -63,37 +117,17 @@ export default function ProfileViewPage() {
           <div>
             <h3 className="text-lg font-medium mb-4">Informasi Akun</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InfoItem
-                icon={<IconUser className="h-5 w-5 text-blue-600" />}
-                label="Nama Lengkap"
-                value={user.fullName || '-'}
-              />
-              <InfoItem
-                icon={<IconMail className="h-5 w-5 text-green-600" />}
-                label="Email"
-                value={user.primaryEmailAddress?.emailAddress || '-'}
-              />
-              <InfoItem
-                icon={<IconPhone className="h-5 w-5 text-teal-600" />}
-                label="Nomor Telepon"
-                value={user.phoneNumbers?.[0]?.phoneNumber || '-'}
-              />
-              <InfoItem
-                icon={<IconMapPin className="h-5 w-5 text-rose-600" />}
-                label="Cabang"
-                value={String(user.publicMetadata.branch || '-')}
-              />
-              <InfoItem
-                icon={<IconShield className="h-5 w-5 text-purple-600" />}
-                label="Role"
-                value={String(user.publicMetadata.role || 'admin')}
-              />
+              <InfoItem icon={<IconUser className="h-5 w-5 text-blue-600" />} label="Nama Lengkap" value={user.name || '-'} />
+              <InfoItem icon={<IconMail className="h-5 w-5 text-green-600" />} label="Email" value={user.email || '-'} />
+              <InfoItem icon={<IconMapPin className="h-5 w-5 text-rose-600" />} label="Cabang" value={locationName || '-'} />
+              <InfoItem icon={<IconPhone className="h-5 w-5 text-teal-600" />} label="Nomor Telepon" value={user.phone || '-'} />
+              <InfoItem icon={<IconShield className="h-5 w-5 text-purple-600" />} label="Role" value={user.role} />
               <InfoItem
                 icon={<IconCalendarEvent className="h-5 w-5 text-yellow-600" />}
                 label="Bergabung Sejak"
                 value={
-                  user.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString('id-ID', {
+                  user.created_at
+                    ? new Date(user.created_at).toLocaleDateString('id-ID', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
@@ -101,7 +135,6 @@ export default function ProfileViewPage() {
                     : '-'
                 }
               />
-
             </div>
           </div>
         </CardContent>
@@ -110,7 +143,6 @@ export default function ProfileViewPage() {
   );
 }
 
-// Komponen reusable untuk setiap info
 const InfoItem = ({
   icon,
   label,
