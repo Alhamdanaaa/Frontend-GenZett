@@ -110,5 +110,48 @@ export function getUser(): LoginResponse["user"] | null {
     return null;
   }
 }
+export async function editProfile(name: string, phone: string) {
+  const token = localStorage.getItem('token')
+  if (!token) return
 
+  const user = getUser()
+  if (!user) return
 
+  const data: Record<string, string> = {}
+  if (name) data.name = name
+  if (phone) data.phone = phone
+
+  const response = await api.put(`/editAdminProfile/${user.id}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+
+  // ✅ Update localStorage setelah berhasil
+  const updatedUser = {
+    ...user,
+    ...data,
+  }
+
+  localStorage.setItem('user', JSON.stringify(updatedUser))
+
+  return response
+}
+
+export async function changePassword(oldPassword: string, newPassword: string) {
+  const token = localStorage.getItem('token')
+  if (!token) throw new Error('Token tidak ditemukan')
+
+  const res = await api.post(
+    '/change-password',
+    { oldPassword, newPassword }, // ini adalah `data`
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+
+  return res.data
+}
