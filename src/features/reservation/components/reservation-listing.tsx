@@ -1,6 +1,7 @@
 import { searchParamsCache } from '@/lib/searchparams';
 import ReservationTableWrapper from './reservation-table-wrapper';
 import { getReservations } from '@/lib/api/reservation';
+import { getUserFromServer } from '@/hooks/use-user';
 
 const getColumns = async () => {
   const { columns } = await import('./reservation-tables/columns');
@@ -8,13 +9,14 @@ const getColumns = async () => {
 };
 
 export default async function ReservationListingPage() {
+  const user = await getUserFromServer();
+  const locationId = user?.locationId;
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
   const rawDate = searchParamsCache.get('date'); // timestamp as string
   const paymentStatus = searchParamsCache.get('paymentStatus');
 
-  // Convert timestamp to local YYYY-MM-DD
   let formattedDate: string | undefined;
   if (rawDate) {
     const timestamp = Number(rawDate);
@@ -27,25 +29,17 @@ export default async function ReservationListingPage() {
     }
   }
 
-  console.log({
-    original: rawDate,
-    formattedDate
-  });
-
   const filters = {
     page: page?.toString(),
     limit: pageLimit?.toString(),
     ...(search && { search }),
     ...(paymentStatus && { paymentStatus }),
     ...(formattedDate && { date: formattedDate }),
+    ...(locationId && { locationId }),
   };
 
 const res = await getReservations(filters);
-console.log('res:', res);
-// Ini penting: ambil array reservasi dari `res.data.data`
 const rawReservations = res.data;
-
-console.log("rawReservations", rawReservations); // pastikan isinya tidak kosong
 
 const reservations = rawReservations.map((reservation: any) => {
   // Membuat objek untuk menyimpan data lapangan dan waktu
@@ -146,7 +140,7 @@ const reservations = rawReservations.map((reservation: any) => {
 });
 
     const columns = await getColumns();
-    console.log('reservationsWithRemainingPayment:', reservations);
+    // console.log('reservationsWithRemainingPayment:', reservations);
     return (
       <ReservationTableWrapper
         data={reservations}
