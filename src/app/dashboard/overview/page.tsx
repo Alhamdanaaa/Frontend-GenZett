@@ -1,5 +1,5 @@
 import { fetchDashboardData } from '@/lib/api/dashboardsuadmin'
-import DashboardStats from '@/components/dashboard/Dashboard';
+import Dashboard from '@/components/dashboard/Dashboard';
 import BarStats from './@bar_stats/page';
 import PieStats from './@pie_stats/page';
 
@@ -11,7 +11,7 @@ export default async function OverviewPage() {
 
         return (
             <>
-                <DashboardStats
+                <Dashboard
                     total_lapangan={dashboardData.total_lapangan}
                     total_cabang={dashboardData.total_cabang}
                     total_admin={dashboardData.total_admin}
@@ -33,7 +33,7 @@ export default async function OverviewPage() {
         
         return (
             <>
-                <DashboardStats
+                <Dashboard
                     total_lapangan={0}
                     total_cabang={0}
                     total_admin={0}
