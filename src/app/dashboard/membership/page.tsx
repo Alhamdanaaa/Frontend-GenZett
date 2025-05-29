@@ -18,7 +18,8 @@ const MembershipListingPage = lazy(() =>
 );
 
 export const metadata = {
-  title: 'Dashboard: Paket Membership'
+  title: 'Dashboard: Paket Langganan',
+  description: 'Kelola data paket langganan',
 };
 
 type pageProps = {
