@@ -31,6 +31,19 @@ export type DashboardData = {
   reservasi_per_cabang: ReservasiPerCabang[];
 };
 
+// Tipe data untuk Dashboard - Admin
+export interface ReservationPerHari {
+  date: string; // Format: "2025-03-01"
+  total_reservasi: number;
+}
+
+export interface AdminDashboardData {
+  total_lapangan: number;
+  total_paket_langganan: number;
+  total_pesanan_langganan_bulan_ini: number;
+  reservasi_per_hari: ReservationPerHari[];
+}
+
 // Tipe data untuk Location
 export type Location = {
   locationId: number;
