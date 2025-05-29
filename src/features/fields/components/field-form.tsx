@@ -778,8 +778,8 @@ export default function FieldForm({
               </Card>
             )} */}
 
-            <Button type='submit' className='w-full'>
-              Simpan Lapangan
+            <Button type="submit" disabled={form.formState.isSubmitting} className='w-full'>
+              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Lapangan'}
             </Button>
           </form>
         </Form>
