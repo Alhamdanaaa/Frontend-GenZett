@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { IconBallFootball, IconMap2, IconSoccerField, IconUserShield } from '@tabler/icons-react';
 
-export default function DashboardStats({
+export default function Dashboard({
   total_lapangan,
   total_cabang,
   total_admin,
