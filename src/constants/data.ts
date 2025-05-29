@@ -11,6 +11,26 @@ export type Product = {
   updated_at: string;
 };
 
+// Tipe data untuk Dashboard - Super Admin
+export type DailyReservation = {
+  DATE: string;
+  total_reservasi: number;
+}
+
+export type ReservasiPerCabang = {
+  locationName: string;
+  total_reservasi: number;
+}
+
+export type DashboardData = {
+  total_lapangan: number;
+  total_cabang: number;
+  total_admin: number;
+  total_cabor: number;
+  daily_reservations: DailyReservation[];
+  reservasi_per_cabang: ReservasiPerCabang[];
+};
+
 // Tipe data untuk Location
 export type Location = {
   locationId: number;
