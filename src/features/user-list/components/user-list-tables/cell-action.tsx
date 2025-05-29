@@ -8,9 +8,9 @@ import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { lazy, Suspense, useState } from 'react';
 
-const UserDetailDialog = lazy(() => 
-  import('../user-detail-dialog')
-);
+// const UserDetailDialog = lazy(() => 
+//   import('../user-detail-dialog')
+// );
 
 interface CellActionProps {
   data: User;
@@ -46,19 +46,19 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       />
       <div className="flex flex-row gap-2">
         <TooltipProvider>
-          <Tooltip>
+          {/* <Tooltip>
             <TooltipTrigger asChild>
               <Button className='shadow-md'
                 variant="outline"
                 size="sm"
                 onClick={() => setShowDetail(true)}
               >
-                <IconEye className="h-4 w-4 stroke-blue-600" />
+                <IconEye className="h-4 w-4 stroke-blue-600" /> */}
                 {/* <IconListDetails className="h-4 w-4 stroke-blue-600" /> */}
-              </Button>
+              {/* </Button>
             </TooltipTrigger>
             <TooltipContent>Detail</TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -90,7 +90,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </TooltipProvider>
       </div>
 
-      {showDetail && (
+      {/* {showDetail && (
         <Suspense fallback={<div>Loading...</div>}>
           <UserDetailDialog
             data={data}
@@ -99,7 +99,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             onOpenChange={setShowDetail}
           />
         </Suspense>
-      )}
+      )} */}
     </>
   );
 };
