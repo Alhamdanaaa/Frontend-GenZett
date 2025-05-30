@@ -19,11 +19,7 @@ export async function getUserById(userId: number): Promise<User | null> {
         if (!res.data.user) return null;
 
         const user = res.data.user;
-        // Ubah userId jadi id
-        return {
-            ...user,
-            id: user.userId,
-        };
+        return user;
     } catch (error) {
         console.error(error);
         return null;
