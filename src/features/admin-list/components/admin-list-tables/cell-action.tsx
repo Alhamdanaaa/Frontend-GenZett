@@ -7,6 +7,7 @@ import { deleteAdmin } from '@/lib/api/admin';
 import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { lazy, useState,Suspense } from 'react';
+import { toast } from 'sonner';
 
 // const AdminDetailDialog = lazy(() => 
 //   import('../admin-list-detail-dialog')
@@ -28,9 +29,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       await deleteAdmin(Number(data.id)); // cukup panggil dan biarkan throw jika error
       setOpen(false);
       router.refresh(); // Refresh data
-    } catch (error) {
-      console.error(error);
-      alert('Terjadi kesalahan saat menghapus data');
+      toast.success("Data berhasil dihapus");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menghapus data';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
