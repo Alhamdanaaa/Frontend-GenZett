@@ -22,6 +22,7 @@ import { useSportsOptions, useLocationsOptions } from './membership-tables/optio
 import { MembershipWithNames } from '@/constants/data';
 import { createMembership, updateMembership } from '@/lib/api/membership';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 // Skema validasi Zod
 const formSchema = z.object({
@@ -59,7 +60,7 @@ export default function MembershipForm({
       sports: '',
       locations: '',
       discount: 0,
-      weeks: 1,
+      weeks: 0,
     },
   });
 
@@ -83,10 +84,10 @@ export default function MembershipForm({
     form.reset({
       name: initialData.name || '',
       description: initialData.description || '',
-      sports: selectedSport?.value ?? '',
-      locations: selectedLocation?.value ?? '',
+      sports: selectedSport ? String(selectedSport.value) : '',
+      locations: selectedLocation ? String(selectedLocation.value) : '',
       discount: Number(initialData.discount) || 0,
-      weeks: initialData.weeks || 1,
+      weeks: initialData.weeks || 0,
     });
   }, [initialData, locationsOptions, sportsOptions, form]);
 
@@ -105,14 +106,18 @@ export default function MembershipForm({
 
       if (isEdit && initialData) {
         await updateMembership(initialData.membershipId, payload);
+        toast.success("Paket Langganan berhasil diperbarui");
       } else {
         await createMembership(payload);
+        toast.success("Paket Langganan berhasil ditambahkan");
       }
 
       if (onSuccess) onSuccess();
       router.push('/dashboard/membership');
-    } catch (error) {
-      console.error('Gagal menyimpan membership:', error);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menyimpan paket langganan';
+      toast.error(errorMessage);
+      console.error('Gagal menyimpan paket langganan:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -263,13 +268,13 @@ export default function MembershipForm({
                     <FormControl>
                       <Input
                         type="number"
-                        min={1}
+                        min={0}
                         placeholder="Contoh: 1"
                         {...field}
-                        value={field.value === 1 ? '' : field.value}
+                        value={field.value === 0 ? '' : field.value}
                         onChange={(e) => {
                           const val = e.target.value;
-                          field.onChange(val === '' ? 1 : parseInt(val, 10));
+                          field.onChange(val === '' ? 0 : parseInt(val, 10));
                         }}
                       />
                     </FormControl>
