@@ -37,7 +37,7 @@ export default function ChangePasswordModal({
         ref={modalRef}
         className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 space-y-4"
       >
-        <h2 className="text-lg font-semibold mb-4 text-gray-700">Ubah Password</h2>
+        <h2 className="text-lg font-semibold mb-4 text-gray-700 text-center">Ubah Password</h2>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Password Lama</label>

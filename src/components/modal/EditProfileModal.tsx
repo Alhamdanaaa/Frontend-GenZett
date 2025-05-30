@@ -40,17 +40,7 @@ export default function EditProfileModal({
         ref={modalRef}
         className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 space-y-4"
       >
-        <h2 className="text-lg font-semibold mb-4 text-gray-700">Edit Profil</h2>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Username</label>
-          <input
-            type="text"
-            value={username}
-            disabled
-            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-          />
-        </div>
+        <h2 className="text-lg font-semibold mb-4 text-gray-700 text-center">Edit Profil</h2>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
