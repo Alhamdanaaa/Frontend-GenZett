@@ -15,10 +15,10 @@ import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
 
 // Lazy-load komponen berat
-const AreaGraph = dynamic(() => import('./area-graph'), { ssr: false });
+// const AreaGraph = dynamic(() => import('./area-graph'), { ssr: false });
 const BarGraph = dynamic(() => import('./bar-graph'), { ssr: false });
 const PieGraph = dynamic(() => import('./pie-graph'), { ssr: false });
-const RecentSales = dynamic(() => import('./recent-sales'), { ssr: false });
+// const RecentSales = dynamic(() => import('./recent-sales'), { ssr: false });
 
 export default function OverViewPage() {
   return (
@@ -132,13 +132,13 @@ export default function OverViewPage() {
             </div>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
               <div className='col-span-4'>
-                <BarGraph />
+                {/* <BarGraph /> */}
               </div>
               <Card className='col-span-4 md:col-span-3'>
-                <RecentSales />
+                {/* <RecentSales /> */}
               </Card>
               <div className='col-span-4'>
-                <AreaGraph />
+                {/* <AreaGraph /> */}
               </div>
               <div className='col-span-4 md:col-span-3'>
                 <PieGraph />
