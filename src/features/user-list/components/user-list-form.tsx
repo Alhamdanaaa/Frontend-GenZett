@@ -16,6 +16,7 @@ import { updateUser } from '@/lib/api/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
 
 const formSchema = z.object({
@@ -57,15 +58,19 @@ export default function UserForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       // Logika untuk menyimpan data user baru atau mengupdate data user yang sudah ada
-      if (isEdit) {
-        await updateUser(initialData!.id, values);
+      if (isEdit && initialData?.id) {
+        await updateUser(initialData.id, values);
+        console.log('initialData:', initialData);
+        toast.success('User berhasil diperbarui');
       } else {
-        // router.push(`/users/${res.user.userId}`);
+        toast.error('ID user tidak ditemukan atau tidak valid');
       }
 
       // Redirect kembali ke halaman daftar user
       router.push('/dashboard/user');
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan user';
+      toast.error(errorMessage);
       console.error('Gagal menyimpan user:', error);
     }
   }
@@ -101,10 +106,10 @@ export default function UserForm({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         type='email'
-                        placeholder='Masukkan email' 
-                        {...field} 
+                        placeholder='Masukkan email'
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -118,10 +123,10 @@ export default function UserForm({
                   <FormItem>
                     <FormLabel>Nomor Telepon</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         type='tel'
-                        placeholder='Contoh: 081234567890' 
-                        {...field} 
+                        placeholder='Contoh: 081234567890'
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -129,7 +134,10 @@ export default function UserForm({
                 )}
               />
             </div>
-            <Button type='submit'>Simpan User</Button>
+
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan User'}
+            </Button>
           </form>
         </Form>
       </CardContent>
