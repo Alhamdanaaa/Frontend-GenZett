@@ -1,5 +1,3 @@
-'use client';
-
 import { ColumnDef } from '@tanstack/react-table';
 import { Field } from '@/constants/data';
 import { Text } from 'lucide-react';
@@ -9,9 +7,10 @@ const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAct
 
 export function getColumns(
   locationOptions: { label: string; value: string }[],
-  sportOptions: { label: string; value: string }[]
+  sportOptions: { label: string; value: string }[],
+  isAdmin: boolean
 ): ColumnDef<Field>[] {
-  return [
+  const columns: ColumnDef<Field>[] = [
     {
       id: 'name',
       accessorKey: 'name',
@@ -24,21 +23,6 @@ export function getColumns(
         icon: Text
       },
       enableColumnFilter: true
-    },
-    {
-      id: 'location',
-      accessorKey: 'location',
-      header: 'Lokasi Cabang',
-      cell: ({ cell }) => {
-        const location = cell.getValue<Field['location']>();
-        return <div>{location}</div>;
-      },
-      enableColumnFilter: true,
-      meta: {
-        label: 'Lokasi Cabang',
-        variant: 'select',
-        options: locationOptions
-      }
     },
     {
       id: 'sport',
@@ -69,4 +53,22 @@ export function getColumns(
       cell: ({ row }) => <CellAction data={row.original} />
     }
   ];
+
+  // Jika bukan admin, tambahkan kolom lokasi
+  if (!isAdmin) {
+    columns.splice(1, 0, {  // Sisipkan setelah kolom 'name'
+      id: 'location',
+      accessorKey: 'location',
+      header: 'Lokasi Cabang',
+      cell: ({ cell }) => <div>{cell.getValue<Field['location']>()}</div>,
+      enableColumnFilter: true,
+      meta: {
+        label: 'Lokasi Cabang',
+        variant: 'select',
+        options: locationOptions
+      }
+    });
+  }
+
+  return columns;
 }
