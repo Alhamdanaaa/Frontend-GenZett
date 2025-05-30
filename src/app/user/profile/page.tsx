@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Pencil, Mail, Phone, User, UserCircle } from "lucide-react"
+import { Pencil, Mail, Phone, User, UserCircle, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { redirect } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
@@ -183,7 +183,7 @@ export default function ProfilePage() {
               className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
               onClick={() => setShowPasswordModal(true)}
             >
-              Ganti Password
+              <Lock size={16} /> Ganti Password
             </Button>
           </div>
         </div>
