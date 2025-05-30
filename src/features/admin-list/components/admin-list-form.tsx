@@ -30,6 +30,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { AdminOutput as Admin } from '@/constants/data';
 import { createAdmin, updateAdmin } from '@/lib/api/admin';
 import { useLocationsOptions } from './admin-list-tables/options';
+import { toast } from 'sonner';
 
 const getFormSchema = (isEdit: boolean) => {
   const baseSchema = {
@@ -122,6 +123,7 @@ export default function AdminForm({
           } : {})
         };
         await updateAdmin(initialData.id, updateData);
+        toast.success('Admin berhasil diperbarui');
       } else {
         const createData = {
           name: values.name,
@@ -132,9 +134,12 @@ export default function AdminForm({
           locationId: parseInt(values.locationId, 10)
         };
         await createAdmin(createData);
+        toast.success('Admin berhasil ditambahkan');
       }
       router.push('/dashboard/admin');
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan data admin';
+      toast.error(errorMessage);
       console.error('Gagal menyimpan data admin:', error);
     }
   };
