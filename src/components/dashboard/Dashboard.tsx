@@ -44,7 +44,7 @@ export default function Dashboard({
       <Card className='@container/card'>
         <CardHeader>
           <CardDescription>Total Lokasi Cabang</CardDescription>
-          <CardTitle className='text-3xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+          <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
             {total_cabang}
           </CardTitle>
           <CardAction>
@@ -64,7 +64,7 @@ export default function Dashboard({
       <Card className='@container/card'>
         <CardHeader>
           <CardDescription>Total Admin</CardDescription>
-          <CardTitle className='text-3xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+          <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
             {total_admin}
           </CardTitle>
           <CardAction>
@@ -84,7 +84,7 @@ export default function Dashboard({
       <Card className='@container/card'>
         <CardHeader>
           <CardDescription>Total Cabang Olahraga</CardDescription>
-          <CardTitle className='text-3xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+          <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
             {total_cabor}
           </CardTitle>
           <CardAction>
