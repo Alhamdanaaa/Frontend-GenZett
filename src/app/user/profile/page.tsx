@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { Pencil, Mail, Phone, User, UserCircle } from "lucide-react"
-import EditProfileModal from "@/components/modal/EditProfileModal"
 import { Button } from "@/components/ui/button"
 import { redirect } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
+import EditProfileModal from "@/components/modal/EditProfileModal"
+import ChangePasswordModal from "@/components/modal/ChangePasswordModal"
 
-export default function ProfilePage() {    
+export default function ProfilePage() {
   const [showModal, setShowModal] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [userData, setUserData] = useState({
     id: "",
     username: "",
@@ -17,7 +19,6 @@ export default function ProfilePage() {
     email: "",
   })
 
-  // Fungsi bantu baca cookie
   function getCookie(name: string): string | null {
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
@@ -25,41 +26,46 @@ export default function ProfilePage() {
     return null
   }
 
+  // const token = getCookie("token")
+  // if (!token) {
+  //   redirect('/login')
+  // }
+
+  useEffect(() => {
   const token = getCookie("token")
   if (!token) {
     redirect('/login')
+    return
   }
 
-  useEffect(() => {
-    if (!token) return
-    try {
-      const decoded: any = jwtDecode(token)
-      const userId = decoded.user_id
+  try {
+    const decoded: any = jwtDecode(token)
+    const userId = decoded.user_id
 
-      if (userId) {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              const user = data.user
-              setUserData({
-                id: user.id,
-                username: `user${user.id}`,
-                name: user.name,
-                phone: user.phone,
-                email: user.email,
-              })
-            }
-          })
-      }
-    } catch (err) {
-      console.error("Token decode error:", err)
-      redirect('/login')
+    if (userId) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const user = data.user
+            setUserData({
+              id: user.id,
+              username: `user${user.id}`,
+              name: user.name,
+              phone: user.phone,
+              email: user.email,
+            })
+          }
+        })
     }
-  }, [token])
+  } catch (err) {
+    console.error("Token decode error:", err)
+    redirect('/login')
+  }
+}, [])
 
   const handleSave = async (updated: { name: string; phone: string }) => {
-    const result = await window.Swal?.fire({
+    const result = await Swal?.fire({
       title: 'Simpan Perubahan?',
       text: 'Apakah kamu yakin ingin menyimpan perubahan profil?',
       icon: 'question',
@@ -91,13 +97,13 @@ export default function ProfilePage() {
         phone: updated.phone,
       }))
 
-      window.Swal?.fire({
+      Swal?.fire({
         icon: 'success',
         title: 'Berhasil!',
         text: 'Profil berhasil diperbarui.',
       })
     } else {
-      window.Swal?.fire({
+      Swal?.fire({
         icon: 'error',
         title: 'Gagal!',
         text: data.message || 'Terjadi kesalahan saat menyimpan data.',
@@ -105,6 +111,48 @@ export default function ProfilePage() {
     }
 
     setShowModal(false)
+  }
+
+  const handlePasswordChange = async (data: {
+    current_password: string
+    new_password: string
+    new_password_confirmation: string
+  }) => {
+    const result = await Swal?.fire({
+      title: 'Konfirmasi',
+      text: 'Yakin ingin mengganti password?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, ganti',
+      cancelButtonText: 'Batal'
+    })
+
+    if (!result?.isConfirmed) return
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userData.id}/change-password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+
+    const resData = await res.json()
+
+    if (res.ok && resData.success) {
+      Swal?.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Password berhasil diganti.',
+      })
+      setShowPasswordModal(false)
+    } else {
+      Swal?.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: resData.message || 'Gagal mengganti password.',
+      })
+    }
   }
 
   return (
@@ -122,16 +170,25 @@ export default function ProfilePage() {
               </p>
             </div>
           </div>
-          
-          <Button
-            className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2 w-full sm:w-auto"
-            onClick={() => setShowModal(true)}
-          >
-            <Pencil size={16} /> Edit Profil
-          </Button>
+
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
+              onClick={() => setShowModal(true)}
+            >
+              <Pencil size={16} /> Edit Profil
+            </Button>
+
+            <Button
+              className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
+              onClick={() => setShowPasswordModal(true)}
+            >
+              Ganti Password
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <UserInfo label="Username" icon={<User size={16} />} value={userData.username} />
           <UserInfo label="Nama Lengkap" icon={<UserCircle size={16} />} value={userData.name} />
           <UserInfo label="Nomor Telepon" icon={<Phone size={16} />} value={userData.phone} />
@@ -147,6 +204,13 @@ export default function ProfilePage() {
           email={userData.email}
           onClose={() => setShowModal(false)}
           onSave={handleSave}
+        />
+      )}
+
+      {showPasswordModal && (
+        <ChangePasswordModal
+          onClose={() => setShowPasswordModal(false)}
+          onChangePassword={handlePasswordChange} // ✅ Perbaikan di sini
         />
       )}
     </div>
