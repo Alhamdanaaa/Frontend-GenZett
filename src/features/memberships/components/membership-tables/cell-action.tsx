@@ -7,6 +7,7 @@ import { deleteMembership } from '@/lib/api/membership';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Membership;
@@ -24,9 +25,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       await deleteMembership(Number(data.membershipId)); 
       setOpen(false);
       router.refresh(); // Refresh data
-    } catch (error) {
-      console.error(error);
-      alert('Terjadi kesalahan saat menghapus data');
+      toast.success("Data berhasil dihapus");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menghapus data';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
