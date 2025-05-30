@@ -63,7 +63,7 @@ export function getColumns(
       id: 'discount',
       accessorKey: 'discount',
       header: 'Diskon',
-      cell: ({ cell }) => <div>{cell.getValue<Membership['discount']>()} %</div>,
+      cell: ({ cell }) => <div>{cell.getValue<Membership['discount']>()}%</div>,
       meta: {
         label: 'Diskon',
       },
