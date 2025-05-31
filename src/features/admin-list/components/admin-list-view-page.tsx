@@ -1,23 +1,15 @@
-import { Admin } from '@/constants/data';
+import { AdminUpdateInput as Admin } from '@/constants/data';
 import { notFound } from 'next/navigation';
 import AdminViewPageClient from './admin-list-view-page-client';
-import { fakeAdmins } from '@/constants/mock-api';
-
+import { getAdminById } from '@/lib/api/admin';
 interface AdminViewPageProps {
   adminId: string;
 }
 
 async function fetchAdmin(adminId: string): Promise<Admin | null> {
   try {
-    // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin-list/${adminId}`, {
-    //   cache: 'no-store'
-    // });
-    // if (!res.ok) {
-    //   throw new Error('Admin not found');
-    // }
-    // const data = await res.json();
-    const data = await fakeAdmins.getAdminById(Number(adminId)); 
-    return data.admin as Admin;
+    const data = await getAdminById(Number(adminId)); 
+    return data;
   } catch (error) {
     console.error(error);
     return null;

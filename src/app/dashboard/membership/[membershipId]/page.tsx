@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import MembershipViewPage from '@/features/memberships/components/membership-view-page';
 
 export const metadata = {
-  title: 'Dashboard : Manajemen Lokasi'
+  title: 'Dashboard : Manajemen Paket Langganan',
 };
 
 type PageProps = { params: Promise<{ membershipId: string }> };

@@ -1,8 +1,11 @@
-// import { delay } from '@/constants/mock-api';
-import  BarGraph  from '@/features/overview/components/bar-graph';
+import BarGraphAdmin from '@/features/overview/components/bar-graph-admin';
+import { getDashboardAdmin } from '@/lib/api/dashboardadmin';
 
-export default async function BarStats() {
-  // await await delay(1000);
+interface BarStatsProps {
+    locationId: string;
+}
 
-  return <BarGraph />;
+export default async function BarStats({ locationId }: BarStatsProps) {
+    const data = await getDashboardAdmin(locationId);
+    return <BarGraphAdmin data={data.reservasi_per_hari} />;
 }

@@ -428,7 +428,7 @@ export default function SchedulesPage() {
                 <div className='flex flex-row gap-4'>
                   {/* Current Month */}
                   <div className='flex-1'>
-                    <div className='mb-2 text-center font-medium'>
+                    <div className='mb-2 text-center text-white font-medium'>
                       {getMonthName(new Date().getMonth())}{' '}
                       {new Date().getFullYear()}
                     </div>
@@ -437,7 +437,7 @@ export default function SchedulesPage() {
                         (day) => (
                           <div
                             key={day}
-                            className='py-1 text-center text-xs font-medium text-gray-500'
+                            className='py-1 text-center text-xs font-medium text-gray-400'
                           >
                             {day}
                           </div>
@@ -488,7 +488,7 @@ export default function SchedulesPage() {
                                 : isSelected
                                   ? 'bg-[#D5FF35] font-bold'
                                   : isToday
-                                    ? 'bg-gray-100 font-semibold'
+                                    ? 'bg-[#C5FC40] font-semibold'
                                     : 'hover:bg-gray-50'
                                 }`}
                             >
@@ -558,7 +558,7 @@ export default function SchedulesPage() {
                                 setSelectedDate(dateStr);
                                 toggleDropdown('calendar');
                               }}
-                              className='cursor-pointer rounded-md p-2 text-center text-sm hover:bg-gray-50'
+                              className='cursor-pointer rounded-md p-2 text-center font-medium text-sm hover:bg-[#C5FC40]'
                             >
                               {dayNumber}
                             </div>

@@ -3,20 +3,36 @@ import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Membership } from '@/constants/data';
+import { deleteMembership } from '@/lib/api/membership';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Membership;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    setLoading(true);
+    try {
+      // Simulate delete action
+      await deleteMembership(Number(data.membershipId)); 
+      setOpen(false);
+      router.refresh(); // Refresh data
+      toast.success("Data berhasil dihapus");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menghapus data';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>

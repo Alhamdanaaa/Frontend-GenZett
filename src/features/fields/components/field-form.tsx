@@ -812,7 +812,6 @@ export default function FieldForm({
                 )}
               </CardContent>
             </Card>
-
             <Button type='submit' className='w-full'>
               Simpan Lapangan
             </Button>

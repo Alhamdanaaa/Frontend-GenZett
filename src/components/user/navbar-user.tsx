@@ -85,8 +85,8 @@ export default function NavbarUser() {
     <nav className="bg-[#2C473A] text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="font-bold text-xl tracking-wide">
-          ReSports
+        <Link href="/" className="flex items-center">
+          <img src="/Logo.svg" alt="ReSports Logo" className="h-11 w-auto" />
         </Link>
 
         {/* Desktop Menu */}

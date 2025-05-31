@@ -6,8 +6,8 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 
 export const metadata: Metadata = {
-  title: 'ReSport',
-  description: 'ReSport'
+  title: 'ReSports: Dashboard',
+  description: 'ReSports'
 };
 
 export default async function DashboardLayout({

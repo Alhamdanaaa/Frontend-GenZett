@@ -5,7 +5,6 @@ import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { useMemo } from 'react';
 
 interface MembershipTableParams<TData, TValue> {
   data: TData[];
@@ -20,12 +19,12 @@ export function MembershipTable<TData, TValue>({
 }: MembershipTableParams<TData, TValue>) {
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
 
-  const pageCount = useMemo(() => Math.ceil(totalItems / pageSize), [totalItems, pageSize]);
-  
+  const pageCount = Math.ceil(totalItems / pageSize);
+
   const { table } = useDataTable({
-    data: data ?? [],
+    data,
     columns,
-    pageCount,
+    pageCount: pageCount,
     shallow: false
   });
 
@@ -36,4 +35,4 @@ export function MembershipTable<TData, TValue>({
   );
 }
 
-export default { MembershipTable };
+export default MembershipTable;
