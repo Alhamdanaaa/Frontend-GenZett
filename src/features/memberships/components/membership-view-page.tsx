@@ -9,8 +9,8 @@ interface MembershipViewPageProps {
 
 async function fetchMembership(membershipId: string): Promise<Membership | null> {
   try {
-    const membership = await getMembershipById(Number(membershipId));
-    return membership;
+    const data = await getMembershipById(Number(membershipId));
+    return data as Membership;
   } catch (error) {
     console.error('Error fetching membership:', error);
     return null;

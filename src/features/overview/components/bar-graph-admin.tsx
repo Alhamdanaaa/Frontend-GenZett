@@ -11,18 +11,24 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
-import { DailyReservation } from '@/constants/data';
+import { ReservationPerHari } from '@/constants/data';
 
 interface BarGraphProps {
-  data: DailyReservation[];
+  data: ReservationPerHari[];
   title?: string;
   description?: string;
   className?: string;
+}
+
+interface ChartConfig {
+  [key: string]: {
+    label: string;
+    color: string;
+  };
 }
 
 const chartConfig = {
@@ -32,8 +38,8 @@ const chartConfig = {
   }
 } satisfies ChartConfig;
 
-export default function BarGraph({ 
-  data, 
+export default function BarGraphAdmin({
+  data,
   title = 'Grafik Reservasi Harian',
   description = 'Total reservasi per hari (3 bulan terakhir)',
   className = ''
@@ -44,15 +50,13 @@ export default function BarGraph({
     setIsClient(true);
   }, []);
 
-  // Transform data untuk recharts
   const chartData = React.useMemo(() => {
     return data.map(item => ({
-      date: item.DATE,
+      date: item.date,
       total_reservasi: item.total_reservasi
     }));
   }, [data]);
 
-  // Calculate total reservations
   const totalReservations = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.total_reservasi, 0);
   }, [chartData]);
@@ -85,17 +89,13 @@ export default function BarGraph({
         <div className='flex flex-1 flex-col justify-center gap-1 px-6 !py-0'>
           <CardTitle>{title}</CardTitle>
           <CardDescription>
-            <span className='hidden @[540px]/card:block'>
-              {description}
-            </span>
+            <span className='hidden @[540px]/card:block'>{description}</span>
             <span className='@[540px]/card:hidden'>3 bulan terakhir</span>
           </CardDescription>
         </div>
         <div className='flex'>
           <div className='relative flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:px-8 sm:py-6'>
-            <span className='text-muted-foreground text-xs'>
-              Total Reservasi
-            </span>
+            <span className='text-muted-foreground text-xs'>Total Reservasi</span>
             <span className='text-lg leading-none font-bold sm:text-3xl'>
               {totalReservations.toLocaleString()}
             </span>
@@ -105,27 +105,15 @@ export default function BarGraph({
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
         <ChartContainer
           config={chartConfig}
-          className='aspect-auto h-[250px] w-full'
-        >
+          className='aspect-auto h-[250px] w-full'>
           <BarChart
             data={chartData}
-            margin={{
-              left: 12,
-              right: 12
-            }}
+            margin={{ left: 12, right: 12 }}
           >
             <defs>
               <linearGradient id='fillBar' x1='0' y1='0' x2='0' y2='1'>
-                <stop
-                  offset='0%'
-                  stopColor='var(--primary)'
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset='100%'
-                  stopColor='var(--primary)'
-                  stopOpacity={0.2}
-                />
+                <stop offset='0%' stopColor='var(--primary)' stopOpacity={0.8} />
+                <stop offset='100%' stopColor='var(--primary)' stopOpacity={0.2} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
@@ -149,14 +137,14 @@ export default function BarGraph({
                 <ChartTooltipContent
                   className='w-[150px]'
                   nameKey='total_reservasi'
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('id-ID', {
+                  labelFormatter={(value) =>
+                    new Date(value).toLocaleDateString('id-ID', {
                       weekday: 'long',
                       month: 'long',
                       day: 'numeric',
                       year: 'numeric'
-                    });
-                  }}
+                    })
+                  }
                 />
               }
             />
