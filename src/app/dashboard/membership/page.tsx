@@ -3,7 +3,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import MembershipListingPage from '@/features/memberships/components/membership-listing';
+// import MembershipListingPage from '@/features/memberships/components/membership-listing';
 import { getServerUserRole } from '@/hooks/use-user';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
@@ -11,10 +11,15 @@ import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
-import { Suspense } from 'react';
+import { lazy, Suspense } from 'react';
+
+const MembershipListingPage = lazy(() =>
+  import('@/features/memberships/components/membership-listing')
+);
 
 export const metadata = {
-  title: 'Dashboard: Paket Membership'
+  title: 'Dashboard: Paket Langganan',
+  description: 'Kelola data paket langganan',
 };
 
 type pageProps = {
@@ -27,10 +32,7 @@ export default async function Page(props: pageProps) {
     redirect('/unauthorized');
   }
   const searchParams = await props.searchParams;
-  // Allow nested RSCs to access the search params (in a type-safe way)
   searchParamsCache.parse(searchParams);
-
-  // This key is used for invoke suspense if any of the search params changed (used for filters).
   const key = serialize({ ...searchParams });
 
   return (

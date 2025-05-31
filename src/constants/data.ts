@@ -11,6 +11,39 @@ export type Product = {
   updated_at: string;
 };
 
+// Tipe data untuk Dashboard - Super Admin
+export type DailyReservation = {
+  DATE: string;
+  total_reservasi: number;
+}
+
+export type ReservasiPerCabang = {
+  locationName: string;
+  total_reservasi: number;
+}
+
+export type DashboardData = {
+  total_lapangan: number;
+  total_cabang: number;
+  total_admin: number;
+  total_cabor: number;
+  daily_reservations: DailyReservation[];
+  reservasi_per_cabang: ReservasiPerCabang[];
+};
+
+// Tipe data untuk Dashboard - Admin
+export interface ReservationPerHari {
+  date: string; // Format: "2025-03-01"
+  total_reservasi: number;
+}
+
+export interface AdminDashboardData {
+  total_lapangan: number;
+  total_paket_langganan: number;
+  total_pesanan_langganan_bulan_ini: number;
+  reservasi_per_hari: ReservationPerHari[];
+}
+
 // Tipe data untuk Location
 export type Location = {
   locationId: number;
@@ -48,27 +81,46 @@ export type Field = {
 
 // Tipe data User
 export type User = {
-  userId: number;
-  username: string;
-  password: string;
+  id: number;
   name: string;
   email: string;
-  phone: string;
-  created_at: string;
-  updated_at: string;
+  phone: string | null;
+  // password: string;
+  // created_at: string;
+  // updated_at: string;
 };
 
 // Tipe data Admin
-export type Admin = {
-  adminId: number;
-  username: string;
-  password: string;
+// Untuk tampilan/listing dari API (GET /admins)
+export type AdminOutput = {
+  id: number;
   name: string;
   email: string;
   phone: string;
-  location: string;
-  created_at: string;
-  updated_at: string;
+  location: string; // lokasi dalam bentuk nama
+  // created_at: string;
+  // updated_at: string;
+};
+
+// Untuk input saat create admin (POST /admins)
+export type AdminCreateInput = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  password_confirmation: string;
+  locationId: number;
+};
+
+// Untuk input saat edit admin (PUT /admins/:id)
+export type AdminUpdateInput = {
+  id?: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  password_confirmation?: string;
+  locationId?: number;
 };
 
 interface ReservationDetail {
@@ -108,23 +160,18 @@ export type Schedule = {
   paymentStatus: 'pending' | 'dp' | 'complete' | 'closed';
 };
 
-// Tipe data Member
-export type MembershipLocation = {
-  locationId: number;
-  locationName: string;
-};
-
-export type MembershipSport = {
-  sportId: number;
-  sportName: string;
-};
-
+// Tipe data Membership
 export type Membership = {
   membershipId: number;
   name: string;
   description: string;
+  locationId: number;
+  sportId: number;
   discount: number;
   weeks: number;
+};
+
+export type MembershipWithNames = Membership & {
   locationName: string;
   sportName: string;
 };

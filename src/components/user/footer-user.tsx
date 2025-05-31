@@ -8,9 +8,9 @@ export default function FooterUser() {
       <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-10 md:grid-cols-4'>
         {/* Logo & Description */}
         <div className='col-span-1'>
-          <h2 className='mb-4 text-2xl font-bold text-white'>
-            ReSports
-          </h2>
+            <Link href="/" className="flex items-center">
+            <img src="/Logo.svg" alt="ReSports Logo" className="h-15 w-auto" />
+            </Link>
         </div>
 
         {/* Links */}

@@ -3,44 +3,56 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import UserLayout from "@/app/user/layout"
+import Image from "next/image"
 
 export default function BookingHistoryGuestPage() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <UserLayout>
-        {/* Konten */}
-        <div className="p-6 flex-1">
-          {/* Judul */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="text-2xl text-[#2C473A]">➤</div>
-            <h1 className="text-2xl font-bold text-[#2C473A]">Riwayat Pemesanan</h1>
+    <UserLayout>
+      <main className="container mx-auto px-4 py-8 flex-1">
+        {/* Header Section */}
+        <header className="mb-8">
+          <div className="flex items-center gap-3">
+            <div className="text-2xl text-primary">➤</div>
+            <h1 className="text-2xl md:text-3xl font-bold text-primary">
+              Riwayat Pemesanan
+            </h1>
           </div>
+        </header>
 
-          {/* Konten Utama */}
-          <div className="flex flex-col md:flex-row items-start gap-8">
-            {/* Gambar */}
-            <img
-              src="/images/historyGuest.jpg"
-              alt="Ilustrasi Peralatan Olahraga"
-              className="w-64 h-64 object-cover"
-            />
-
-            {/* Text dan Button */}
-            <div className="flex flex-col justify-center w-full md:w-auto">
-              <p className="text-gray-600 mb-6">
-                Anda belum login. Silakan login terlebih dahulu untuk melihat riwayat pemesanan Anda.
-              </p>
-              <div className="flex justify-center">
-                <Link href="/login">
-                  <Button className="bg-[#C5FC40] text-black hover:bg-[#E5FFA8]">
-                    Login Sekarang
-                  </Button>
-                </Link>
-              </div>
+        {/* Content Section */}
+        <section className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          {/* Illustration */}
+          <div className="w-full lg:w-1/2 flex justify-center">
+            <div className="relative w-64 h-64 md:w-80 md:h-80">
+              <Image
+                src="/images/historyGuest.jpg"
+                alt="Ilustrasi riwayat pemesanan"
+                fill
+                className="object-cover rounded-lg"
+                priority
+              />
             </div>
           </div>
-        </div>
-      </UserLayout>
-    </div>
+
+          {/* Call to Action */}
+          <div className="w-full lg:w-1/2 space-y-6">
+            <p className="text-gray-600 text-base md:text-lg text-center lg:text-left">
+              Anda belum login. Silakan login terlebih dahulu untuk melihat riwayat pemesanan Anda.
+            </p>
+            
+            <div className="flex justify-center lg:justify-start">
+              <Link href="/login" passHref legacyBehavior>
+                <Button
+                  className="bg-accent hover:bg-accent-hover text-primary-foreground px-8 py-4 text-base font-medium rounded-full transition-colors duration-300"
+                  aria-label="Login untuk melihat riwayat"
+                >
+                  Login Sekarang
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+    </UserLayout>
   )
 }

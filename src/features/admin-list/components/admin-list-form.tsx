@@ -1,5 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -18,38 +24,53 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Admin } from '@/constants/data';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+
 import { Eye, EyeOff } from 'lucide-react';
-import { LOCATION_OPTIONS } from './admin-list-tables/options';
-import { useState } from 'react';
 
-const getFormSchema = (isEdit: boolean) =>
-  z.object({
-    // username: z.string().min(3, {
-    //   message: 'Username minimal 3 karakter.'
-    // }),
-    password: isEdit
-      ? z.string().min(8, {
-          message: 'Password minimal 8 karakter.'
-        })
-      : z.string().optional(),
-    name: z.string().min(2, {
-      message: 'Nama minimal 2 karakter.'
+import { AdminOutput as Admin } from '@/constants/data';
+import { createAdmin, updateAdmin } from '@/lib/api/admin';
+import { useLocationsOptions } from './admin-list-tables/options';
+import { toast } from 'sonner';
+
+const getFormSchema = (isEdit: boolean) => {
+  const baseSchema = {
+    name: z.string().min(2, { message: 'Nama minimal 2 karakter.' }),
+    email: z.string().email({ message: 'Email tidak valid.' }),
+    phone: z.string().regex(/^(\+62|08)\d{8,11}$/, {
+      message: 'Nomor telepon harus dimulai dengan +62 atau 08 dan terdiri dari 10-12 digit.'
     }),
-    email: z.string().email({
-      message: 'Email tidak valid.'
-    }),
-    phone: z.string().regex(/^\+62\s?8\d{9,10}$/, {
-      message: 'Nomor telepon harus dimulai dengan +62 8 dan 9-10 digit.'
-    }),
-    location: z.string({
-      required_error: 'Lokasi harus dipilih.'
+    locationId: z.string({ required_error: 'Lokasi harus dipilih.' })
+  };
+
+  const passwordSchema = isEdit
+    ? {
+      password: z.string().optional(),
+      password_confirmation: z.string().optional()
+    }
+    : {
+      password: z.string().min(8, { message: 'Password minimal 8 karakter.' }),
+      password_confirmation: z.string().min(8, {
+        message: 'Konfirmasi password minimal 8 karakter.'
+      })
+    };
+
+  return z
+    .object({
+      ...baseSchema,
+      ...passwordSchema
     })
-  });
+    .refine((data) => {
+      if (!isEdit || data.password) {
+        return data.password === data.password_confirmation;
+      }
+      return true;
+    }, {
+      message: 'Password dan konfirmasi password harus sama.',
+      path: ['password_confirmation']
+    });
+};
 
+type FormValues = z.infer<ReturnType<typeof getFormSchema>>;
 
 export default function AdminForm({
   initialData,
@@ -58,52 +79,80 @@ export default function AdminForm({
   initialData: Admin | null;
   pageTitle: string;
 }) {
-  const defaultValues = {
-    // username: initialData?.username || '',
-    name: initialData?.name || '',
-    email: initialData?.email || '',
-    password: '',
-    phone: initialData?.phone || '+62 8',
-    location: initialData?.location || ''
-  };
+  const router = useRouter();
   const isEdit = !!initialData;
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const locationOptions = useLocationsOptions();
+  const [passwordFilled, setPasswordFilled] = useState(false);
 
-  const form = useForm<z.infer<ReturnType<typeof getFormSchema>>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(getFormSchema(isEdit)),
-    values: defaultValues
+    defaultValues: {
+      name: initialData?.name || '',
+      email: initialData?.email || '',
+      phone: initialData?.phone || '08',
+      password: '',
+      password_confirmation: '',
+      locationId: initialData ? locationOptions.find(loc => loc.label === initialData.location)?.value.toString() || '' : ''
+    }
   });
 
+  useEffect(() => {
+    if (initialData && locationOptions.length > 0) {
+      const matchedLocation = locationOptions.find(
+        (loc) => loc.label === initialData.location
+      );
+      if (matchedLocation) {
+        form.setValue('locationId', matchedLocation.value.toString());
+      }
+    }
+  }, [initialData?.location, locationOptions, form]);
 
-  function onSubmit(values: z.infer<ReturnType<typeof getFormSchema>>) {
-    // Logika submit form akan diimplementasikan di sini
-    console.log('Form submitted:', values);
-  }
+  const onSubmit = async (values: FormValues) => {
+    try {
+      if (isEdit && initialData) {
+        const updateData = {
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          locationId: parseInt(values.locationId, 10),
+          ...(values.password ? {
+            password: values.password,
+            password_confirmation: values.password_confirmation
+          } : {})
+        };
+        await updateAdmin(initialData.id, updateData);
+        toast.success('Admin berhasil diperbarui');
+      } else {
+        const createData = {
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          password: values.password!,
+          password_confirmation: values.password_confirmation!,
+          locationId: parseInt(values.locationId, 10)
+        };
+        await createAdmin(createData);
+        toast.success('Admin berhasil ditambahkan');
+      }
+      router.push('/dashboard/admin');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan data admin';
+      toast.error(errorMessage);
+      console.error('Gagal menyimpan data admin:', error);
+    }
+  };
 
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
-          {pageTitle}
-        </CardTitle>
+        <CardTitle className='text-left text-2xl font-bold'>{pageTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              {/* <FormField
-                control={form.control}
-                name='username'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Masukkan username' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
               <FormField
                 control={form.control}
                 name='name'
@@ -117,6 +166,39 @@ export default function AdminForm({
                   </FormItem>
                 )}
               />
+              {/* Password */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor="password">Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Masukkan password"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setPasswordFilled(e.target.value.length > 0);
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          tabIndex={-1}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name='email'
@@ -124,45 +206,43 @@ export default function AdminForm({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input 
-                        type='email'
-                        placeholder='Masukkan email' 
-                        {...field} 
-                      />
+                      <Input type='email' placeholder='Masukkan email' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name='password'
-                render={({ field }) => {
-                  return (
+              {/* Konfirmasi Password */}
+              {(!isEdit || passwordFilled) && (
+                <FormField
+                  control={form.control}
+                  name="password_confirmation"
+                  render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel htmlFor="password_confirmation">Konfirmasi Password</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="Masukkan password"
+                            id="password_confirmation"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Masukkan konfirmasi password"
                             {...field}
                           />
                           <button
                             type="button"
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                            onClick={() => setShowPassword((prev) => !prev)}
+                            onClick={() => setShowConfirmPassword((prev) => !prev)}
                             tabIndex={-1}
                           >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  );
-                }}
-              />
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name='phone'
@@ -170,11 +250,7 @@ export default function AdminForm({
                   <FormItem>
                     <FormLabel>Nomor Telepon</FormLabel>
                     <FormControl>
-                      <Input 
-                        type='tel'
-                        placeholder='Contoh: +62 8123456789' 
-                        {...field} 
-                      />
+                      <Input type='tel' placeholder='Contoh: 081234567890' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,23 +258,20 @@ export default function AdminForm({
               />
               <FormField
                 control={form.control}
-                name='location'
+                name='locationId'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Lokasi</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Pilih lokasi' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {LOCATION_OPTIONS.map((location) => (
-                          <SelectItem key={location.value} value={location.value}>
-                            {location.label}
+                        {locationOptions.map((loc) => (
+                          <SelectItem key={loc.value} value={loc.value.toString()}>
+                            {loc.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -208,7 +281,10 @@ export default function AdminForm({
                 )}
               />
             </div>
-            <Button type='submit'>Simpan Admin</Button>
+
+            <Button type='submit' disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Admin'}
+            </Button>
           </form>
         </Form>
       </CardContent>

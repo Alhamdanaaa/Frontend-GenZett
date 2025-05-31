@@ -19,7 +19,7 @@ const META_THEME_COLORS = {
 };
 
 export const metadata: Metadata = {
-  title: 'Resport - Reservasi Sport Center',
+  title: 'Resports - Reservasi Sport Center',
   description: 'Sistem Reservasi Sport Center Online'
 };
 

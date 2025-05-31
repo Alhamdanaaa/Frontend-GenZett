@@ -1,27 +1,24 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 
-export default function EditProfileModal({
-  name,
-  phone,
-  username,
-  email,
+export default function ChangePasswordModal({
   onClose,
-  onSave,
+  onChangePassword,
 }: {
-  name: string
-  phone: string
-  username: string
-  email: string
   onClose: () => void
-  onSave: (data: { name: string; phone: string }) => void
+  onChangePassword: (data: {
+    current_password: string
+    new_password: string
+    new_password_confirmation: string
+  }) => void
 }) {
-  const [newName, setNewName] = useState(name)
-  const [newPhone, setNewPhone] = useState(phone)
+  const [current_password, setcurrent_password] = useState("")
+  const [new_password, setnew_password] = useState("")
+  const [new_password_confirmation, setnew_password_confirmation] = useState("")
 
   const modalRef = useRef<HTMLDivElement>(null)
 
-  // Menutup modal jika klik di luar area modal
+  // Tutup modal jika klik di luar area modal
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -40,34 +37,34 @@ export default function EditProfileModal({
         ref={modalRef}
         className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 space-y-4"
       >
-        <h2 className="text-lg font-semibold mb-4 text-gray-700 text-center">Edit Profil</h2>
+        <h2 className="text-lg font-semibold mb-4 text-gray-700 text-center">Ubah Password</h2>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-gray-700">Password Lama</label>
           <input
-            type="text"
-            value={email}
-            disabled
-            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Nama</label>
-          <input
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            type="password"
+            value={current_password}
+            onChange={(e) => setcurrent_password(e.target.value)}
             className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+          <label className="block text-sm font-medium text-gray-700">Password Baru</label>
           <input
-            type="text"
-            value={newPhone}
-            onChange={(e) => setNewPhone(e.target.value)}
+            type="password"
+            value={new_password}
+            onChange={(e) => setnew_password(e.target.value)}
+            className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Konfirmasi Password Baru</label>
+          <input
+            type="password"
+            value={new_password_confirmation}
+            onChange={(e) => setnew_password_confirmation(e.target.value)}
             className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md"
           />
         </div>
@@ -76,7 +73,7 @@ export default function EditProfileModal({
           <Button variant="outline" onClick={onClose}>Batal</Button>
           <Button
             className="bg-orange-500 hover:bg-orange-600 text-white"
-            onClick={() => onSave({ name: newName, phone: newPhone })}
+            onClick={() => onChangePassword({ current_password, new_password, new_password_confirmation })}
           >
             Simpan
           </Button>

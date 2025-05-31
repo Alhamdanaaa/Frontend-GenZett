@@ -195,7 +195,9 @@ const formSchema = (isEdit: boolean) =>
                 </FormItem>
               )}
             />
-            <Button type='submit'>Simpan Lokasi</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Lokasi'}
+            </Button>
           </form>
         </Form>
       </CardContent>
