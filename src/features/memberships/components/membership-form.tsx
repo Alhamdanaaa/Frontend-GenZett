@@ -137,9 +137,9 @@ export default function MembershipForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama Membership</FormLabel>
+                  <FormLabel>Nama Paket Langganan</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan nama membership" {...field} />
+                    <Input placeholder="Masukkan nama paket langganan" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,7 +155,7 @@ export default function MembershipForm({
                   <FormLabel>Deskripsi</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Masukkan deskripsi membership"
+                      placeholder="Masukkan deskripsi paket langganan"
                       className="resize-none"
                       {...field}
                     />
