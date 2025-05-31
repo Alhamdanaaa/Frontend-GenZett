@@ -36,7 +36,11 @@ import { Skeleton } from '../ui/skeleton';
 
 export const company = {
   name: 'ReSports',
-  logo: IconPhotoUp
+  logo: (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props}>
+      <image href="/logo-r-hitam.svg" width="100%" height="100%" />
+    </svg>
+  )
 };
 
 export default function AppSidebar() {
@@ -58,7 +62,7 @@ export default function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex items-center gap-2 px-4 py-3">
-        <company.logo className="h-8 w-8" />
+        <company.logo className="h-11 w-11" />
         {!isCollapsed && (
           <span className="text-lg font-bold whitespace-nowrap">
             {company.name}
