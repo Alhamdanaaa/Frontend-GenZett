@@ -347,24 +347,24 @@ export default function HistoryPage() {
         <table className="min-w-full text-sm">
           <thead className="bg-[#2C473A] text-white">
             <tr>
-              <TableHeader
+              {/* <TableHeader
                 label="Invoice ID"
                 sortable
                 onSort={() => handleSort("id")}
                 sortDirection={sortConfig?.key === "id" ? sortConfig.direction : null}
-              />
+              /> */}
               <TableHeader
                 label="Cabang"
                 sortable
                 onSort={() => handleSort("branch")}
                 sortDirection={sortConfig?.key === "branch" ? sortConfig.direction : null}
               />
-              <TableHeader
+              {/* <TableHeader
                 label="Atas Nama"
                 sortable
                 onSort={() => handleSort("name")}
                 sortDirection={sortConfig?.key === "name" ? sortConfig.direction : null}
-              />
+              /> */}
               <TableHeader
                 label="Lapangan"
                 sortable
@@ -377,12 +377,12 @@ export default function HistoryPage() {
                 onSort={() => handleSort("date")}
                 sortDirection={sortConfig?.key === "date" ? sortConfig.direction : null}
               />
-              <TableHeader
+              {/* <TableHeader
                 label="Total Harga"
                 sortable
                 onSort={() => handleSort("total")}
                 sortDirection={sortConfig?.key === "total" ? sortConfig.direction : null}
-              />
+              /> */}
               <TableHeader
                 label="Pembayaran"
                 sortable
@@ -411,12 +411,12 @@ export default function HistoryPage() {
                     key={index}
                     className={cn(index % 2 === 0 ? "bg-[#E5FFA8]" : "bg-white", "border-b")}
                   >
-                    <td className="py-2 px-4">{highlightText(booking.id)}</td>
+                    {/* <td className="py-2 px-4">{highlightText(booking.id)}</td> */}
                     <td className="py-2 px-4">{highlightText(booking.branch)}</td>
-                    <td className="py-2 px-4">{highlightText(booking.name)}</td>
+                    {/* <td className="py-2 px-4">{highlightText(booking.name)}</td> */}
                     <td className="py-2 px-4">{highlightText(booking.court)}</td>
                     <td className="py-2 px-4">{highlightText(booking.date)}</td>
-                    <td className="py-2 px-4">{highlightText(booking.total)}</td>
+                    {/* <td className="py-2 px-4">{highlightText(booking.total)}</td> */}
                     <td className="py-2 px-4">{highlightText(booking.payment)}</td>
                     <td className="py-2 px-4">
                       <span
