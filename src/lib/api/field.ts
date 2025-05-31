@@ -6,21 +6,16 @@ type FilterParams = {
   search?: string;
   sport?: string;
 };
-interface FieldPayload {
+interface ApiFieldData {
+  locationId: number;
+  sportId: number;
   name: string;
-  location: string;
-  sport: string;
+  startHour: string;
+  endHour: string;
   description: string;
-  startHour: string; 
-  endHour: string; 
-}
-interface FieldPayload {
-  name: string;
-  location: string;
-  sport: string;
-  description: string;
-  startHour: string; 
-  endHour: string; 
+  start: string[];
+  end: string[];
+  price: number[];
 }
 export async function getFields(params: FilterParams) {
   const res = await api.get("/fields", { params });
@@ -36,14 +31,17 @@ export async function getFieldById(fieldId: number) {
   }
 }
 
-export async function createField(data: FieldPayload) {
+export async function createField(data: ApiFieldData) {
   const payload = {
     name: data.name,
-    locationId: parseInt(data.location, 10),
-    sportId: parseInt(data.sport, 10),
+    locationId: data.locationId,
+    sportId: data.sportId,
     description: data.description,
     startHour: data.startHour,
     endHour: data.endHour,
+    start: data.start,
+    end: data.end,
+    price: data.price,
   };
 
   const res = await api.post('/fields', payload);
@@ -51,14 +49,17 @@ export async function createField(data: FieldPayload) {
   return res.data;
 }
 
-export async function updateField(fieldId: number, data: FieldPayload) {
+export async function updateField(fieldId: number, data: ApiFieldData) {
   const payload = {
     name: data.name,
-    locationId: parseInt(data.location, 10),
-    sportId: parseInt(data.sport, 10),
+    locationId: data.locationId,
+    sportId: data.sportId,
     description: data.description,
     startHour: data.startHour,
     endHour: data.endHour,
+    start: data.start,
+    end: data.end,
+    price: data.price,
     _method: 'PUT', // spoofing untuk Laravel
   };
 

@@ -8,7 +8,7 @@ const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAct
 export function getColumns(
   locationOptions: { label: string; value: string }[],
   sportOptions: { label: string; value: string }[],
-  isAdmin: boolean
+  isAdmin?: boolean
 ): ColumnDef<Field>[] {
   const columns: ColumnDef<Field>[] = [
     {

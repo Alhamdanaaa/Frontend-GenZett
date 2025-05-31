@@ -45,10 +45,10 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: 'Nama lapangan minimal 2 karakter.'
   }),
-  location: z.string({
+  locationId: z.number({
     required_error: 'Lokasi harus dipilih.'
   }),
-  sport: z.string({
+  sportId: z.number({
     required_error: 'Cabang olahraga harus dipilih.'
   }),
   startHour: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
@@ -88,6 +88,19 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// API Data format interface
+interface ApiFieldData {
+  locationId: number;
+  sportId: number;
+  name: string;
+  startHour: string;
+  endHour: string;
+  description: string;
+  start: string[];
+  end: string[];
+  price: number[];
+}
+
 function formatCurrency(amount: number | string) {
   if (typeof amount !== "number") return "-";
   return new Intl.NumberFormat("id-ID", {
@@ -108,16 +121,42 @@ export default function FieldForm({
   locationOptions: { value: string; label: string }[];
   sportOptions: { value: string; label: string }[];
 }) {
+  // Convert initial data from API format to form format
+  const convertApiToFormData = (data: any) => {
+    if (!data) return null;
+    
+    const timeSlots = [];
+    if (data.start && data.end && data.price) {
+      for (let i = 0; i < data.start.length; i++) {
+        timeSlots.push({
+          startTime: data.start[i],
+          endTime: data.end[i],
+          price: data.price[i]
+        });
+      }
+    }
+    
+    return {
+      ...data,
+      locationId: Number(data.locationId || data.location),
+      sportId: Number(data.sportId || data.sport),
+      timeSlots,
+      pricingType: timeSlots.length > 0 ? 'time_based' : 'fixed'
+    };
+  };
+
+  const convertedInitialData = convertApiToFormData(initialData);
+
   const defaultValues: FormData = {
-    name: initialData?.name ?? '',
-    location: initialData?.location ? String(initialData.location) : '',
-    sport: initialData?.sport ? String(initialData.sport) : '',
-    startHour: initialData?.startHour?.slice(0, 5) ?? '08:00',
-    endHour: initialData?.endHour?.slice(0, 5) ?? '23:00',
-    description: initialData?.description ?? '',
-    pricingType: 'fixed',
-    fixedPrice: 50000,
-    timeSlots: [
+    name: convertedInitialData?.name ?? '',
+    locationId: convertedInitialData?.locationId ?? 0,
+    sportId: convertedInitialData?.sportId ?? 0,
+    startHour: convertedInitialData?.startHour?.slice(0, 5) ?? '08:00',
+    endHour: convertedInitialData?.endHour?.slice(0, 5) ?? '23:00',
+    description: convertedInitialData?.description ?? '',
+    pricingType: convertedInitialData?.pricingType ?? 'fixed',
+    fixedPrice: convertedInitialData?.fixedPrice ?? 50000,
+    timeSlots: convertedInitialData?.timeSlots ?? [
       { startTime: '08:00', endTime: '17:00', price: 50000},
       { startTime: '17:00', endTime: '23:00', price: 75000}
     ],
@@ -137,6 +176,37 @@ export default function FieldForm({
 
   const router = useRouter();
   const pricingType = form.watch('pricingType');
+
+  // Convert form data to API format
+  const convertFormToApiData = (formData: FormData): ApiFieldData => {
+    const baseData = {
+      locationId: formData.locationId,
+      sportId: formData.sportId,
+      name: formData.name,
+      startHour: formData.startHour,
+      endHour: formData.endHour,
+      description: formData.description,
+      start: [] as string[],
+      end: [] as string[],
+      price: [] as number[]
+    };
+
+    if (formData.pricingType === 'fixed' && formData.fixedPrice) {
+      // For fixed pricing, create a single time slot covering the entire operating hours
+      baseData.start = [formData.startHour];
+      baseData.end = [formData.endHour];
+      baseData.price = [formData.fixedPrice];
+    } else if (formData.pricingType === 'time_based' && formData.timeSlots) {
+      // For time-based pricing, convert timeSlots array to separate arrays
+      formData.timeSlots.forEach(slot => {
+        baseData.start.push(slot.startTime);
+        baseData.end.push(slot.endTime);
+        baseData.price.push(slot.price);
+      });
+    }
+
+    return baseData;
+  };
 
   // Helper function to detect overlaps and gaps
   const analyzeTimeSlots = () => {
@@ -301,11 +371,16 @@ export default function FieldForm({
 
   async function onSubmit(values: FormData) {
     console.log('Form submitted:', values);
+    
     try {
+      // Convert form data to API format
+      const apiData = convertFormToApiData(values);
+      console.log('API Data:', apiData);
+      
       if (initialData) {
-        await updateField(initialData.id, values);
+        await updateField(initialData.id, apiData);
       } else {
-        await createField(values);
+        await createField(apiData);
       }
       
       router.push('/dashboard/field');
@@ -341,11 +416,14 @@ export default function FieldForm({
               />
               <FormField
                 control={form.control}
-                name='location'
+                name='locationId'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Lokasi</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={(value) => field.onChange(Number(value))} 
+                      value={field.value?.toString()}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder='Pilih lokasi' />
@@ -365,11 +443,14 @@ export default function FieldForm({
               />
               <FormField
                 control={form.control}
-                name='sport'
+                name='sportId'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cabang Olahraga</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={(value) => field.onChange(Number(value))} 
+                      value={field.value?.toString()}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder='Pilih cabang olahraga' />
@@ -731,55 +812,8 @@ export default function FieldForm({
                 )}
               </CardContent>
             </Card>
-
-            {/* Demo Section */}
-            {/* {pricingType === 'time_based' && (
-              <Card className='border-blue-200 bg-blue-50'>
-                <CardHeader>
-                  <CardTitle className='text-blue-800 flex items-center gap-2'>
-                    🎯 Demo Kasus Overlap
-                    <Button
-                      type='button'
-                      size='sm'
-                      variant='outline'
-                      onClick={() => {
-                        form.setValue('timeSlots', [
-                          { startTime: '07:00', endTime: '15:00', price: 150000 },
-                          { startTime: '13:00', endTime: '23:00', price: 200000 }
-                        ]);
-                      }}
-                      className='border-blue-300 text-blue-700'
-                    >
-                      Coba Kasus Anda
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className='text-sm text-blue-700 mb-3'>
-                    <strong>Contoh kasus:</strong> Jam 07-15 harga 150k, jam 13-23 harga 200k.
-                    Pada jam 13-15 terjadi overlap, sistem akan otomatis menangani sesuai strategi yang dipilih.
-                  </p>
-                  
-                  <div className='grid grid-cols-1 md:grid-cols-3 gap-3 text-xs'>
-                    <div className='bg-white p-2 rounded border'>
-                      <div className='font-medium text-blue-900'>Harga Tertinggi</div>
-                      <div className='text-blue-700'>Jam 13-15 = Rp 200.000</div>
-                    </div>
-                    <div className='bg-white p-2 rounded border'>
-                      <div className='font-medium text-blue-900'>Harga Terendah</div>
-                      <div className='text-blue-700'>Jam 13-15 = Rp 150.000</div>
-                    </div>
-                    <div className='bg-white p-2 rounded border'>
-                      <div className='font-medium text-blue-900'>Prioritas</div>
-                      <div className='text-blue-700'>Jam 13-15 = Slot pertama (150k)</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )} */}
-
-            <Button type="submit" disabled={form.formState.isSubmitting} className='w-full'>
-              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Lapangan'}
+            <Button type='submit' className='w-full'>
+              Simpan Lapangan
             </Button>
           </form>
         </Form>
