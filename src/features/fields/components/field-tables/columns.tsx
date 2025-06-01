@@ -3,7 +3,9 @@ import { Field } from '@/constants/data';
 import { Text } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAction), { ssr: false });
+const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAction), {
+  ssr: false
+});
 
 export function getColumns(
   locationOptions: { label: string; value: string }[],
@@ -15,7 +17,7 @@ export function getColumns(
       id: 'name',
       accessorKey: 'name',
       header: 'Nama Lapangan',
-      cell: ({ cell }) => <div>{cell.getValue<Field['name']>()}</div>,
+      cell: ({ cell }) => <div>{cell.getValue<string>()}</div>,
       meta: {
         label: 'Nama Lapangan',
         placeholder: 'Cari...',
@@ -28,10 +30,7 @@ export function getColumns(
       id: 'sport',
       accessorKey: 'sport',
       header: 'Cabang Olahraga',
-      cell: ({ cell }) => {
-        const sport = cell.getValue<Field['sport']>();
-        return <div>{sport}</div>;
-      },
+      cell: ({ cell }) => <div>{cell.getValue<string>()}</div>,
       enableColumnFilter: true,
       meta: {
         label: 'Cabang Olahraga',
@@ -54,13 +53,12 @@ export function getColumns(
     }
   ];
 
-  // Jika bukan admin, tambahkan kolom lokasi
   if (!isAdmin) {
-    columns.splice(1, 0, {  // Sisipkan setelah kolom 'name'
+    columns.splice(1, 0, {
       id: 'location',
       accessorKey: 'location',
       header: 'Lokasi Cabang',
-      cell: ({ cell }) => <div>{cell.getValue<Field['location']>()}</div>,
+      cell: ({ cell }) => <div>{cell.getValue<string>()}</div>,
       enableColumnFilter: true,
       meta: {
         label: 'Lokasi Cabang',

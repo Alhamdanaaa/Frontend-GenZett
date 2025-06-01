@@ -2,21 +2,22 @@
 
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
+import { Reservation } from '@/constants/data';
 import { useDataTable } from '@/hooks/use-data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
 
-interface ReservationTableParams<TData, TValue> {
-  data: TData[];
+interface ReservationTableParams {
+  data: Reservation[];
   totalItems: number;
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<Reservation>[];
 }
 
-export function ReservationTable<TData, TValue>({
+export function ReservationTable({
   data,
   totalItems,
   columns
-}: ReservationTableParams<TData, TValue>) {
+}: ReservationTableParams) {
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
 
   const pageCount = Math.ceil(totalItems / pageSize);
