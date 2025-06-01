@@ -6,6 +6,8 @@ type FilterParams = {
   page?: string;
   limit?: string;
   search?: string;
+  sport?: string;
+  location?: string;
 };
 
 export async function getMemberships(params: FilterParams) {

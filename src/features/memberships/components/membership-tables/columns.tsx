@@ -65,8 +65,9 @@ export function getColumns(
       header: 'Diskon',
       cell: ({ cell }) => {
         const value = cell.getValue<Membership['discount']>();
-        return <div>{parseFloat(value.toString())}%</div>;
+        return <div>{value != null ? `${parseFloat(value.toString())}%` : '-'}</div>;
       },
+
       meta: {
         label: 'Diskon',
       },
