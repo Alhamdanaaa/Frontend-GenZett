@@ -31,6 +31,5 @@ jobs:
           key: ${{ secrets.FRONTEND_SSH_KEY }}
           script: |
             cd ~/Frontend-GenZett
-            docker compose pull || true
             docker compose up -d --build
 
