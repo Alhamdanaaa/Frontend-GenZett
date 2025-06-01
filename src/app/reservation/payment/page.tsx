@@ -9,6 +9,7 @@ import { getLocationById } from "@/lib/api/location";
 interface BookingSlot {
   date: string;
   time: string;
+  timeId: string;
   court: string;
   fieldId: string;
   price: number;
@@ -27,7 +28,7 @@ export default function PaymentPage() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [location, setLocation] = useState<string>("");
   const [subtotal, setSubtotal] = useState<number>(0);
-  const [paymentType, setPaymentType] = useState<"Reguler" | "Langganan">("Reguler");
+  const [paymentType, setPaymentType] = useState<"reguler" | "membership">("reguler");
   const [userId, setUserId] = useState<string>("");
   const [membershipId, setMembershipId] = useState<string | null>(null);
 
@@ -44,14 +45,15 @@ export default function PaymentPage() {
           field: slot.court,
           date: slot.date,
           times: [slot.time],
-          pricePerSlot: slot.price,
+          timeIds: [slot.timeId],
+          price: slot.price,
           fieldId: slot.fieldId // Pastikan fieldId disertakan
         }));
 
         setBookings(formattedBookings);
         setSubtotal(decodedData.selectedSlots.reduce((sum, slot) => sum + slot.price, 0));
-        // Ensure paymentType is either "Reguler" or "Langganan"
-        setPaymentType(decodedData.paymentType === "Langganan" ? "Langganan" : "Reguler");
+        // Ensure paymentType is either "Reguler" or "membership"
+        setPaymentType(decodedData.paymentType === "membership" ? "membership" : "reguler");
         setUserId(decodedData.userId);
         setMembershipId(decodedData.membershipId || null);
 

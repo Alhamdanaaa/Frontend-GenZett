@@ -19,7 +19,7 @@ type Booking = {
   date: string
   times: string[]
   timeIds: string[]
-  pricePerSlot: number
+  price: number
 }
 
 type Props = {
@@ -27,24 +27,24 @@ type Props = {
     bookings: Booking[]
     location: string
     subtotal: number
-    paymentType: 'Reguler' | 'Langganan'
+    paymentType: 'reguler' | 'membership'
     userId: string
     membershipId?: string | null
   }
 }
 
-type DetailItem = {
-    fieldId: number;
-    timeIds: number[];
-    date: string;
-};
-
 type Payload = {
   userId: number,
   name: string,
   paymentStatus: string,
+  paymentType: string,   // Field yang hilang di kode asli
   total: number,
-  details: DetailItem[]
+  details: {
+    fieldId: number,
+    timeIds: number[],
+    date: string // Format ISO string
+  }[],
+  membershipId?: number  // Optional, untuk membership
 }
 
 type FormData = {
@@ -63,7 +63,7 @@ export default function PaymentDetailsSection({ data }: Props) {
       try {
         const user = await getUserById(parseInt(data.userId))
         if (user) {
-          setUserData({ name: user.name, phone: user.phone })
+          setUserData({ name: user.name ?? '', phone: user.phone ?? '' })
         }
       } catch (err) {
         console.error('Error fetching user data:', err)
@@ -102,6 +102,7 @@ export default function PaymentDetailsSection({ data }: Props) {
   const selectedPaymentType = watch('paymentType')
   const totalPayment = selectedPaymentType === 'dp' ? data.subtotal * 0.5 : data.subtotal
 
+  // Perbaikan pada bagian onSubmit function
   const onSubmit = async (formData: FormData) => {
     console.log('Isi data.bookings (diformat):', JSON.stringify(data.bookings, null, 2))
 
@@ -123,21 +124,21 @@ export default function PaymentDetailsSection({ data }: Props) {
       return;
     }
 
-    // Siapkan payload sesuai format Payload
-    const payload: Partial<Payload> = {
-      userId: userIdNumber,
+    // Siapkan payload sesuai format API dengan tipe number
+    const payload: Payload = {
+      userId: userIdNumber, // Konversi ke number
       name: formData.name,
       paymentStatus: "pending",
+      paymentType: data.paymentType,
       total: totalPayment,
       details: data.bookings.map(booking => ({
         fieldId: parseInt(booking.fieldId), // Konversi ke number
-        timeIds: booking.timeIds.map(id => parseInt(id)), // Konversi ke array of number
+        timeIds: booking.timeIds.map(id => parseInt(id)), // Konversi ke number[]
         date: booking.date
       })),
-      // Field tambahan yang mungkin diperlukan
-      // phone: formData.phone,
-      ...(data.membershipId && {
-        membershipId: parseInt(data.membershipId) || 0 // Konversi ke number atau default 0
+      // Tambahkan membershipId jika paymentType adalah 'membership'
+      ...(data.paymentType === 'membership' && data.membershipId && {
+        membershipId: parseInt(data.membershipId) // Konversi ke number
       })
     };
 
@@ -145,11 +146,15 @@ export default function PaymentDetailsSection({ data }: Props) {
 
     try {
       const res = await createReservation(payload);
-      if (res?.invoice_url) {
-        router.push(res.invoice_url);
+      console.log('Response yang diterima: ', res.payment);
+      const invoiceUrl = res.payment.payment?.xendit_invoice_url;
+      console.log('Invoice URL:', invoiceUrl);
+      if (invoiceUrl) {
+        router.push(invoiceUrl);
       } else {
         throw new Error('Response tidak mengandung invoice_url');
       }
+      console.log(res);
     } catch (err) {
       const errorMessage = (err as any)?.message || 'Terjadi kesalahan';
       const errorResponse = (err as any)?.response?.data;
@@ -182,7 +187,7 @@ export default function PaymentDetailsSection({ data }: Props) {
           />
 
           <PaymentPolicy control={control} errors={errors} />
-          <PaymentTotal name="Total Pembayaran" amount={totalPayment} />
+          <PaymentTotal name="Pembayaran" amount={totalPayment} />
 
           <div className="mt-4 space-y-2">
             <PaymentAction disabled={!policyAgreed} />

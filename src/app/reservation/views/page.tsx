@@ -71,6 +71,7 @@ export default function SportsLocationPage() {
             locationResponse.data.map(async (location: { locationId: string | number; locationName: any; }) => {
               try {
                 const priceResponse = await getMinimumPrice(location.locationId);
+                console.log(priceResponse);
                 return {
                   ...location,
                   minPrice: priceResponse.success ? priceResponse.minPrice : 'Harga tidak tersedia'
