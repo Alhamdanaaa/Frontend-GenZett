@@ -1,4 +1,3 @@
-genzett@ReSports-FE:~/Frontend-GenZett$ cat Dockerfile
 # Gunakan base image Node.js
 FROM node:18
 
