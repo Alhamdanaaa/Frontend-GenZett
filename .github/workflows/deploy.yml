@@ -31,6 +31,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/Frontend-GenZett
-            docker compose down
-            docker compose build
-            docker compose up -d
+
+            # Optional: Pull latest changes if needed (only if your repo is cloned in VM)
+            # git pull origin development
+
+            # Optional: Stop running containers gracefully
+            docker compose down || true
+
+            # Build and deploy again
+            docker compose build --no-cache
+            docker compose up -d --force-recreate
