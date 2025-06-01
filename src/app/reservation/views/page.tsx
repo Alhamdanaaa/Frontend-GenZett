@@ -13,8 +13,9 @@ import { Location } from '@/constants/data';
 export default function SportsLocationPage() {
   const router = useRouter();
   // const { data: session, status } = useSession();
-  const [sports, setSports] = useState<string[]>([]);
   type LocationWithMinPrice = Location & { minPrice?: string };
+
+  const [sports, setSports] = useState<string[]>([]);
   const [locations, setLocations] = useState<LocationWithMinPrice[]>([]);
   const [selectedSport, setSelectedSport] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
@@ -120,14 +121,9 @@ export default function SportsLocationPage() {
   };
 
   const handleCardClick = (item: Location) => {
-    // if (!session) {
-    //   // Redirect to login page if not authenticated
-    //   router.push('/auth/login?callbackUrl=' + encodeURIComponent(window.location.pathname));
-    //   return;
-    // }
-
+    const firstSport = item.sports[0];
     if (item.locationId) {
-      router.push(`/reservation/schedule?locationId=${item.locationId}`);
+      router.push(`/reservation/schedule?locationId=${item.locationId}&sportName=${firstSport}`);
     } else {
       console.error('Location ID is undefined', item);
     }

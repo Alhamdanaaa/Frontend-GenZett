@@ -13,6 +13,23 @@ type FilterParams = {
     paymentStatus?: string;
 };
 
+type DetailItem = {
+    fieldId: number;
+    timeIds: number[];
+    date: string;
+};
+
+type Payload = {
+    userId: number,
+    name: string,
+    paymentStatus: string,
+    total: number,
+    details: DetailItem[],
+    phone?: string;
+    paymentType?: string;
+    membershipId?: number;
+}
+
 export async function getReservations(params: FilterParams = {}) {
     const res = await api.get("/reservations", { params });
     return res.data;
@@ -33,22 +50,22 @@ export async function getReservationById(reservationId: number): Promise<Reserva
     }
 }
 
-    export async function createReservation(data: Partial<Reservation>) {
-        const res = await api.post('/reservations', data);
-        // create payment
-        if (!res.data || !res.data.id) {
-            throw new Error('Failed to create reservation');
-        } else {
-            const paymentData = {
-                reservationId: res.data.id,
-                totalpaid: res.data.total,
-            };
-            await api.post('/payments', paymentData);
-        }
-        return res.data;
+export async function createReservation(data: Partial<Payload>) {
+    const res = await api.post('/reservations', data);
+    // create payment
+    if (!res.data || !res.data.id) {
+        throw new Error('Failed to create reservation');
+    } else {
+        const paymentData = {
+            reservationId: res.data.id,
+            totalpaid: res.data.total,
+        };
+        await api.post('/payments', paymentData);
     }
+    return res.data;
+}
 
-export async function updateReservation(reservationId: number, data: Partial<Reservation>) {
+export async function updateReservation(reservationId: number, data: Partial<Payload>) {
     const res = await api.put(`/reservations/${reservationId}`, data);
     return res.data;
 }
@@ -69,7 +86,7 @@ export async function getSports() {
 }
 
 export async function getSportsByLocation(locationId: string | number) {
-    const res = await api.get(`/reservations/sport/${locationId}`); 
+    const res = await api.get(`/reservations/sport/${locationId}`);
     return res.data;
 }
 export async function confirmPayment(reservationId: number) {

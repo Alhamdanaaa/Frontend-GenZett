@@ -24,6 +24,7 @@ export default function LoginPage() {
       const data = await login({ email, password });
       Cookies.set("token", data.token);
       Cookies.set("role", data.user.role);
+      Cookies.set("userId", data.user.id.toString());
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       if (data.user.role === "admin") {
