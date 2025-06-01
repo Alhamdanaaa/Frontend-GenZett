@@ -5,10 +5,10 @@ import { useEffect, useState } from 'react';
 import { Location } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 
-const LocationTable = dynamic(
-  () => import('./location-tables').then(mod => mod.LocationTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
-);
+const LocationTable = dynamic(() => import('./location-tables').then(mod => mod.LocationTable), {
+  ssr: false,
+  loading: () => <p>Loading table...</p>
+});
 
 type Props = {
   data: Location[];
@@ -16,7 +16,11 @@ type Props = {
   sportOptions: { label: string; value: string }[];
 };
 
-export default function LocationTableWrapper({ data, totalItems, sportOptions }: Props) {
+export default function LocationTableWrapper({
+  data,
+  totalItems,
+  sportOptions,
+}: Props) {
   const [columns, setColumns] = useState<ColumnDef<Location>[]>([]);
 
   useEffect(() => {

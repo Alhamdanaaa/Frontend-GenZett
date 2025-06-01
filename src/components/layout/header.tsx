@@ -3,7 +3,6 @@ import React from 'react';
 import { SidebarTrigger } from '../ui/sidebar';
 import { Separator } from '../ui/separator';
 import { Breadcrumbs } from '../breadcrumbs';
-import SearchInput from '../search-input';
 import { UserNav } from './user-nav';
 import { ThemeSelector } from '../theme-selector';
 import { ModeToggle } from './ThemeToggle/theme-toggle';
@@ -103,10 +102,6 @@ export default function Header() {
       </div>
 
       <div className='flex items-center gap-2 px-4'>
-        {/* <CtaGithub /> */}
-        <div className='hidden md:flex'>
-          <SearchInput />
-        </div>
         <UserNav />
         <ModeToggle />
         {isAuthenticated && (
@@ -142,7 +137,7 @@ export default function Header() {
                 }}
                 className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
               >
-                Logout
+                Keluar
               </button>
             </div>
           </div>

@@ -6,22 +6,19 @@ import { useDataTable } from '@/hooks/use-data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useMemo } from 'react';
+import { Location } from '@/constants/data'; // pastikan import Location yang benar
 
-interface LocationTableParams<TData, TValue> {
-  data: TData[];
+interface LocationTableParams {
+  data: Location[];
   totalItems: number;
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<Location>[];
 }
 
-export function LocationTable<TData, TValue>({
-  data,
-  totalItems,
-  columns
-}: LocationTableParams<TData, TValue>) {
+export function LocationTable({ data, totalItems, columns }: LocationTableParams) {
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
 
   const pageCount = useMemo(() => Math.ceil(totalItems / pageSize), [totalItems, pageSize]);
-  
+
   const { table } = useDataTable({
     data,
     columns,
@@ -35,5 +32,3 @@ export function LocationTable<TData, TValue>({
     </DataTable>
   );
 }
-
-export default { LocationTable };

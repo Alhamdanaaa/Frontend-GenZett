@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Admin } from '@/constants/data';
+import { AdminOutput as Admin } from '@/constants/data';
 
 const AdminForm = dynamic(
   () => import('./admin-list-form'),

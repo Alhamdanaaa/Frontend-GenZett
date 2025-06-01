@@ -64,7 +64,6 @@ export default function SportForm({
     }
   }
 
-
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
@@ -107,7 +106,9 @@ export default function SportForm({
               )}
             />
 
-            <Button type='submit'>Simpan Olahraga</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Olahraga'}
+            </Button>
           </form>
         </Form>
       </CardContent>

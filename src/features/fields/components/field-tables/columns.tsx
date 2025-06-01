@@ -1,22 +1,23 @@
-'use client';
-
 import { ColumnDef } from '@tanstack/react-table';
 import { Field } from '@/constants/data';
 import { Text } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAction), { ssr: false });
+const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAction), {
+  ssr: false
+});
 
 export function getColumns(
   locationOptions: { label: string; value: string }[],
-  sportOptions: { label: string; value: string }[]
+  sportOptions: { label: string; value: string }[],
+  isAdmin?: boolean
 ): ColumnDef<Field>[] {
-  return [
+  const columns: ColumnDef<Field>[] = [
     {
       id: 'name',
       accessorKey: 'name',
       header: 'Nama Lapangan',
-      cell: ({ cell }) => <div>{cell.getValue<Field['name']>()}</div>,
+      cell: ({ cell }) => <div>{cell.getValue<string>()}</div>,
       meta: {
         label: 'Nama Lapangan',
         placeholder: 'Cari...',
@@ -26,28 +27,10 @@ export function getColumns(
       enableColumnFilter: true
     },
     {
-      id: 'location',
-      accessorKey: 'location',
-      header: 'Lokasi Cabang',
-      cell: ({ cell }) => {
-        const location = cell.getValue<Field['location']>();
-        return <div>{location}</div>;
-      },
-      enableColumnFilter: true,
-      meta: {
-        label: 'Lokasi Cabang',
-        variant: 'select',
-        options: locationOptions
-      }
-    },
-    {
       id: 'sport',
       accessorKey: 'sport',
       header: 'Cabang Olahraga',
-      cell: ({ cell }) => {
-        const sport = cell.getValue<Field['sport']>();
-        return <div>{sport}</div>;
-      },
+      cell: ({ cell }) => <div>{cell.getValue<string>()}</div>,
       enableColumnFilter: true,
       meta: {
         label: 'Cabang Olahraga',
@@ -69,4 +52,21 @@ export function getColumns(
       cell: ({ row }) => <CellAction data={row.original} />
     }
   ];
+
+  if (!isAdmin) {
+    columns.splice(1, 0, {
+      id: 'location',
+      accessorKey: 'location',
+      header: 'Lokasi Cabang',
+      cell: ({ cell }) => <div>{cell.getValue<string>()}</div>,
+      enableColumnFilter: true,
+      meta: {
+        label: 'Lokasi Cabang',
+        variant: 'select',
+        options: locationOptions
+      }
+    });
+  }
+
+  return columns;
 }

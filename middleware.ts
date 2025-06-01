@@ -8,20 +8,39 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
 
-  if (pathname.startsWith('/_next') || pathname.includes('.') || pathname === '/unauthorized') {
+  // Skip middleware for static files and special paths
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.includes('.') ||
+    pathname === '/unauthorized'
+  ) {
     return NextResponse.next();
   }
 
+  // Handle redirect for authenticated users visiting auth pages
   if (token && authPaths.includes(pathname)) {
     try {
       const decoded = jwtDecode(token) as { role?: string };
-      const redirectUrl = ['admin', 'superadmin'].includes(decoded.role || '') ? '/dashboard/overview' : '/';
+      const role = decoded.role;
+      console.log('Auth page access - Decoded role:', role);
+
+      let redirectUrl = '/';
+      if (role === 'admin') {
+        redirectUrl = '/dashboard/overview-admin';
+      } else if (role === 'superadmin') {
+        redirectUrl = '/dashboard/overview';
+      } else {
+        console.warn('Unknown role during auth redirect:', role);
+      }
+
       return NextResponse.redirect(new URL(redirectUrl, request.url));
-    } catch {
+    } catch (error) {
+      console.error('JWT decode error on auth redirect:', error);
       return NextResponse.next();
     }
   }
 
+  // Redirect unauthenticated users trying to access protected dashboard
   if (!token) {
     const protectedPaths = ['/dashboard'];
     if (protectedPaths.some(p => pathname.startsWith(p))) {
@@ -30,20 +49,42 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Authenticated users access logic
   try {
     const decoded = jwtDecode(token) as { role?: string };
     const role = decoded.role;
+    console.log('Dashboard access - Decoded role:', role);
 
-    if (['admin', 'superadmin'].includes(role || '')) {
-      if (!pathname.startsWith('/dashboard')) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+    if (role === 'admin') {
+      if (
+        pathname === '/dashboard' ||
+        pathname === '/dashboard/' ||
+        pathname === '/dashboard/overview'
+      ) {
+        return NextResponse.redirect(new URL('/dashboard/overview-admin', request.url));
       }
-    } else if (role === 'user') {
-      if (pathname.startsWith('/dashboard')) {
-        return NextResponse.redirect(new URL('/', request.url));
+
+      if (pathname.startsWith('/dashboard/')) {
+        return NextResponse.next();
       }
     }
-  } catch {
+
+    if (role === 'superadmin') {
+      if (pathname === '/dashboard' || pathname === '/dashboard/') {
+        return NextResponse.redirect(new URL('/dashboard/overview', request.url));
+      }
+
+      if (pathname.startsWith('/dashboard/')) {
+        return NextResponse.next();
+      }
+    }
+
+    if (role === 'user' && pathname.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+  } catch (error) {
+    console.error('JWT decode error on dashboard access:', error);
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
