@@ -2,7 +2,7 @@ type BookingItem = {
   field: string,
   date: string,
   times: string[],
-  pricePerSlot: number,
+  price: number,
 }
 
 export default function BookingSummary({ location, bookings }: {
@@ -25,7 +25,7 @@ export default function BookingSummary({ location, bookings }: {
                     <p>{booking.date}</p>
                     <p>{time}</p>
                   </div>
-                  <span className="font-medium align-middle">Rp {booking.pricePerSlot.toLocaleString('id-ID')}</span>
+                  <span className="font-medium align-middle">Rp {booking.price.toLocaleString('id-ID')}</span>
                 </div>
               ))}
             </div>
