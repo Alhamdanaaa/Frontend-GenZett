@@ -1,4 +1,4 @@
-name: Deploy Frontend to VM
+name: Deploy Frontend GenZett to VM
 
 on:
   push:
@@ -10,36 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Upload source code to VM via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "~/Frontend-GenZett"
+          strip_components: 0
 
-    - name: Install dependencies
-      run: npm install --legacy-peer-deps
-
-    - name: Build Next.js app
-      run: npm run build
-
-    - name: Upload build to server
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "."
-        target: "~/Frontend-GenZett"
-
-    - name: Restart Docker container on server
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd ~/Frontend-GenZett
-          docker-compose down
-          docker-compose up -d --build
+      - name: SSH and Redeploy Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/Frontend-GenZett
+            docker compose down
+            docker compose build
+            docker compose up -d
