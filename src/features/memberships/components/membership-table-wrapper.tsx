@@ -5,10 +5,15 @@ import { useEffect, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MembershipWithNames } from '@/constants/data';
 
-const MembershipTable = dynamic(
-  () => import('./membership-tables'),
-  { ssr: false, loading: () => <p>Loading table...</p> }
-);
+const MembershipTable = dynamic<{
+  data: MembershipWithNames[];
+  totalItems: number;
+  columns: ColumnDef<MembershipWithNames>[];
+}>(() => import('./membership-tables').then(mod => mod.default), {
+  ssr: false,
+  loading: () => <p>Loading table...</p>,
+});
+
 
 type Props = {
   data: MembershipWithNames[];
