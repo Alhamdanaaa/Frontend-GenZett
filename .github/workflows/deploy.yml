@@ -16,9 +16,9 @@ jobs:
       - name: Upload source code to VM via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.FRONTEND_SSH_HOST }}
+          username: ${{ secrets.FRONTEND_SSH_USER }}
+          key: ${{ secrets.FRONTEND_SSH_KEY }}
           source: "."
           target: "~/Frontend-GenZett"
           strip_components: 0
@@ -26,18 +26,11 @@ jobs:
       - name: SSH and Redeploy Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.FRONTEND_SSH_HOST }}
+          username: ${{ secrets.FRONTEND_SSH_USER }}
+          key: ${{ secrets.FRONTEND_SSH_KEY }}
           script: |
             cd ~/Frontend-GenZett
-
-            # Optional: Pull latest changes if needed (only if your repo is cloned in VM)
-            # git pull origin development
-
-            # Optional: Stop running containers gracefully
             docker compose down || true
-
-            # Build and deploy again
             docker compose build --no-cache
             docker compose up -d --force-recreate
