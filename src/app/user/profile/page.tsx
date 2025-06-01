@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import EditProfileModal from "@/components/modal/EditProfileModal"
 import ChangePasswordModal from "@/components/modal/ChangePasswordModal"
+import Swal from 'sweetalert2'
 
 export default function ProfilePage() {
   const [showModal, setShowModal] = useState(false)
