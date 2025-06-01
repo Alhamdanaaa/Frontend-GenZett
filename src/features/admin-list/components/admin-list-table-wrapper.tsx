@@ -5,10 +5,13 @@ import dynamic from 'next/dynamic';
 import type { AdminOutput as Admin } from '@/constants/data';
 import type { ColumnDef } from '@tanstack/react-table';
 
-const AdminTable = dynamic(
-  () => import('./admin-list-tables').then(mod => mod.AdminTable),
-  { ssr: false }
-);
+const AdminTable = dynamic<{
+  data: Admin[];
+  totalItems: number;
+  columns: ColumnDef<Admin>[];
+}>(() => import('./admin-list-tables').then(mod => mod.AdminTable), {
+  ssr: false,
+});
 
 type Props = {
   data: Admin[];
@@ -22,7 +25,7 @@ export default function AdminTableWrapper({ data, totalItems, locationOptions }:
   useEffect(() => {
     const loadColumns = async () => {
       const { getColumns } = await import('./admin-list-tables/columns');
-      const cols = getColumns(locationOptions); 
+      const cols = getColumns(locationOptions);
       setColumns(cols);
     };
 
