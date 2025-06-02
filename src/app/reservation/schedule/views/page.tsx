@@ -164,7 +164,7 @@ export default function SchedulesPage() {
         originalTime: slot.time,
         timeId: slot.timeId,
         fieldId: slot.fieldId,
-        booked: slot.status === 'booked', // Gunakan status dari API
+        booked: slot.isBooked, 
         price: typeof slot.price === 'string' ? parseInt(slot.price.replace(/[^\d]/g, '')) : slot.price || 60000,
         locationId: slot.locationId,
       });
