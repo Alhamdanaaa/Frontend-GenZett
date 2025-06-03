@@ -9,7 +9,7 @@ export type Schedule = {
   fieldTime: string;
   fieldName: string;
   sport: string;
-  paymentStatus: 'pending' | 'complete' | 'dp';
+  paymentStatus: 'pending' | 'complete' | 'dp'| 'closed' ;
 };
 
 export type Field = {

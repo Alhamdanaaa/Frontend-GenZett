@@ -1,4 +1,4 @@
-import { AdminUpdateInput as Admin } from '@/constants/data';
+import { AdminOutput as Admin } from '@/constants/data';
 import { notFound } from 'next/navigation';
 import AdminViewPageClient from './admin-list-view-page-client';
 import { getAdminById } from '@/lib/api/admin';

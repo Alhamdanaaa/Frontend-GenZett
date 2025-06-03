@@ -142,7 +142,9 @@ export interface Reservation {
   remainingPayment: number;
   // Tambahkan property fieldData
   fieldData: {
+    fieldId?: number;
     fieldName: string;
+    timeIds?: number[];
     times: string[];
     dates: string[];
   }[];
