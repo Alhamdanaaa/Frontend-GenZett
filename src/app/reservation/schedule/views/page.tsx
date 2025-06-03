@@ -3,37 +3,49 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import Cookies from 'js-cookie';
 import { Button } from '@/components/ui/button';
 import { ChevronDownCircle } from 'lucide-react';
 import UserLayout from '@/app/user/layout';
 import { getSportsByLocation, getSchedule } from '@/lib/api/reservation';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Membership } from '@/constants/data';
+import { getMembershipById } from '@/lib/api/membership';
+
+type TimeSlot = {
+  date: string;
+  time: string;
+  timeId: string;
+  court: string;
+  fieldId: string;
+  price: number;
+};
 
 export default function SchedulesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const scheduleRef = useRef<HTMLDivElement>(null);
 
-  const locationId = searchParams.get('locationId'); // Ambil dari URL
+  const locationId = searchParams.get('locationId');
+  const sportName = searchParams.get('sportName');
+  const membershipId = searchParams.get('membershipId');
 
   const [openDropdown, setOpenDropdown] = useState<string[]>([]);
   const [showDetails, setShowDetails] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<string>(''); // format: 'YYYY-MM-DD'
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<string>('Reguler');
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string>(membershipId ? 'Langganan' : 'Reguler');
 
   const [sports, setSports] = useState<Array<{ sportId: string, sportName: string }>>([]);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [dates, setDates] = useState<Array<{ day: string; date: string; month: string; displayDate: string }>>([]);
   const [timeSlotsByCourt, setTimeSlotsByCourt] = useState<Record<string, any[]>>({});
   const [courts, setCourts] = useState<string[]>([]);
-  const [selectedSlots, setSelectedSlots] = useState<{
-    date: string;
-    time: string;
-    court: string;
-    price: number
-  }[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<TimeSlot[]>([]);
+  const [membershipData, setMembershipsData] = useState<Membership | null>(null);
+  // const [membershipBooking, setMembershipsBooking] = useState<Array<{TimeSlot}>>([]);
+  const [recurringWeeks, setRecurringWeeks] = useState<number[]>([]);
 
   const getDayName = (dayIndex: number): string => {
     const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -61,7 +73,7 @@ export default function SchedulesPage() {
         getSportsByLocation(locationId),
         getSchedule(locationId, {
           date: selectedDate,
-          sportName: selectedSport !== 'Semua' ? (selectedSport ?? undefined) : undefined // Gunakan sportName
+          sportName: selectedSport || sportName || undefined
         })
       ]);
 
@@ -84,7 +96,7 @@ export default function SchedulesPage() {
             timeId: schedule.timeId,
             price: parseInt(schedule.price?.replace(/[^\d]/g, '') || '0'), // Konversi ke number
             status: schedule.status,
-            sport: field.sport || selectedSport || 'Futsal', // Tambahkan field sport
+            sport: field.sport || selectedSport || sportName, // Tambahkan field sport
             locationId: locationId
           }));
         });
@@ -115,7 +127,7 @@ export default function SchedulesPage() {
     } catch (err) {
       console.error('Gagal fetch data:', err);
     }
-  }, [locationId, selectedDate, selectedSport]);
+  }, [locationId, selectedDate, selectedSport, sportName]);
 
   useEffect(() => {
     if (!selectedDate || !locationId) return;
@@ -125,12 +137,17 @@ export default function SchedulesPage() {
     // Filter berdasarkan sportName jika ada
     const filtered = schedule.filter(s =>
       s.date === selectedDate &&
-      (!selectedSport || selectedSport === 'Semua' || s.sport === selectedSport)
+      (!selectedSport || s.sport === selectedSport)
     );
 
     // Isi time slots
     filtered.forEach((slot) => {
       const court = slot.court;
+
+      if (!slots[court]) {
+        slots[court] = [];
+      }
+
       if (!slots[court]) {
         console.warn(`Court ${court} not found in courts list`);
         return;
@@ -146,10 +163,10 @@ export default function SchedulesPage() {
         time: formattedTime,
         originalTime: slot.time,
         timeId: slot.timeId,
-        booked: slot.status === 'booked', // Gunakan status dari API
+        fieldId: slot.fieldId,
+        booked: slot.isBooked, 
         price: typeof slot.price === 'string' ? parseInt(slot.price.replace(/[^\d]/g, '')) : slot.price || 60000,
         locationId: slot.locationId,
-        fieldId: slot.fieldId
       });
     });
 
@@ -173,35 +190,35 @@ export default function SchedulesPage() {
       if (!slots[court]) slots[court] = [];
 
       slots[court].push({
+        fieldId: slot.fieldId,
         time: slot.time,
+        timeId: slot.timeId,
         booked: slot.status === 'booked',
         price: slot.price || 60000 // Default price if not provided
       });
     });
 
-    // If no data from API for this date, generate default slots
-    if (Object.keys(slots).length === 0 && courts.length > 0) {
-      courts.forEach(court => {
-        if (!slots[court]) slots[court] = [];
-
-        // Generate default time slots from 10:00 to 23:00
-        for (let hour = 10; hour <= 23; hour++) {
-          const startHour = hour.toString().padStart(2, '0');
-          const endHour = (hour + 1 === 24 ? 0 : hour + 1)
-            .toString()
-            .padStart(2, '0');
-
-          slots[court].push({
-            time: `${startHour}:00 - ${endHour}:00`,
-            booked: hour % 4 === 0, // Simple pattern for demo
-            price: 60000
-          });
-        }
-      });
-    }
-
     setTimeSlotsByCourt(slots);
   }, [schedule, selectedDate, courts]);
+
+  useEffect(() => {
+    if (selectedSlots.length > 0) {
+      setShowDetails(true);
+    }
+  }, [selectedSlots]);
+
+  useEffect(() => {
+    if (!membershipId) return;
+
+    getMembershipById(parseInt(membershipId)).then(data => {
+      if (data) {
+        setMembershipsData(data);
+        // Generate default recurring weeks [0,1,2,3]
+        setRecurringWeeks(Array.from({ length: data.weeks }, (_, i) => i));
+        console.log(data)
+      }
+    });
+  }, [membershipId]);
 
   const toggleDropdown = (dropdownName: string) => {
     setOpenDropdown(prev =>
@@ -211,29 +228,147 @@ export default function SchedulesPage() {
     );
   };
 
-  const handleTimeClick = (date: string, time: string, court: string, price: string | number) => {
-    // Konversi price ke number
-    const priceNumber = typeof price === 'string'
-      ? parseInt(price.replace(/[^\d]/g, ''))
-      : price;
+  const handleTimeClick = (date: string, time: string, court: string, price: string | number, fieldId: string, timeId: string) => {
+    if (membershipData) {
+      const bookings = [];
+      const baseDate = new Date();
+      const priceNumber = typeof price === 'string' ? parseInt(price.replace(/[^\d]/g, '')) : price;
+      const discountedPrice = priceNumber * (1 - membershipData.discount);
 
-    setSelectedSlots(prev => {
-      const existingIndex = prev.findIndex(slot =>
-        slot.date === date && slot.time === time && slot.court === court
-      );
+      for (let i = 0; i < membershipData.weeks; i++) {
+        const bookingDate = new Date(baseDate);
+        bookingDate.setDate(baseDate.getDate() + (i * 7));
 
-      if (existingIndex >= 0) {
-        return prev.filter((_, index) => index !== existingIndex);
-      } else {
-        return [...prev, {
-          date,
+        bookings.push({
+          date: formatDate(bookingDate),
           time,
+          timeId,
           court,
-          price: priceNumber || 0 // Pastikan selalu number
-        }];
+          fieldId,
+          price: discountedPrice,
+        })
       }
+      setSelectedSlots(bookings);
+    } else {
+      const priceNumber = typeof price === 'string'
+        ? parseInt(price.replace(/[^\d]/g, ''))
+        : price;
+
+      setSelectedSlots(prev => {
+        const existingIndex = prev.findIndex(slot =>
+          slot.date === date && slot.time === time && slot.court === court
+        );
+
+        if (existingIndex >= 0) {
+          return prev.filter((_, index) => index !== existingIndex);
+        } else {
+          return [...prev, {
+            date,
+            time,
+            timeId,
+            court,
+            fieldId,
+            price: priceNumber || 0
+          }];
+        }
+      });
+    }
+  };
+  // Handle time slot selection
+  const handleTimeSelect = (
+    date: string,
+    time: string,
+    court: string,
+    price: number,
+    fieldId: string,
+    timeId: string // <-- add timeId parameter
+  ) => {
+    if (!membershipData) {
+      // Regular booking (single slot)
+      setSelectedSlots(prev =>
+        prev.some(s => s.date === date && s.time === time && s.court === court && s.fieldId === fieldId)
+          ? prev.filter(s => !(s.date === date && s.time === time && s.court === court && s.fieldId === fieldId))
+          : [...prev, { date, time, timeId, court, fieldId, price }]
+      );
+      return;
+    }
+  
+    // Membership booking - recurring slots
+    const baseDate = new Date(date);
+    const newSlots: TimeSlot[] = [];
+  
+    recurringWeeks.forEach(week => {
+      const slotDate = new Date(baseDate);
+      slotDate.setDate(baseDate.getDate() + (week * 7));
+  
+      newSlots.push({
+        date: slotDate.toISOString().split('T')[0],
+        time,
+        timeId,
+        court,
+        fieldId,
+        price: price * (1 - membershipData.discount) // Apply discount
+      });
+    });
+  
+    setSelectedSlots(prev => {
+      // Remove existing slots for same time pattern
+      const filtered = prev.filter(slot =>
+        !(slot.time === time && slot.court === court &&
+          recurringWeeks.some(week => {
+            const weekDate = new Date(baseDate);
+            weekDate.setDate(baseDate.getDate() + (week * 7));
+            return slot.date === weekDate.toISOString().split('T')[0];
+          })
+        )
+      );
+  
+      // Add new slots if not already selected
+      const existing = filtered.some(s =>
+        newSlots.some(ns =>
+          ns.date === s.date && ns.time === s.time && ns.court === s.court && ns.fieldId === s.fieldId
+        )
+      );
+  
+      return existing ? filtered : [...filtered, ...newSlots];
     });
   };
+
+  const handlePayment = useCallback(() => {
+    if (selectedSlots.length === 0) return;
+
+    const userId = Cookies.get('userId');
+    if (!userId) {
+      router.push('/login');
+      return;
+    }
+
+    // Siapkan data yang akan dikirim
+    const paymentData = {
+      selectedSlots: selectedSlots.map(slot => ({
+        date: slot.date,
+        time: slot.time,
+        timeId: slot.timeId,
+        court: slot.court,
+        fieldId: slot.fieldId,
+        price: slot.price,
+      })),
+      locationId: locationId ?? '',
+      paymentType: selectedPaymentType,
+      userId: userId,
+      ...(membershipId && { membershipId }),
+    };
+
+    console.log('Payment Data:', paymentData);
+    // console.log('Processed schedules:', processedSchedules);
+    console.log('Time slots by court:', timeSlotsByCourt);
+
+    // Encode data untuk URL
+    const encodedData = encodeURIComponent(JSON.stringify(paymentData));
+
+    // Navigasi ke halaman payment dengan data
+    router.push(`/reservation/payment?data=${encodedData}`); 
+  }, [selectedSlots, locationId, selectedPaymentType, membershipId, timeSlotsByCourt, router]);
 
   const calculateTotal = () => {
     return selectedSlots.reduce((sum, slot) => {
@@ -393,7 +528,7 @@ export default function SchedulesPage() {
                   className='flex items-center justify-between gap-1 text-white border border-[#3A5849] rounded-lg px-3 py-3 cursor-pointer mr-2'
                   style={{ width: '140px' }}
                 >
-                  <span className='text-sm truncate'>{selectedSport || 'Pilih Cabor'}</span>
+                  <span className='text-sm truncate'>{selectedSport || sportName || 'Pilih Cabor'}</span>
                   <ChevronDownCircle
                     className={`h-5 w-5 transition-transform ${openDropdown.includes('sport') ? 'rotate-180' : ''}`}
                     stroke="currentColor"
@@ -578,14 +713,15 @@ export default function SchedulesPage() {
           {courts.map((court, index) => {
             const courtSlots = timeSlotsByCourt[court] || [];
             const availableCount = courtSlots.filter(slot => !slot.booked).length;
+            const currentSport = selectedSport || sportName;
 
             return (
               <div key={`${court}-${index}`} className={`${index !== 0 ? 'border-t border-gray-300 pt-6' : ''}`}>
                 <div className='mb-4'>
                   <p className='text-lg font-semibold text-black'>{court}</p>
                   <p className='text-sm text-gray-600'>
-                    {selectedSport === 'Badminton' ? 'Lapangan Badminton' :
-                      selectedSport === 'Basket' ? 'Lapangan Basket' :
+                    {currentSport === 'Badminton' ? 'Lapangan Badminton' :
+                      currentSport === 'Basket' ? 'Lapangan Basket' :
                         'Lapangan Futsal'}
                   </p>
                 </div>
@@ -607,7 +743,7 @@ export default function SchedulesPage() {
                       <div className='grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-6'>
                         {courtSlots.map((slot, idx) => {
                           const isSelected = selectedSlots.some(s =>
-                            s.date === selectedDate && s.time === slot.time && s.court === court
+                            s.date === selectedDate && s.time === slot.time && s.court === court && s.fieldId === slot.fieldId
                           );
                           const isBooked = slot.booked;
                           const priceFormatted = `Rp ${slot.price.toLocaleString('id-ID')}`;
@@ -615,7 +751,12 @@ export default function SchedulesPage() {
                           return (
                             <button
                               key={`${slot.timeId}-${idx}`}
-                              onClick={() => handleTimeClick(selectedDate, slot.time, court, slot.price)}
+                              onClick={() => {
+                                console.log('Slot data before click:', slot); // Debugging
+                                console.log(slot.timeId);
+                                handleTimeClick(selectedDate, slot.time, court, slot.price, slot.fieldId, slot.timeId)
+                              }
+                              }
                               disabled={isBooked}
                               className={`relative rounded-lg border px-3 py-4 text-center text-base transition-all ${isBooked
                                 ? 'pointer-events-none border-gray-200 text-gray-400'
@@ -681,15 +822,18 @@ export default function SchedulesPage() {
                   <button
                     onClick={() => toggleDropdown('paymentType')}
                     className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                    disabled={!!membershipId}
                   >
                     {selectedPaymentType}
-                    <ChevronDownCircle
-                      className={`h-5 w-5 transition-transform ${openDropdown.includes('paymentType') ? 'rotate-180' : ''}`}
-                      stroke="currentColor"
-                    />
+                    {!membershipId && (
+                      <ChevronDownCircle
+                        className={`h-5 w-5 transition-transform ${openDropdown.includes('paymentType') ? 'rotate-180' : ''}`}
+                        stroke="currentColor"
+                      />
+                    )}
                   </button>
 
-                  {openDropdown?.includes('paymentType') && (
+                  {openDropdown?.includes('paymentType') && !membershipId && (
                     <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
                       style={{ width: '100%' }}>
                       <button
@@ -714,14 +858,7 @@ export default function SchedulesPage() {
                   )}
                 </div>
                 <Button
-                  onClick={() => {
-                    const params = new URLSearchParams({
-                      selectedSlots: JSON.stringify(selectedSlots),
-                      locationId: locationId ?? '',
-                      paymentType: selectedPaymentType,
-                    });
-                    router.push(`./payment?${params.toString()}`);
-                  }}
+                  onClick={handlePayment}
                   className='bg-orange-500 hover:bg-orange-600 px-8 py-3 font-semibold cursor-pointer'
                   disabled={selectedSlots.length === 0}
                 >

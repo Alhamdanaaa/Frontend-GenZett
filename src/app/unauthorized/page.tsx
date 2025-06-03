@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 
-export default function unauthorized() {
+export default function Unauthorized() {
   const router = useRouter();
 
   return (
