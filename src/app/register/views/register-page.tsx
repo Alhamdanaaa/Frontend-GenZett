@@ -182,9 +182,6 @@ export default function RegisterPage() {
                 </p>
               )}
 
-              {/* CAPTCHA */}
-              <div id="clerk-captcha" />
-
               {/* Submit Button */}
               <Button
                 type="submit"
