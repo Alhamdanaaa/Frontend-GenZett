@@ -70,3 +70,20 @@ export async function deleteField(fieldId: number) {
   const res = await api.delete(`/fields/${fieldId}`);
   return res.data;
 }
+export async function getAllFields(locationId?: number) {
+  const params = locationId ? { locationId } : {};
+  const res = await api.get(`/fields/allFields`, { params });
+  return res.data;
+}
+
+type AvailableTimesParams = {
+  fieldId?: number;
+  date?: string;
+};
+export async function getAvailableTimes(params: AvailableTimesParams) {
+  const { fieldId, date } = params;
+  const res = await api.get(`/fields/availableTimes/${fieldId}`, {
+    params: { date }
+  });
+  return res.data;
+}

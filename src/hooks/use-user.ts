@@ -14,7 +14,7 @@ export async function getServerUserRole(): Promise<string | null> {
 }
 
 type DecodedToken = {
-  id: number;
+  user_id: number;
   name: string;
   email: string;
   role: string;
