@@ -3,7 +3,7 @@ name: Deploy Frontend GenZett to VM
 on:
   push:
     branches:
-      - main
+      - development
 
 jobs:
   deploy:
