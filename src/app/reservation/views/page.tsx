@@ -136,7 +136,9 @@ export default function SportsLocationPage() {
       Basketball: '🏀',
       Futsal: '⚽',
       Tennis: '🎾',
-      Volleyball: '🏐'
+      Volleyball: '🏐',
+      Handball: '🤾🏻',
+      Sepakbola: '🥅',
     };
     return sportEmojiMap[sport] || '🎮';
   };
@@ -145,19 +147,19 @@ export default function SportsLocationPage() {
     <UserLayout>
       <main className='text-gray-800 overflow-auto hide-scrollbar'>
         <div className='mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-5 md:py-10'>
-          <div className='mb-6 flex justify-center'>
-            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4'>
-              <div className='relative w-full sm:w-72' ref={sportDropdownRef}>
+          <div className='mb-6 w-full max-w-full'>
+            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 w-full'>
+              <div className='relative flex-1' ref={sportDropdownRef}>
                 <label
                   htmlFor='sport-type'
-                  className='absolute -top-2 left-3 bg-white px-1 text-sm text-gray-600'
+                  className='absolute -top-2 left-3 bg-[#f8f8f8] px-1 text-sm text-gray-600'
                 >
                   Cabang Olahraga
                 </label>
                 <button
                   type='button'
                   onClick={() => setIsOpen(!isOpen)}
-                  className='w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none'
+                  className='w-full appearance-none rounded-lg border border-gray-300 px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none'
                 >
                   {selectedSport || 'Pilih Olahraga'}
                 </button>
@@ -179,7 +181,7 @@ export default function SportsLocationPage() {
                 )}
               </div>
               <button
-                className='rounded-lg bg-orange-500 px-6 py-2 font-semibold text-white transition hover:bg-orange-600'
+                className='rounded-lg bg-orange-500 px-6 py-2 font-semibold text-white transition hover:bg-orange-600 sm:whitespace-nowrap'
                 onClick={handleFilter}
               >
                 Filter
@@ -200,7 +202,7 @@ export default function SportsLocationPage() {
           )}
 
           {!loading && !error && (
-            <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+            <div className='w-full grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
               {locations.length > 0 ? (
                 locations.map((item, idx) => (
                   <div
@@ -208,7 +210,7 @@ export default function SportsLocationPage() {
                     className='cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-xl'
                     onClick={() => handleCardClick(item)}
                   >
-                    <div className='relative h-48 w-full min-w-[320px]'>
+                    <div className='relative h-48 w-full'>
                       <Image
                         src={item.imageUrl || '/images/futsal.png'}
                         alt='Lapangan'
@@ -224,7 +226,7 @@ export default function SportsLocationPage() {
                         className='rounded-t-xl'
                       />
                     </div>
-                    <div className='flex min-h-[220px] flex-col justify-between p-4'>
+                    <div className='flex flex-col justify-between min-h-[220px] p-4'>
                       <div>
                         <p className='mb-1 text-sm font-medium text-gray-500'>
                           Cabang
@@ -234,7 +236,7 @@ export default function SportsLocationPage() {
                         </h3>
                         <div className='mt-2 flex items-start gap-2 text-sm text-gray-600'>
                           <MapPin size={16} className='mt-0.5 flex-shrink-0' />
-                          <p className='leading-snug'>{item.address || 'No address available'}</p>
+                          <p className='leading-snug break-words'>{item.address || 'No address available'}</p>
                         </div>
                         <div className='mt-4 flex flex-col gap-2 text-sm text-gray-700'>
                           {item.sports && item.sports.length > 0 ? (
@@ -254,23 +256,22 @@ export default function SportsLocationPage() {
                           )}
                         </div>
                       </div>
-                      <div className='mt-4 text-sm text-gray-600'>
+                      <div className='mt-2 text-sm text-gray-600'>
                         {item.minPrice ? (
-                          <div className='mt-2 flex items-center gap-1'>
+                          <div className='mt-2 flex items-center'>
                             {/* <span className='text-base text-gray-600'> */}
-                              <div className='flex items-start gap-2'>
-                                <Wallet size={16} className='mt-0.5 flex-shrink-0' />
+                              <div className='flex items-center gap-2'>
+                                <Wallet size={16} className='flex-shrink-0' />
                                 <span className='text-sm text-gray-500'>Mulai</span>
-                                <p className='leading-snug font-bold'>{item.minPrice}</p>
-                                <span className='text-xs text-gray-500'>/sesi</span>
+                                <p className='font-bold text-lg text-gray-800'>{item.minPrice}</p>
                               </div>
+                              <span className='text-xs text-gray-500 self-end mb-1'>/sesi</span>
                             {/* </span> */}
                           </div>
                         ) : (
                           <div className='mt-2 text-sm text-gray-500'>Harga tidak tersedia</div>
                         )}
                       </div>
-
                     </div>
                   </div>
                 ))
