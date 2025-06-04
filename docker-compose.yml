@@ -8,7 +8,7 @@ services:
     container_name: frontend-genzett
     restart: always
     ports:
-      - "3000:3000"
+      - "80:3000"
     networks:
       - resportsnet_fe
     #volumes:
