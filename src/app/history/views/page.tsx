@@ -289,17 +289,7 @@ export default function HistoryPage() {
   };
 
   // Function to highlight the search term in a text
-  const highlightText = (text: string) => {
-    if (!searchTerm) return text;
-    const parts = text.split(new RegExp(`(${searchTerm})`, "gi"));
-    return parts.map((part, index) =>
-      part.toLowerCase() === searchTerm.toLowerCase() ? (
-        <span key={index} className="bg-yellow-300">{part}</span>
-      ) : (
-        part
-      )
-    );
-  };
+  const highlightText = (text: string) => text;
 
   return (
     <UserLayout>
