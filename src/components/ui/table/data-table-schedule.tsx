@@ -36,6 +36,9 @@ export function DataTableSchedule<TData>({
                         key={header.id}
                         colSpan={header.colSpan}
                         style={{
+                          width: '200px',
+                          maxWidth: '150px',
+                          minWidth: '120px',
                           ...getCommonPinningStyles({ column: header.column })
                         }}
                       >
@@ -61,6 +64,9 @@ export function DataTableSchedule<TData>({
                         <TableCell
                           key={cell.id}
                           style={{
+                            width: '200px',
+                            maxWidth: '200px',
+                            minWidth: '120px',
                             ...getCommonPinningStyles({ column: cell.column })
                           }}
                         >
@@ -78,7 +84,7 @@ export function DataTableSchedule<TData>({
                       colSpan={table.getAllColumns().length}
                       className='h-24 text-center'
                     >
-                      No results.
+                      Tidak ada hasil.
                     </TableCell>
                   </TableRow>
                 )}
