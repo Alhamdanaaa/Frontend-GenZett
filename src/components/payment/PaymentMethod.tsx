@@ -6,9 +6,9 @@ export const PaymentMethod = ({
     onSelect: (value: "dp" | "full") => void
   }) => (
     <div className="space-y-2">
-      <h3 className="font-semibold">Metode Pembayaran</h3>
+      <h3 className="font-medium text-sm">Metode Pembayaran</h3>
       <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2 cursor-pointer">
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input
             type="radio"
             name="payment"
@@ -18,7 +18,7 @@ export const PaymentMethod = ({
           />
           <span>Down Payment 50%</span>
         </label>
-        <label className="flex items-center gap-2 cursor-pointer">
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input
             type="radio"
             name="payment"

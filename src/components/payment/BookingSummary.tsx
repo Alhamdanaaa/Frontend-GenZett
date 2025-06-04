@@ -14,8 +14,8 @@ export default function BookingSummary({ location, bookings }: {
   return (
     <div className="">
       <div className="text-gray-600">
-        <h2 className="font-semibold text-lg text-black">Lokasi Cabang : <br /> {location}</h2>
-        <div className="mt-4 h-96 w- overflow-y-auto hide-scrollbar">
+        <h2 className="font-semibold text-base text-black">Lokasi Cabang: {location}</h2>
+        <div className="mt-4 h-96 w- overflow-y-auto text-sm hide-scrollbar">
           {bookings.map((booking, index) => (
             <div key={`booking-${index}`} className="mb-4">
               <p className="m-2">{booking.field}</p>
@@ -32,7 +32,7 @@ export default function BookingSummary({ location, bookings }: {
           ))}
         </div>
       </div>
-      <div className="flex justify-between items-center font-semibold text-lg m-0 p-0">
+      <div className="flex justify-between items-center mt-4 font-semibold text-base m-0 p-0">
         <span>Total Jam</span>
         <span>{totalTimes} Jam</span>
       </div>

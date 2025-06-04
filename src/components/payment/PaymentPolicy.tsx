@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '../ui/dialog'
+import { IconChevronRight } from '@tabler/icons-react'
 
 type Props = {
   control: Control<any>
@@ -24,10 +25,10 @@ const PaymentPolicy = ({ control, errors }: Props) => {
         <DialogTrigger asChild>
           <button
             type="button"
-            className="w-full p-2 bg-gray-200 rounded flex justify-between items-center hover:bg-gray-300 text-gray-700"
+            className="w-full p-2 bg-gray-200 rounded flex text-sm justify-between items-center hover:bg-gray-300 text-gray-700"
           >
             <span>Kebijakan Sewa Lapangan</span>
-            <span>{'>'}</span>
+            <IconChevronRight size={18} />
           </button>
         </DialogTrigger>
 
@@ -87,36 +88,36 @@ const PaymentPolicy = ({ control, errors }: Props) => {
           </ol>
 
           {/* Checkbox Persetujuan */}
-          <div className="flex items-start space-x-2 mt-6 mb-4">
+            <div className="flex items-center space-x-2 mt-6 mb-4">
             <Controller
               control={control}
               name="policyAgreement"
               rules={{ required: 'Anda harus menyetujui kebijakan' }}
               render={({ field }) => (
-                <input
-                  id="agreement"
-                  type="checkbox"
-                  checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                />
+              <input
+                id="agreement"
+                type="checkbox"
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+              />
               )}
             />
             <label htmlFor="agreement" className="text-sm">
               Saya telah membaca dan menyetujui Kebijakan Sewa Lapangan
             </label>
-          </div>
+            </div>
           {errors.policyAgreement && (
             <p className="text-sm text-red-500">{errors.policyAgreement.message as string}</p>
           )}
 
           {/* Tombol Tutup */}
-          <button
+            <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="bg-orange-600 text-white mt-6 px-4 w-32 mx-auto block rounded-md hover:bg-orange-700"
-          >
+            className="bg-orange-600 text-white mt-6 px-4 py-2 h-10 w-25 mx-auto font-semibold block rounded-md hover:bg-orange-700"
+            >
             Tutup
-          </button>
+            </button>
         </DialogContent>
       </div>
     </Dialog>
