@@ -82,7 +82,7 @@ export default function MembershipPage() {
             <UserLayout>
                 <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-5 md:py-10">
                     <div className="text-black px-4 sm:px-8 md:px-16 lg:px-24">
-                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-2">Pilih Paket Membership Sesuai Kebutuhanmu</h1>
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-2">Pilih Paket Langganan Sesuai Kebutuhanmu</h1>
                         <p className="text-center text-sm sm:text-base text-gray-500 mb-6 md:mb-10 px-2">Dapatkan akses eksklusif dan berbagai keuntungan dengan paket membership kami!</p>
                     </div>
                     <div className='mb-6 w-full'>
