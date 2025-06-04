@@ -103,7 +103,7 @@ export function getNavItemsByRole(role: string): NavItem[] {
         items: []
       },
       {
-        title: 'Lapangan Admin',
+        title: 'Lapangan',
         url: '/dashboard/field',
         icon: 'field',
         shortcut: ['s', 's'],
