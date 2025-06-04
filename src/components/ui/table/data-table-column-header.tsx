@@ -7,16 +7,9 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  CaretSortIcon,
-  Cross2Icon
-} from '@radix-ui/react-icons';
 
 interface DataTableColumnHeaderProps<TData, TValue>
   extends React.ComponentProps<typeof DropdownMenuTrigger> {
@@ -44,45 +37,8 @@ export function DataTableColumnHeader<TData, TValue>({
         {...props}
       >
         {title}
-        {column.getCanSort() &&
-          (column.getIsSorted() === 'desc' ? (
-            <ChevronDownIcon />
-          ) : column.getIsSorted() === 'asc' ? (
-            <ChevronUpIcon />
-          ) : (
-            <CaretSortIcon />
-          ))}
       </DropdownMenuTrigger>
       <DropdownMenuContent align='start' className='w-28'>
-        {column.getCanSort() && (
-          <>
-            <DropdownMenuCheckboxItem
-              className='[&_svg]:text-muted-foreground relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto'
-              checked={column.getIsSorted() === 'asc'}
-              onClick={() => column.toggleSorting(false)}
-            >
-              <ChevronUpIcon />
-              Asc
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              className='[&_svg]:text-muted-foreground relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto'
-              checked={column.getIsSorted() === 'desc'}
-              onClick={() => column.toggleSorting(true)}
-            >
-              <ChevronDownIcon />
-              Desc
-            </DropdownMenuCheckboxItem>
-            {column.getIsSorted() && (
-              <DropdownMenuItem
-                className='[&_svg]:text-muted-foreground pl-2'
-                onClick={() => column.clearSorting()}
-              >
-                <Cross2Icon />
-                Reset
-              </DropdownMenuItem>
-            )}
-          </>
-        )}
         {column.getCanHide() && (
           <DropdownMenuCheckboxItem
             className='[&_svg]:text-muted-foreground relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto'
@@ -90,7 +46,7 @@ export function DataTableColumnHeader<TData, TValue>({
             onClick={() => column.toggleVisibility(false)}
           >
             <EyeOff />
-            Hide
+            Sembunyikan
           </DropdownMenuCheckboxItem>
         )}
       </DropdownMenuContent>
