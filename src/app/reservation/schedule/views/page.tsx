@@ -430,11 +430,12 @@ export default function SchedulesPage() {
               <h2 className='mb-2 text-lg font-semibold text-black'>
                 Paket Langganan
               </h2>
-              <ul className='mb-4 list-inside list-disc space-y-1 text-sm text-gray-600'>
-                <li>Diskon hingga 20% untuk booking rutin</li>
-                <li>Jadwal prioritas setiap minggu</li>
-                <li>Gratis 1 jam setiap 5x pemesanan</li>
-              </ul>
+                <ul className='mb-4 list-inside list-disc space-y-1 text-sm text-gray-600'>
+                  <li>Hemat hingga 30% dengan diskon sesuai paket langganan</li>
+                  <li>Pesan sekali untuk jadwal rutin mingguan mulai (2-4 minggu)</li>
+                  <li>Booking banyak lapangan & waktu dalam satu transaksi</li>
+                  <li>Prioritas slot permainan di hari yang sama setiap minggu</li>
+                </ul>
               <Button
                 onClick={() => router.push('../membership')}
                 className='w-full bg-orange-500 hover:bg-orange-600'
