@@ -78,27 +78,27 @@ export default function MembershipPage() {
     };
 
     return (
-        <div className="h-screen overflow-auto hide-scrollbar">
+        <main className="text-gray-800 overflow-auto hide-scrollbar">
             <UserLayout>
-                <main className="text-gray-800 min-h-screen overflow-hidden">
-                    <div className=" text-black px-24 md:px-48">
-                        <h1 className="text-2xl font-bold text-center mb-2">Pilih Paket Membership Sesuai Kebutuhanmu</h1>
-                        <p className="text-center text-gray-500 mb-10">Dapatkan akses eksklusif dan berbagai keuntungan dengan paket membership kami!</p>
+                <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-5 md:py-10">
+                    <div className="text-black px-4 sm:px-8 md:px-16 lg:px-24">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-2">Pilih Paket Membership Sesuai Kebutuhanmu</h1>
+                        <p className="text-center text-sm sm:text-base text-gray-500 mb-6 md:mb-10 px-2">Dapatkan akses eksklusif dan berbagai keuntungan dengan paket membership kami!</p>
                     </div>
-                    <div className='mb-6 px-4'>
-                        <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-center md:gap-4'>
+                    <div className='mb-6 w-full'>
+                        <div className='flex flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:gap-4'>
                             {/* Filter Sport */}
-                            <div className='relative w-full sm:w-72' ref={sportDropdownRef}>
+                            <div className='relative flex-1 min-w-[200px]' ref={sportDropdownRef}>
                                 <label
                                     htmlFor='sport-type'
-                                    className='absolute -top-2 left-3 bg-white px-1 text-sm text-gray-600'
+                                    className='absolute -top-2 left-3 bg-[#f8f8f8] px-1 text-sm text-gray-600'
                                 >
                                     Cabang Olahraga
                                 </label>
                                 <button
                                     type='button'
                                     onClick={() => setIsSportOpen(!isSportOpen)}
-                                    className='w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none'
+                                    className='w-full appearance-none rounded-lg border border-gray-300 bg-[#f8f8f8] px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none'
                                 >
                                     {selectedSport || 'Pilih Olahraga'}
                                 </button>
@@ -120,17 +120,17 @@ export default function MembershipPage() {
                                 )}
                             </div>
                             {/* Filter Location */}
-                            <div className='relative w-full sm:w-72' ref={locationDropdownRef}>
+                            <div className='relative flex-1 min-w-[200px]' ref={locationDropdownRef}>
                                 <label
                                     htmlFor='location-type'
-                                    className='absolute -top-2 left-3 bg-white px-1 text-sm text-gray-600'
+                                    className='absolute -top-2 left-3 bg-[#f8f8f8] px-1 text-sm text-gray-600'
                                 >
                                     Lokasi
                                 </label>
                                 <button
                                     type='button'
                                     onClick={() => setIsLocationOpen(!isLocationOpen)}
-                                    className='w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none'
+                                    className='w-full appearance-none rounded-lg border border-gray-300 bg-[#f8f8f8] px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none'
                                 >
                                     {selectedLocation || 'Pilih Lokasi'}
                                 </button>
@@ -151,31 +151,32 @@ export default function MembershipPage() {
                                     </div>
                                 )}
                             </div>
-                            {/* Button Filter */}
-                            <div className='flex gap-2 w-full md:w-auto'>
+                            {/* Filter and Reset Buttons */}
+                            <div className='flex gap-4 w-full md:w-auto md:flex-1 min-w-[200px]'>
                                 <button
-                                    className='flex-1 rounded-lg bg-orange-500 px-4 py-2 font-semibold text-white transition hover:bg-orange-600 md:px-6'
+                                    className='flex-1 rounded-lg bg-orange-500 px-4 py-2 font-semibold text-white transition hover:bg-orange-600'
                                     onClick={handleFilter}
                                 >
                                     Filter
                                 </button>
                                 <button
-                                    className='flex-1 rounded-lg bg-gray-200 px-4 py-2 font-semibold text-gray-700 transition hover:bg-gray-300 md:px-6'
+                                    className='flex-1 rounded-lg bg-gray-200 px-4 py-2 font-semibold text-gray-700 transition hover:bg-gray-300'
                                     onClick={handleReset}
                                 >
                                     Reset
                                 </button>
                             </div>
+                            {/* View All Button - Full width on small screens */}
+                            <div className="w-full md:flex-1 min-w-[200px]">
+                                <button className="w-full rounded-lg bg-orange-500 px-4 py-2 font-semibold text-white transition hover:bg-orange-600">
+                                    Lihat Semua
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <MemberCard members={memberships} />
-                    <div className="flex justify-center mt-10">
-                        <button className="rounded-lg bg-orange-500 px-6 py-2 font-semibold text-white transition hover:bg-orange-600">
-                            Lihat Semua Paket Membership
-                        </button>
-                    </div>
-                </main>
+                </div>
             </UserLayout>
-        </div>
+        </main>
     );
 }
