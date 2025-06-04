@@ -14,11 +14,17 @@ type ScheduleListingPageProps = {
 };
 
 export default function ScheduleListingPage({ 
-  selectedDate, 
-  selectedSport,
-  locationId 
-}: ScheduleListingPageProps) {
-  const { schedules, fields, isLoading, error } = useScheduleData();
+    selectedDate, 
+    selectedSport,
+    locationId = 1
+  }: ScheduleListingPageProps) {
+    const { schedules, fields, isLoading, error } = useScheduleData(
+      {
+    date: selectedDate,
+    sport: selectedSport,
+    locationId,
+  }
+);
   
   const { columns, tableData, stats } = useMemo(() => {
     if (!schedules.length || !fields.length) {
