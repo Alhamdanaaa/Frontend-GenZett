@@ -107,7 +107,15 @@ export function getNavItemsByRole(role: string): NavItem[] {
         url: '/dashboard/field',
         icon: 'field',
         shortcut: ['s', 's'],
-        isActive: false,
+        isActive: true,
+        items: []
+      },
+      {
+        title: 'Tutup Lapangan',
+        url: '/dashboard/availability',
+        icon: 'field',
+        shortcut: ['c', 'c'],
+        isActive: true,
         items: []
       }
     ];

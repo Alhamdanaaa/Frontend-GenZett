@@ -2,32 +2,26 @@
 
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-
 import { useDataTable } from '@/hooks/use-data-table';
-
 import { ColumnDef } from '@tanstack/react-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { Field } from '@/constants/data';
 
-interface FieldTableParams<TData, TValue> {
-  data: TData[];
+interface FieldTableParams {
+  data: Field[];
   totalItems: number;
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<Field>[];
 }
 
-export function FieldTable<TData, TValue>({
-  data,
-  totalItems,
-  columns
-}: FieldTableParams<TData, TValue>) {
+export function FieldTable({ data, totalItems, columns }: FieldTableParams) {
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
-
   const pageCount = Math.ceil(totalItems / pageSize);
 
   const { table } = useDataTable({
-    data, // Field data
-    columns, // Field columns
-    pageCount: pageCount,
-    shallow: false // Setting to false triggers a network request with the updated querystring
+    data,
+    columns,
+    pageCount,
+    shallow: false
   });
 
   return (
@@ -36,5 +30,3 @@ export function FieldTable<TData, TValue>({
     </DataTable>
   );
 }
-
-export default { FieldTable };

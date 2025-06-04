@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Membership } from '@/constants/data';
+import { MembershipWithNames } from '@/constants/data';
 
 const MembershipForm = dynamic(() => import('./membership-form'), {
   ssr: false,
@@ -21,7 +21,7 @@ const MembershipForm = dynamic(() => import('./membership-form'), {
 });
 
 interface MembershipViewPageClientProps {
-  membership: Membership | null;
+  membership: MembershipWithNames | null;
   pageTitle: string;
 }
 

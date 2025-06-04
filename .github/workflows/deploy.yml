@@ -1,28 +1,44 @@
-name: Deploy Frontend Next.js
+name: Deploy Frontend GenZett to VM
 
 on:
   push:
     branches:
-      - main
+      - development
 
 jobs:
-  deploy-frontend:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Kode Frontend
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Deploy ke VM Frontend via SSH
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Clean old project folder in VM
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.FRONTEND_SSH_HOST }}
           username: ${{ secrets.FRONTEND_SSH_USER }}
           key: ${{ secrets.FRONTEND_SSH_KEY }}
-          port: 22
           script: |
-            echo "Masuk ke VM Frontend"
-            cd /home/pbluser/frontend-genzett
-            git pull origin main
-            docker compose down
+            rm -rf ~/Frontend-GenZett
+
+      - name: Upload source code to VM via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.FRONTEND_SSH_HOST }}
+          username: ${{ secrets.FRONTEND_SSH_USER }}
+          key: ${{ secrets.FRONTEND_SSH_KEY }}
+          source: "."
+          target: "~/Frontend-GenZett"
+          strip_components: 0
+
+      - name: SSH and Redeploy Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.FRONTEND_SSH_HOST }}
+          username: ${{ secrets.FRONTEND_SSH_USER }}
+          key: ${{ secrets.FRONTEND_SSH_KEY }}
+          script: |
+            cd ~/Frontend-GenZett
+            docker compose down --remove-orphans
             docker compose up -d --build
