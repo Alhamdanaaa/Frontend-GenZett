@@ -7,16 +7,15 @@ export const metadata = {
   title: 'Dashboard : Manajemen Penutupan Lapangan'
 };
 
-type PageProps = { params: { reservationId: string } };
+type PageProps = { params: Promise<{ reservationId: string }> };
 
-export default async function Page({ params }: PageProps) {
-  const { reservationId } = params;
-
+export default async function Page(props: PageProps) {
+  const params = await props.params;
   return (
     <PageContainer scrollable>
-      <div className='flex-1 space-y-4'>
+      <div className="flex-1 space-y-4">
         <Suspense fallback={<FormCardSkeleton />}>
-          <AvailabilityViewPage reservationId={reservationId} />
+          <AvailabilityViewPage reservationId={params.reservationId} />
         </Suspense>
       </div>
     </PageContainer>

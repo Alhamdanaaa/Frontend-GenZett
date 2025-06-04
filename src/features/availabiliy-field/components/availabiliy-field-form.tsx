@@ -443,7 +443,7 @@ export default function AvailabilityForm({
                 type="button"
                 variant="outline"
                 className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
-                onClick={() => Router.push('/dashboard/availability')}
+                onClick={() => redirect('/dashboard/availability')}
               >
                 Batal
               </Button>
