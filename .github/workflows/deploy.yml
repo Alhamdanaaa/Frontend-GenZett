@@ -13,6 +13,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Clean old project folder in VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.FRONTEND_SSH_HOST }}
+          username: ${{ secrets.FRONTEND_SSH_USER }}
+          key: ${{ secrets.FRONTEND_SSH_KEY }}
+          script: |
+            rm -rf ~/Frontend-GenZett
+
       - name: Upload source code to VM via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -33,4 +42,3 @@ jobs:
             cd ~/Frontend-GenZett
             docker compose down --remove-orphans
             docker compose up -d --build
-
