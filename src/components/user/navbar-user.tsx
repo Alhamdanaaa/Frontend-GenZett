@@ -31,12 +31,12 @@ export default function NavbarUser() {
       ? pathname === href
       : pathname === href || pathname.startsWith(`${href}/`)
   }
-  
+
   useEffect(() => {
     const token = localStorage.getItem('token') || document.cookie
       .split('; ')
       .find(row => row.startsWith('token='))?.split('=')[1]
-    
+
     setIsAuthenticated(!!token)
   }, [pathname])
 
@@ -173,7 +173,6 @@ export default function NavbarUser() {
 
         {/* Mobile Buttons - Hamburger on far right */}
         <div className="md:hidden flex items-center gap-4">
-                    
           {/* Hamburger Button - Now on far right */}
           <button
             className="p-2 rounded hover:bg-[#3a5a4a] transition"
@@ -233,7 +232,6 @@ export default function NavbarUser() {
               </div>
             </div>
           )}
-          
         </div>
       </div>
 
@@ -248,7 +246,7 @@ export default function NavbarUser() {
             className="overflow-hidden md:hidden bg-[#2C473A] px-4 pt-4 pb-6 space-y-4"
             ref={mobileMenuRef}
           >
-            {navItems.map((item,idx) => (
+            {navItems.map((item, idx) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -263,13 +261,15 @@ export default function NavbarUser() {
               </Link>
             ))}
             {!isAuthenticated && (
-              <Link
-                href="/login"
-                className="block text-sm font-semibold text-white/70 hover:text-white transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                Login
-              </Link>
+              <div className="flex justify-center mt-4">
+                <Link
+                  href="/login"
+                  className="bg-[#C5FC40] text-black font-semibold text-sm px-5 py-2 rounded-full hover:bg-lime-300 transition w-full max-w-[200px] text-center"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+              </div>
             )}
           </motion.div>
         )}
