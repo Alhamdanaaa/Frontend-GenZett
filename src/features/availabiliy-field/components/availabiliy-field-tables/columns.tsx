@@ -1,5 +1,4 @@
 'use client';
-import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Reservation } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
@@ -15,7 +14,7 @@ export const columns: ColumnDef<Reservation>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'Nama Pemesan',
+    header: 'Detail Penutupan',
     cell: ({ cell }) => <div>{cell.getValue<Reservation['name']>()}</div>,
     meta: {
       label: 'Nama',

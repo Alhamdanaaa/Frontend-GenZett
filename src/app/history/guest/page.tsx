@@ -12,10 +12,10 @@ export default function BookingHistoryGuestPage() {
         {/* Header Section */}
         <header className="mb-8">
           <div className="flex items-center gap-3">
-            <div className="text-2xl text-primary">➤</div>
-            <h1 className="text-2xl md:text-3xl font-bold text-primary">
-              Riwayat Pemesanan
-            </h1>
+            <Image src='/icons/arrow.svg' alt='-' width={26} height={26} />
+                      <p className='text-2xl font-semibold text-black'>
+                        Riwayat Pemesanan
+                      </p>
           </div>
         </header>
 
@@ -43,11 +43,12 @@ export default function BookingHistoryGuestPage() {
             <div className="flex justify-center lg:justify-start">
               <Link href="/login" passHref legacyBehavior>
                 <Button
-                  className="bg-accent hover:bg-accent-hover text-primary-foreground px-8 py-4 text-base font-medium rounded-full transition-colors duration-300"
-                  aria-label="Login untuk melihat riwayat"
-                >
-                  Login Sekarang
-                </Button>
+                className="text-black px-8 py-4 text-base font-medium rounded-full transition-colors duration-300 hover:brightness-90"
+                style={{ backgroundColor: '#C5FC40' }}
+                aria-label="Login untuk melihat riwayat"
+              >
+                Login Sekarang
+              </Button>
               </Link>
             </div>
           </div>

@@ -251,8 +251,10 @@ export default function BookingDetailModal({
   const isPartiallyPaid = totalPaid > 0 && totalPaid < totalAmount;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white p-6 rounded-lg max-w-lg sm:max-w-md md:max-w-xl lg:max-w-2xl w-full shadow-xl space-y-6 overflow-auto max-h-[80vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+         onClick={onClose}>
+      <div className="bg-white p-6 rounded-lg max-w-lg sm:max-w-md md:max-w-xl lg:max-w-2xl w-full shadow-xl space-y-6 overflow-auto max-h-[80vh]"
+           onClick={(e) => e.stopPropagation()}>
         <h2 className="text-lg font-semibold mb-4">Detail Pesanan</h2>
 
         {/* Seksi 1 - Basic Information */}

@@ -31,12 +31,12 @@ export default function AvailabilityDetailDialog({
       </DialogTrigger>
       <DialogContent className='sm:max-w-lg'>
         <DialogHeader>
-          <DialogTitle>Detail Reservasi</DialogTitle>
-          <DialogDescription>Informasi lengkap dari reservasi yang dipilih.</DialogDescription>
+          <DialogTitle>Detail Penutupan Lapangan</DialogTitle>
+          <DialogDescription>Informasi lengkap dari data yang dipilih.</DialogDescription>
         </DialogHeader>
         <div className='grid grid-cols-1 gap-y-3 text-sm'>
           <DetailRow label='Waktu Pembuatan' value={formatDate(data.created_at)} />
-          <DetailRow label='Nama Pemesan' value={data.name} />
+          <DetailRow label='Detail Penutupan' value={data.name} />
           <DetailRow 
             label='Lapangan & Waktu' 
             value={

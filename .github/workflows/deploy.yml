@@ -3,7 +3,7 @@ name: Deploy Frontend GenZett to VM
 on:
   push:
     branches:
-      - main
+      - development
 
 jobs:
   deploy:
@@ -12,6 +12,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Clean old project folder in VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.FRONTEND_SSH_HOST }}
+          username: ${{ secrets.FRONTEND_SSH_USER }}
+          key: ${{ secrets.FRONTEND_SSH_KEY }}
+          script: |
+            rm -rf ~/Frontend-GenZett
 
       - name: Upload source code to VM via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -30,7 +39,7 @@ jobs:
           username: ${{ secrets.FRONTEND_SSH_USER }}
           key: ${{ secrets.FRONTEND_SSH_KEY }}
           script: |
-            cd ~/Frontend-GenZett
-            docker compose down --remove-orphans
+            cd ~/deploy
+            docker compose down --remove-orphans || true
+            docker rm -f frontend-genzett || true
             docker compose up -d --build
-
