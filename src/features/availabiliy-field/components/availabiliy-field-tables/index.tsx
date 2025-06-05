@@ -22,10 +22,10 @@ export function AvailabilityTable<TData, TValue>({
   const pageCount = Math.ceil(totalItems / pageSize);
 
   const { table } = useDataTable({
-    data, // Availability data
-    columns, // Availability columns
+    data, 
+    columns,
     pageCount: pageCount,
-    shallow: false // Setting to false triggers a network request with the updated querystring
+    shallow: false
   });
 
   return (

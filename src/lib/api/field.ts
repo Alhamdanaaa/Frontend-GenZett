@@ -76,14 +76,35 @@ export async function getAllFields(locationId?: number) {
   return res.data;
 }
 
-type AvailableTimesParams = {
-  fieldId?: number;
-  date?: string;
-};
-export async function getAvailableTimes(params: AvailableTimesParams) {
-  const { fieldId, date } = params;
-  const res = await api.get(`/fields/availableTimes/${fieldId}`, {
-    params: { date }
-  });
-  return res.data;
+interface GetAvailableTimesParams {
+    fieldId: number;
+    date: string;
+    excludeClosedId?: number; // Untuk exclude closed field saat edit
+}
+
+interface TimeSlot {
+    timeId: string;
+    time: string;
+    status: 'available' | 'non-available' | 'booked';
+}
+
+interface AvailableTimesResponse {
+    success: boolean;
+    message: string;
+    times?: TimeSlot[];
+}
+
+export async function getAvailableTimes(params: GetAvailableTimesParams): Promise<AvailableTimesResponse> {
+    try {
+        const res = await api.get(`/fields/availableTimes/${params.fieldId}`, {
+          params
+        });
+        return res.data;
+    } catch (error: any) {
+        console.error('Error fetching available times:', error);
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Terjadi kesalahan saat mengambil waktu tersedia'
+        };
+    }
 }

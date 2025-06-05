@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Reservation } from '@/constants/data';
+import { ClosedFieldResponse } from '@/lib/api/closed';
 
 const AvailabilityForm = dynamic(
   () => import('./availabiliy-field-form'),
@@ -24,7 +24,7 @@ const AvailabilityForm = dynamic(
 );
 
 interface AvailabilityViewPageClientProps {
-  reservation: Reservation | null;
+  reservation: ClosedFieldResponse | null;
   pageTitle: string;
   userId?: number;
   fieldOptions: { label: string; value: string }[];
@@ -36,12 +36,20 @@ export default function AvailabilityViewPageClient({
   userId,
   fieldOptions
 }: AvailabilityViewPageClientProps) {
+  const isValidReservation = reservation && 
+    reservation.reservationId && 
+    reservation.details && 
+    Array.isArray(reservation.details) && 
+    reservation.details.length > 0;
+
   return (
     <AvailabilityForm
       initialData={reservation}
       pageTitle={pageTitle}
       userId={userId}
       fieldOptions={fieldOptions}
+      editId={isValidReservation ? reservation.reservationId : undefined}
+      mode={isValidReservation ? 'edit' : 'create'}
     />
   );
 }

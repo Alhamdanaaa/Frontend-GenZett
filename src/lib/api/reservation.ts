@@ -41,7 +41,7 @@ export async function getSchedule(locationId: string | number, params: FilterPar
 export async function getReservationById(reservationId: number): Promise<Reservation | null> {
     try {
         const res = await api.get(`/reservations/${reservationId}`);
-        return res.data.Reservations;
+        return res.data;
     } catch (error) {
         console.error(error);
         return null;

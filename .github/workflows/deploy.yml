@@ -39,6 +39,7 @@ jobs:
           username: ${{ secrets.FRONTEND_SSH_USER }}
           key: ${{ secrets.FRONTEND_SSH_KEY }}
           script: |
-            cd ~/Frontend-GenZett
-            docker compose down --remove-orphans
+            cd ~/deploy
+            docker compose down --remove-orphans || true
+            docker rm -f frontend-genzett || true
             docker compose up -d --build

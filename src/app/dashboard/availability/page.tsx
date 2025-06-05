@@ -39,8 +39,8 @@ export default async function Page(props: pageProps) {
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <Heading
-            title='Reservasi Lapangan'
-            description='Kelola data reservasi lapangan'
+            title='Penutupan Lapangan'
+            description='Kelola data penutupan lapangan'
           />
           <Link
             href='/dashboard/availability/new'

@@ -24,8 +24,10 @@ export default function ScheduleListingPageWrapper() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSport, setSelectedSport] = useState('1'); // Default to Futsal ID (assuming Futsal has ID 1)
   // Ubah data location Id berdasarkan admin
-  const [selectedLocation, setSelectedLocation] = useState<number | undefined>(undefined);
-
+  // const [selectedLocation, setSelectedLocation] = useState<number | undefined>(undefined);
+        console.log('selectedDate:', selectedDate);
+        console.log('selectedSport:', selectedSport);
+        // console.log('selectedLocation:', selectedLocation);
   return (
     <div className='space-y-4'>
       <div className="flex flex-col space-y-4">
