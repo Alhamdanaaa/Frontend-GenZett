@@ -41,4 +41,5 @@ jobs:
           script: |
             cd ~/Frontend-GenZett
             docker compose down --remove-orphans
+            docker rm -f frontend-*** || true
             docker compose up -d --build
