@@ -130,7 +130,7 @@ export default function Header() {
                   }}
                   className='w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors'
                 >
-                  Keluar
+                  Logout
                 </button>
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function Header() {
         loading={isLoading}
         title='Konfirmasi Logout'
         description='Apakah Anda yakin ingin keluar dari akun Anda?'
-        confirmText={isLoading ? 'Keluar...' : 'Keluar'}
+        confirmText={isLoading ? 'Logout...' : 'Logout'}
       />
     </>
   )

@@ -228,7 +228,7 @@ export default function NavbarUser() {
                     className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Keluar...' : 'Logout'}
+                    {isLoading ? 'Logout...' : 'Logout'}
                   </button>
                 </div>
               </div>

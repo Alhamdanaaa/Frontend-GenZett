@@ -114,7 +114,7 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
               onClick={() => setOpenLogoutModal(true)}
               disabled={loading}
             >
-              {loading ? 'Keluar...' : 'Keluar'}
+              {loading ? 'Logout...' : 'Logout'}
             </Button>
 
           </div>
@@ -158,7 +158,7 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
         loading={loading}
         title="Konfirmasi Logout"
         description="Apakah Anda yakin ingin keluar dari akun?"
-        confirmText={loading ? 'Keluar...' : 'Keluar'}
+        confirmText={loading ? 'Logout...' : 'Logout'}
       />
     </div>
   );
