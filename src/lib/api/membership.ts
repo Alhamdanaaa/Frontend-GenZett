@@ -3,8 +3,8 @@ import api from "../axios";
 import { Membership } from '@/constants/data';
 
 type FilterParams = {
-  page?: string;
-  limit?: string;
+  page?: string | number;
+  limit?: string | number;
   search?: string;
   sports?: number[] | string; // serialize array ke string '1.2.3' untuk query param
   locations?: number[] | string; 

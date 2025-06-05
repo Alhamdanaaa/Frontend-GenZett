@@ -5,22 +5,24 @@ import { useSearchParams } from "next/navigation";
 import UserLayout from "@/app/user/layout";
 import { useEffect, useState } from "react";
 import { getLocationById } from "@/lib/api/location";
-
 interface BookingSlot {
   date: string;
-  time: string;
-  timeId: string;
   court: string;
   fieldId: string;
+  times: string[];       // Array waktu
+  timeIds: string[];     // Array timeId sebagai array
   price: number;
 }
 
 interface PaymentData {
-  selectedSlots: BookingSlot[];
+  bookings: BookingSlot[]; // Langsung kirim struktur terorganisir
   locationId: string;
-  paymentType: string;
+  paymentType: 'reguler' | 'membership';
   userId: string;
   membershipId?: string;
+  subtotal: number;
+  discount?: number;
+  total: number;
 }
 
 export default function PaymentPage() {
@@ -33,31 +35,20 @@ export default function PaymentPage() {
   const [membershipId, setMembershipId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Ambil data dari query parameters
     const encodedData = searchParams.get('data');
-    
+
     if (encodedData) {
       try {
         const decodedData: PaymentData = JSON.parse(decodeURIComponent(encodedData));
-        
-        // Format data untuk PaymentDetailsSection
-        const formattedBookings = decodedData.selectedSlots.map(slot => ({
-          field: slot.court,
-          date: slot.date,
-          times: [slot.time],
-          timeIds: [slot.timeId],
-          price: slot.price,
-          fieldId: slot.fieldId // Pastikan fieldId disertakan
-        }));
 
-        setBookings(formattedBookings);
-        setSubtotal(decodedData.selectedSlots.reduce((sum, slot) => sum + slot.price, 0));
-        // Ensure paymentType is either "Reguler" or "membership"
-        setPaymentType(decodedData.paymentType === "membership" ? "membership" : "reguler");
+        // Langsung bisa menggunakan data bookings yang sudah terorganisir
+        setBookings(decodedData.bookings);
+        setSubtotal(decodedData.subtotal);
+        setPaymentType(decodedData.paymentType);
         setUserId(decodedData.userId);
         setMembershipId(decodedData.membershipId || null);
 
-        // Fetch lokasi berdasarkan locationId
+        // Fetch location name
         const fetchLocationName = async () => {
           try {
             const response = await getLocationById(Number(decodedData.locationId));
@@ -71,7 +62,6 @@ export default function PaymentPage() {
         fetchLocationName();
       } catch (error) {
         console.error("Error parsing payment data:", error);
-        // Fallback jika parsing gagal
         setBookings([]);
         setSubtotal(0);
         setLocation("Lapangan Futsal");
@@ -83,15 +73,15 @@ export default function PaymentPage() {
     <UserLayout>
       <div className="p-4 space-y-4 px-4">
         <div className="space-y-4">
-          <PaymentDetailsSection 
-            data={{ 
-              bookings, 
-              location, 
+          <PaymentDetailsSection
+            data={{
+              bookings,
+              location,
               subtotal,
               paymentType,
               userId,
               membershipId
-            }} 
+            }}
           />
         </div>
       </div>

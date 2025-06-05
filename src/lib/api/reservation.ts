@@ -10,7 +10,7 @@ type FilterParams = {
     sport?: string;
     sportName?: string;
     location?: string;
-    date?: string; 
+    date?: string;
     paymentStatus?: string;
 };
 
@@ -18,14 +18,14 @@ type Payload = {
     userId: number,
     name: string,
     paymentStatus: string,
-    paymentType: string,   
+    paymentType: string,
     total: number,
     details: {
         fieldId: number,
         timeIds: number[],
-        date: string 
+        date: string
     }[],
-    membershipId?: number  
+    membershipId?: number
 }
 
 export async function getReservations(params: FilterParams = {}) {
@@ -63,7 +63,7 @@ export async function createReservation(data: Partial<Payload>) {
         console.log('Mengirim request ke /reservations...');
         const res = await api.post('/reservations', data);
         console.log('Response dari /reservations:', res.data);
-        
+
         if (!res.data || !res.data.reservation.reservationId) {
             console.error('Response tidak valid dari create reservation:', res.data);
             throw new Error('Gagal membuat reservasi: Response tidak mengandung ID');
@@ -90,7 +90,7 @@ export async function createReservation(data: Partial<Payload>) {
             console.error('Error saat membuat payment:', paymentError);
             console.warn('Reservasi berhasil dibuat tapi payment gagal. ID Reservasi:', res.data.id);
 
-            return res.data; 
+            return res.data;
         }
 
     } catch (error) {
@@ -156,6 +156,9 @@ export async function confirmPayment(reservationId: number) {
 }
 export async function getMinimumPrice(locationId: string | number) {
     const res = await api.get(`/reservations/${locationId}/minimumPrice`);
-    // const res = await api.get(`/reservations/minimumPrice`);
     return res.data;
+}
+export async function getMinimumPriceLocSports(locationId: number, sportName: string) {
+    const response = await api.get(`/reservations/getMinPriceLocSport?locationId=${locationId}&sportName=${sportName}`);
+    return response.data;
 }
