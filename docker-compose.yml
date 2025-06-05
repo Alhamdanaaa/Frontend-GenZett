@@ -7,25 +7,23 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-genzett
     restart: always
-    ports:
-      - "80:3000"
-    networks:
-      - resportsnet_fe
-    #volumes:
-     # - ../Frontend-GenZett:/app
-      # Volume mount untuk live reload development, bisa dihapus di production
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_Z2xvcmlvdXMtZ2lyYWZmZS0xMy5jbGVyay5hY2NvdW50cy5kZXYk
       - CLERK_SECRET_KEY=sk_test_OVyp8D9iXJce0eSWofzGcUQ17LQIzPQQMgLjFZezKf
-      - NEXT_PUBLIC_CLERK_SIGN_IN_URL="/auth/sign-in"
-      - NEXT_PUBLIC_CLERK_SIGN_UP_URL="/auth/sign-up"
-      - NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL="/dashboard/overview"
-      - NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL="/dashboard/overview"
-      - NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL="/dashboard/overview"
-      - NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL="/dashboard/overview"
+      - NEXT_PUBLIC_CLERK_SIGN_IN_URL=/auth/sign-in
+      - NEXT_PUBLIC_CLERK_SIGN_UP_URL=/auth/sign-up
+      - NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL=/dashboard/overview
+      - NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/dashboard/overview
+      - NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard/overview
+      - NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard/overview
       - NEXT_PUBLIC_API_URL=https://api.resports.web.id/api
+      - VIRTUAL_HOST=resports.web.id
+      - LETSENCRYPT_HOST=resports.web.id
+      - LETSENCRYPT_EMAIL=diva7aji7@gmail.com
+    networks:
+      - nginx-proxy
 
 networks:
-  resportsnet_fe:
-    driver: bridge
+  nginx-proxy:
+    external: true
