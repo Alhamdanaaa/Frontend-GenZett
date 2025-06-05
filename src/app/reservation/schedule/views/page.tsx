@@ -67,7 +67,7 @@ export default function SchedulesPage() {
   const [recurringWeeks, setRecurringWeeks] = useState<number[]>([]);
 
   const getDayName = (dayIndex: number): string => {
-    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
     return days[dayIndex];
   };
 
@@ -334,42 +334,6 @@ export default function SchedulesPage() {
     }
   };
 
-  // const handlePayment = useCallback(() => {
-  //   if (selectedSlots.length === 0) return;
-
-  //   const userId = Cookies.get('userId');
-  //   if (!userId) {
-  //     router.push('/login');
-  //     return;
-  //   }
-
-  //   // Siapkan data yang akan dikirim
-  //   const paymentData = {
-  //     selectedSlots: selectedSlots.map(slot => ({
-  //       date: slot.date,
-  //       time: slot.time,
-  //       timeId: slot.timeId,
-  //       court: slot.court,
-  //       fieldId: slot.fieldId,
-  //       price: slot.price,
-  //     })),
-  //     locationId: locationId ?? '',
-  //     paymentType: selectedPaymentType,
-  //     userId: userId,
-  //     ...(membershipId && { membershipId }),
-  //   };
-
-  //   console.log('Payment Data:', paymentData);
-  //   // console.log('Processed schedules:', processedSchedules);
-  //   console.log('Time slots by court:', timeSlotsByCourt);
-
-  //   // Encode data untuk URL
-  //   const encodedData = encodeURIComponent(JSON.stringify(paymentData));
-
-  //   // Navigasi ke halaman payment dengan data
-  //   router.push(`/reservation/payment?data=${encodedData}`);
-  // }, [selectedSlots, locationId, selectedPaymentType, membershipId, timeSlotsByCourt, router]);
-
   const calculateDiscount = (total: number): number => {
     if (!membershipData) {
       return 0;
@@ -500,12 +464,12 @@ export default function SchedulesPage() {
               <h2 className='mb-2 text-lg font-semibold text-black'>
                 Paket Langganan
               </h2>
-                <ul className='mb-4 list-inside list-disc space-y-1 text-sm text-gray-600'>
-                  <li>Hemat hingga 30% dengan diskon sesuai paket langganan</li>
-                  <li>Pesan sekali untuk jadwal rutin mingguan mulai (2-4 minggu)</li>
-                  <li>Booking banyak lapangan & waktu dalam satu transaksi</li>
-                  <li>Prioritas slot permainan di hari yang sama setiap minggu</li>
-                </ul>
+              <ul className='mb-4 list-inside list-disc space-y-1 text-sm text-gray-600'>
+                <li>Hemat hingga 30% dengan diskon sesuai paket langganan</li>
+                <li>Pesan sekali untuk jadwal rutin mingguan mulai (2-4 minggu)</li>
+                <li>Booking banyak lapangan & waktu dalam satu transaksi</li>
+                <li>Prioritas slot permainan di hari yang sama setiap minggu</li>
+              </ul>
               <Button
                 onClick={() => router.push('../membership')}
                 className='w-full bg-orange-500 hover:bg-orange-600'
@@ -519,13 +483,11 @@ export default function SchedulesPage() {
         {/* Enhanced Date Picker & Filter Section */}
         <div className='mt-8 mb-8'>
           {/* Section Header */}
-          <div className='mb-6 flex items-center gap-3'>
-            <div className='p-2 rounded-full bg-[#C5FC40] hover:bg-[#B0E83A] transition-colors cursor-pointer'>
-              <Image src='/icons/arrow.svg' alt='Back' width={20} height={20} />
-            </div>
-            <h2 className='text-2xl font-bold text-gray-800'>
+          <div className='mb-4 flex items-center gap-2'>
+            <Image src='/icons/arrow.svg' alt='-' width={26} height={26} />
+            <p className='text-2xl font-semibold text-black'>
               Pilih Lapangan
-            </h2>
+            </p>
           </div>
 
           {/* Main Container */}
@@ -534,14 +496,14 @@ export default function SchedulesPage() {
             <div className='flex flex-col md:flex-row justify-between items-center gap-4'>
               {/* Date Selector */}
               <div className='flex items-center gap-4 w-full md:w-auto'>
-                <div className='flex overflow-x-auto pb-2 gap-2 scrollbar-hide flex-1'>
+                <div className='flex overflow-x-auto pb-2 gap-2 scrollbar-hide flex-1 scrollbar-hidden'>
                   {dates.map(({ day, date, month, displayDate }) => {
                     const isSelected = selectedDate === date;
                     return (
                       <button
                         key={date}
                         onClick={() => setSelectedDate(date)}
-                        className={`min-w-[90px] flex flex-col items-center justify-center rounded-xl py-3 px-2 transition-all ${isSelected
+                        className={`min-w-[120px] flex flex-col items-center justify-center rounded-xl py-3 px-2 transition-all ${isSelected
                           ? 'bg-[#C5FC40] shadow-md transform scale-105'
                           : 'bg-[#3A5849] hover:bg-[#4D6B5C]'
                           }`}
@@ -561,7 +523,6 @@ export default function SchedulesPage() {
 
                 {/* Calendar Button */}
                 <button
-
                   onClick={() => setOpenDropdown(openDropdown.includes('calendar') ? [] : ['calendar'])}
                   className='p-3 rounded-lg bg-[#3A5849] hover:bg-[#4D6B5C] transition-colors flex-shrink-0'
                   aria-label='Open calendar'

@@ -154,6 +154,10 @@ export async function confirmPayment(reservationId: number) {
     const res = await api.post(`/reservations/${reservationId}/pay`);
     return res.data;
 }
+export async function getPrice(locationId: string | number) {
+    const res = await api.get(`/reservations/getPrice/${locationId}`);
+    return res.data;
+}
 export async function getMinimumPrice(locationId: string | number) {
     const res = await api.get(`/reservations/${locationId}/minimumPrice`);
     return res.data;

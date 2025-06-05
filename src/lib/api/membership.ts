@@ -8,6 +8,7 @@ type FilterParams = {
   search?: string;
   sports?: number[] | string; // serialize array ke string '1.2.3' untuk query param
   locations?: number[] | string; 
+  all?: boolean;
 };
 
 export async function getMemberships(params: FilterParams) {
