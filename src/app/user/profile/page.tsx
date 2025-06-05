@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import EditProfileModal from "@/components/modal/EditProfileModal"
 import ChangePasswordModal from "@/components/modal/ChangePasswordModal"
-import Swal from 'sweetalert2'
+// import Swal from 'sweetalert2'
 
 export default function ProfilePage() {
   const [showModal, setShowModal] = useState(false)
@@ -171,7 +171,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F8F8F8] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-8 animate-fade-in">
@@ -233,7 +233,7 @@ export default function ProfilePage() {
                 title="Informasi Personal"
                 icon={<User className="text-orange-500" size={24} />}
                 items={[
-                  { label: "Nama Lengkap", value: userData.name, icon: <UserCircle size={16} /> },
+                  { label: "Nama Lengkap", value: userData.name},
                   // { label: "Email", value: userData.email, icon: <Mail size={16} /> },
                 ]}
               />
@@ -243,8 +243,8 @@ export default function ProfilePage() {
                 title="Informasi Kontak"
                 icon={<Phone className="text-orange-500" size={24} />}
                 items={[
-                  { label: "Nomor Telepon", value: userData.phone, icon: <Phone size={16} /> },
-                  { label: "Email", value: userData.email, icon: <User size={16} /> },
+                  { label: "Nomor Telepon", value: userData.phone},
+                  { label: "Email", value: userData.email},
                 ]}
               />
 
