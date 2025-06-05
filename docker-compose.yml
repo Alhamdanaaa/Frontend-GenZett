@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.resports.web.id/api
     container_name: frontend-genzett
     restart: always
     environment:
