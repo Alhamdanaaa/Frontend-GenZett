@@ -81,11 +81,11 @@ export default function LoginPage() {
             {/* Password */}
             <div className="relative">
               <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10 transition-all ease-in-out duration-300 transform hover:scale-105">
-                Kata Sandi
+                Password
               </label>
               <input
                 type={show ? "text" : "password"}
-                placeholder="Masukkan kata sandi"
+                placeholder="Masukkan password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-400 transition-all duration-300 ease-in-out transform hover:scale-105 focus:scale-105"
