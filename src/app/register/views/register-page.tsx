@@ -30,7 +30,7 @@ export default function RegisterPage() {
     setError({});
 
     if (form.password !== form.password_confirmation) {
-      setError({ password_confirmation: ["Konfirmasi kata sandi tidak cocok."] });
+      setError({ password_confirmation: ["Konfirmasi password tidak cocok."] });
       setPending(false);
       return;
     }
@@ -125,11 +125,11 @@ export default function RegisterPage() {
               {/* Password */}
               <div className="relative">
                 <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10">
-                  Kata Sandi
+                  Password
                 </label>
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Buat kata sandi"
+                  placeholder="Buat password"
                   value={form.password}
                   onChange={(e) => {
                     setForm({ ...form, password: e.target.value });
@@ -152,11 +152,11 @@ export default function RegisterPage() {
               {/* Konfirmasi Password */}
               <div className="relative">
                 <label className="absolute -top-2 left-3 px-1 text-sm bg-white text-gray-500 z-10">
-                  Konfirmasi Kata Sandi
+                  Konfirmasi password
                 </label>
                 <input
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Ulangi kata sandi"
+                  placeholder="Ulangi password"
                   value={form.password_confirmation}
                   onChange={(e) =>
                     setForm({ ...form, password_confirmation: e.target.value })
