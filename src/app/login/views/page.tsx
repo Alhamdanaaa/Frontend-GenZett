@@ -102,11 +102,11 @@ export default function LoginPage() {
             {/* Error Message */}
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-            <div className="text-right text-sm text-gray-500">
+            {/* <div className="text-right text-sm text-gray-500">
               <a href="#" className="hover:underline">
                 Lupa kata sandi?
               </a>
-            </div>
+            </div> */}
 
             <Button
               type="submit"

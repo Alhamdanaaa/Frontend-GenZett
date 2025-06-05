@@ -282,9 +282,19 @@ export default function AdminForm({
               />
             </div>
 
-            <Button type='submit' disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Admin'}
-            </Button>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
+                onClick={() => router.push('/dashboard/admin')}
+              >
+                Batal
+              </Button>
+              <Button type='submit' disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Admin'}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

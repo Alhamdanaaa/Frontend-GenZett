@@ -196,7 +196,7 @@ export default function MembershipPage() {
     }, []);
 
     return (
-        <div className="h-screen overflow-auto hide-scrollbar">
+        <main className="text-gray-800 overflow-auto hide-scrollbar">
             <UserLayout>
                 <main className="text-gray-800 min-h-screen overflow-hidden">
                     <div className="text-black px-4 md:px-24 lg:px-48">
@@ -315,6 +315,6 @@ export default function MembershipPage() {
                     )}
                 </main>
             </UserLayout>
-        </div>
+        </main>
     );
 }

@@ -44,29 +44,29 @@ const formSchema = (isEdit: boolean) =>
     img: isEdit
       ? z.any().optional() // saat edit, gambar boleh kosong
       : z
-          .any()
-          .refine((files) => files?.length == 1, 'Gambar lokasi diperlukan.')
-          .refine(
-            (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-            `Ukuran file maksimal 5MB.`
-          )
-          .refine(
-            (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-            'Hanya menerima file .jpg, .jpeg, .png dan .webp.'
-          ),
+        .any()
+        .refine((files) => files?.length == 1, 'Gambar lokasi diperlukan.')
+        .refine(
+          (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+          `Ukuran file maksimal 5MB.`
+        )
+        .refine(
+          (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+          'Hanya menerima file .jpg, .jpeg, .png dan .webp.'
+        ),
     locationName: z.string().min(2, { message: 'Nama lokasi minimal 2 karakter.' }),
     address: z.string().min(5, { message: 'Alamat minimal 5 karakter.' }),
     description: z.string().min(10, { message: 'Deskripsi minimal 10 karakter.' })
   });
 
 
-  export default function LocationForm({
-    initialData,
-    pageTitle
-  }: {
-    initialData: Location | null;
-    pageTitle: string;
-  }) {
+export default function LocationForm({
+  initialData,
+  pageTitle
+}: {
+  initialData: Location | null;
+  pageTitle: string;
+}) {
 
   const isEdit = !!initialData;
   const defaultValues = {
@@ -195,9 +195,20 @@ const formSchema = (isEdit: boolean) =>
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Lokasi'}
-            </Button>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
+                onClick={() => router.push('/dashboard/location')}
+              >
+                Batal
+              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Lokasi'}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

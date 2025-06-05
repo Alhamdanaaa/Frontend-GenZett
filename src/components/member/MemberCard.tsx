@@ -39,13 +39,14 @@ export default function MemberCard({ members = [] }: { members: any[] }) {
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 py-6">
-            {/* Jika tidak ada data, tampilkan pesan */}
-            {members.length === 0 && (
-                <div className="col-span-3 text-center text-gray-500">
-                    Tidak ada data membership yang tersedia.
-                </div>
-            )}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-6"> */}
+                {/* Jika tidak ada data, tampilkan pesan */}
+                {members.length === 0 && (
+                    <div className="col-span-3 text-center text-gray-500">
+                        Tidak ada data membership yang tersedia.
+                    </div>
+                )}
 
             {/* Maping data members */}
             {members.map((member, index) => {

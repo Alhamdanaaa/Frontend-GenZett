@@ -7,10 +7,10 @@ export default async function EditProfilePage() {
   const user = await getUserFromServer()
 
   return (
-    <div className="w-full max-w-xl mx-auto px-6 py-10">
+    <div className="w-full px-6 py-10">
       <Card>
         <CardHeader>
-          <CardTitle>Edit Profil</CardTitle>
+          <CardTitle className="text-xl">Edit Profil</CardTitle>
         </CardHeader>
         <Separator />
         <CardContent className="mt-4">
