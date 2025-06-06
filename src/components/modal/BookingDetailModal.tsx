@@ -245,12 +245,13 @@ export default function BookingDetailModal({
 
   // Calculate payment information
   const totalPaid = detailData.payment?.totalPaid || 0;
-  const totalAmount = detailData.total;
+  const totalAmount = detailData.details.map((detail, index) => detail.time?.price).reduce((total, price) => total + (price || 0), 0);
   const remainingAmount = totalAmount - totalPaid;
   const isFullyPaid = detailData.paymentStatus === 'complete';
   const isPartiallyPaid = totalPaid > 0 && totalPaid < totalAmount;
 
   return (
+    
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
          onClick={onClose}>
       <div className="bg-white p-6 rounded-lg max-w-lg sm:max-w-md md:max-w-xl lg:max-w-2xl w-full shadow-xl space-y-6 overflow-auto max-h-[80vh]"
@@ -261,7 +262,7 @@ export default function BookingDetailModal({
         <table className="w-full table-fixed text-sm border-collapse border border-[#6CC28F]">
           <tbody>
             {[
-              ["Invoice ID", `#${detailData.reservationId}`],
+              // ["Invoice ID", `#${detailData.reservationId}`],
               ["Atas Nama", detailData.name],
               ["Cabang", detailData.details[0]?.field?.location?.locationName || "N/A"],
               ["Alamat", detailData.details[0]?.field?.location?.address || "N/A"],
@@ -303,7 +304,7 @@ export default function BookingDetailModal({
             {[
               ["Total Harga", formatCurrency(totalAmount)],
               ["Sudah Dibayar", formatCurrency(totalPaid)],
-              ["Sisa Pembayaran", formatCurrency(remainingAmount)],
+              ["Sisa Pembayaran", formatCurrency(remainingAmount )],
               [
                 "Status Pembayaran", 
                 isFullyPaid ? "Lunas" : 
@@ -344,6 +345,12 @@ export default function BookingDetailModal({
           </Button>
         </div>
       </div>
+      
+      <style jsx>{`
+      tbody {
+        color: black;        
+      }
+      `}</style>
     </div>
   );
 }
