@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import EditProfileModal from "@/components/modal/EditProfileModal"
 import ChangePasswordModal from "@/components/modal/ChangePasswordModal"
-// import Swal from 'sweetalert2'
+import Swal from 'sweetalert2'
 
 export default function ProfilePage() {
   const [showModal, setShowModal] = useState(false)
@@ -303,7 +303,7 @@ function InfoCard({
 }: { 
   title: string
   icon: React.ReactNode
-  items: Array<{ label: string; value: string; icon: React.ReactNode }>
+  items: Array<{ label: string; value: string; icon?: React.ReactNode }>
 }) {
   return (
     <div className="bg-white shadow-xl rounded-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-orange-100">
