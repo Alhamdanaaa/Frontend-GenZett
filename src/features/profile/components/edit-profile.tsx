@@ -114,10 +114,11 @@ export default function EditProfileForm({ name = '', phone = '' }: Props) {
             </FormItem>
           )}
         />
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-3">
           <Button
             type="button"
             variant="outline"
+            className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
             onClick={() => router.back()}
           >
             Batal

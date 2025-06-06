@@ -284,9 +284,19 @@ export default function MembershipForm({
               />
             </div>
 
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Menyimpan...' : 'Simpan Membership'}
-            </Button>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
+                onClick={() => router.push('/dashboard/membership')}
+              >
+                Batal
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Menyimpan...' : 'Simpan Membership'}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

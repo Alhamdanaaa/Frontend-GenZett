@@ -38,7 +38,7 @@ export const company = {
   name: 'ReSports',
   logo: (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props}>
-      <image href="/logo-r-hitam.svg" width="100%" height="100%" />
+      <image href="/logo-r-hitam-kecil.svg" width="100%" height="100%" />
     </svg>
   )
 };

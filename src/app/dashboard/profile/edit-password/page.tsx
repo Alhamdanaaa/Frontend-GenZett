@@ -59,23 +59,23 @@ export default function EditPasswordPage() {
 
     setLoading(true)
     try {
-        await changePassword(formData.oldPassword, formData.newPassword)
-        toast.success('Password berhasil diubah')
-        router.push('/dashboard/profile')
+      await changePassword(formData.oldPassword, formData.newPassword)
+      toast.success('Password berhasil diubah')
+      router.push('/dashboard/profile')
     } catch (err: any) {
-        toast.error(err.message || 'Terjadi kesalahan')
+      toast.error(err.message || 'Terjadi kesalahan')
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
-}
+  }
 
   return (
-    <div className="w-full max-w-xl mx-auto px-6 py-10">
+    <div className="w-full px-6 py-10">
       <div className="bg-white rounded-xl shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Ubah Password</h2>
         <Separator className="mb-6" />
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
+          <div className="space-y-2">
             <Label>Password Lama</Label>
             <Input
               type="password"
@@ -85,10 +85,10 @@ export default function EditPasswordPage() {
               required
             />
             {formErrors.oldPassword && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.oldPassword}</p>
+              <p className="text-sm text-red-500">{formErrors.oldPassword}</p>
             )}
           </div>
-          <div>
+          <div className="space-y-2">
             <Label>Password Baru</Label>
             <Input
               type="password"
@@ -98,10 +98,10 @@ export default function EditPasswordPage() {
               required
             />
             {formErrors.newPassword && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.newPassword}</p>
+              <p className="text-sm text-red-500">{formErrors.newPassword}</p>
             )}
           </div>
-          <div>
+          <div className="space-y-2">
             <Label>Konfirmasi Password Baru</Label>
             <Input
               type="password"
@@ -111,13 +111,14 @@ export default function EditPasswordPage() {
               required
             />
             {formErrors.confirmPassword && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.confirmPassword}</p>
+              <p className="text-sm text-red-500">{formErrors.confirmPassword}</p>
             )}
           </div>
           <div className="flex justify-end gap-3">
             <Button
               type="button"
               variant="outline"
+              className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
               onClick={() => router.push('/dashboard/profile')}
             >
               Batal

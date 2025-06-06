@@ -27,6 +27,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import * as z from 'zod';
+import { IconAlertCircle, IconClockX } from '@tabler/icons-react';
 
 // Schema untuk time slot pricing
 const timeSlotSchema = z.object({
@@ -124,7 +125,7 @@ export default function FieldForm({
   // Convert initial data from API format to form format
   const convertApiToFormData = (data: any) => {
     if (!data) return null;
-    
+
     const timeSlots = [];
     if (data.start && data.end && data.price) {
       for (let i = 0; i < data.start.length; i++) {
@@ -135,7 +136,7 @@ export default function FieldForm({
         });
       }
     }
-    
+
     return {
       ...data,
       locationId: Number(data.locationId || data.location),
@@ -149,16 +150,16 @@ export default function FieldForm({
 
   const defaultValues: FormData = {
     name: convertedInitialData?.name ?? '',
-    locationId: convertedInitialData?.locationId ?? 0,
-    sportId: convertedInitialData?.sportId ?? 0,
+    locationId: convertedInitialData?.locationId ?? undefined,
+    sportId: convertedInitialData?.sportId ?? undefined,
     startHour: convertedInitialData?.startHour?.slice(0, 5) ?? '08:00',
     endHour: convertedInitialData?.endHour?.slice(0, 5) ?? '23:00',
     description: convertedInitialData?.description ?? '',
-    pricingType: convertedInitialData?.pricingType ?? 'fixed',
+    pricingType: convertedInitialData?.pricingType ?? undefined,
     fixedPrice: convertedInitialData?.fixedPrice ?? 50000,
     timeSlots: convertedInitialData?.timeSlots ?? [
-      { startTime: '08:00', endTime: '17:00', price: 50000},
-      { startTime: '17:00', endTime: '23:00', price: 75000}
+      { startTime: '08:00', endTime: '17:00', price: 50000 },
+      { startTime: '17:00', endTime: '23:00', price: 75000 }
     ],
     overlapStrategy: 'highest',
     defaultPrice: 40000
@@ -213,7 +214,7 @@ export default function FieldForm({
     const slots = form.getValues('timeSlots') || [];
     const fieldStart = form.getValues('startHour');
     const fieldEnd = form.getValues('endHour');
-    
+
     if (!slots.length || !fieldStart || !fieldEnd) return { overlaps: [], gaps: [] };
 
     // Convert time to minutes for easier calculation
@@ -298,17 +299,17 @@ export default function FieldForm({
   // Function to fill gaps with lowest price - now inside component scope
   const fillGapsWithLowestPrice = () => {
     const currentSlots = form.getValues('timeSlots') || [];
-    
+
     // Cari harga terendah dari slot yang sudah ada
     const getLowestPrice = () => {
       if (currentSlots.length === 0) return 40000; // fallback jika belum ada slot
-      
+
       const prices = currentSlots.map((slot: { price: number }) => slot.price);
       return Math.min(...prices);
     };
-    
+
     const lowestPrice = getLowestPrice();
-    
+
     // Isi semua gap dengan harga terendah
     gaps.forEach((gap: { time: string }) => {
       const [start, end] = gap.time.split('-');
@@ -321,7 +322,7 @@ export default function FieldForm({
 
     // Update form dengan slot yang sudah ditambahkan
     form.setValue('timeSlots', currentSlots);
-    
+
     // Optional: Show notification/feedback
     console.log(`Gap terisi dengan harga terendah: ${formatCurrency(lowestPrice)}`);
   };
@@ -361,7 +362,7 @@ export default function FieldForm({
   const addTimeSlot = () => {
     const lastSlot = fields[fields.length - 1];
     const startTime = lastSlot ? lastSlot.endTime : '08:00';
-    
+
     append({
       startTime,
       endTime: '23:00',
@@ -371,18 +372,18 @@ export default function FieldForm({
 
   async function onSubmit(values: FormData) {
     console.log('Form submitted:', values);
-    
+
     try {
       // Convert form data to API format
       const apiData = convertFormToApiData(values);
       console.log('API Data:', apiData);
-      
+
       if (initialData) {
         await updateField(initialData.id, apiData);
       } else {
         await createField(apiData);
       }
-      
+
       router.push('/dashboard/field');
     } catch (error) {
       console.error('Gagal menyimpan lapangan:', error);
@@ -400,43 +401,47 @@ export default function FieldForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             {/* Basic Information */}
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Lapangan</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Masukkan nama lapangan' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               <FormField
                 control={form.control}
-                name='name'
+                name="locationId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Lapangan</FormLabel>
+                    <FormLabel>Lokasi Cabang</FormLabel>
                     <FormControl>
-                      <Input placeholder='Masukkan nama lapangan' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='locationId'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Lokasi</FormLabel>
-                    <Select 
-                      onValueChange={(value) => field.onChange(Number(value))} 
-                      value={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih lokasi' />
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value != null ? String(field.value) : undefined}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Pilih Lokasi Cabang" />
                         </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {locationOptions.map((location) => (
-                          <SelectItem key={location.value} value={location.value}>
-                            {location.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        <SelectContent>
+                          {locationOptions.map((location) => (
+                            <SelectItem
+                              key={location.value}
+                              value={location.value}
+                            >
+                              {location.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -447,23 +452,23 @@ export default function FieldForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cabang Olahraga</FormLabel>
-                    <Select 
-                      onValueChange={(value) => field.onChange(Number(value))} 
-                      value={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih cabang olahraga' />
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => field.onChange(Number(value))}
+                        value={field.value != null ? String(field.value) : undefined}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Pilih cabang olahraga" />
                         </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {sportOptions.map((sport) => (
-                          <SelectItem key={sport.value} value={sport.value}>
-                            {sport.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        <SelectContent>
+                          {sportOptions.map((sport) => (
+                            <SelectItem key={sport.value} value={sport.value}>
+                              {sport.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -478,7 +483,7 @@ export default function FieldForm({
                       <Input
                         type='time'
                         step={3600}
-                        placeholder='Jam Mulai'
+                        placeholder='08:00'
                         {...field}
                         onChange={(e) => {
                           const time = e.target.value;
@@ -502,7 +507,7 @@ export default function FieldForm({
                       <Input
                         type='time'
                         step={3600}
-                        placeholder='Jam Tutup'
+                        placeholder='23:00'
                         {...field}
                         onChange={(e) => {
                           const time = e.target.value;
@@ -554,8 +559,8 @@ export default function FieldForm({
                       <FormLabel>Tipe Harga</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Pilih tipe harga' />
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder='Pilih Tipe Harga' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -601,7 +606,7 @@ export default function FieldForm({
                             <FormLabel>Strategi Overlap Waktu</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
-                                <SelectTrigger>
+                                <SelectTrigger className='w-full'>
                                   <SelectValue placeholder='Pilih strategi' />
                                 </SelectTrigger>
                               </FormControl>
@@ -615,7 +620,7 @@ export default function FieldForm({
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name='defaultPrice'
@@ -645,7 +650,10 @@ export default function FieldForm({
                         <CardContent className='space-y-3'>
                           {overlaps.length > 0 && (
                             <div>
-                              <h5 className='font-medium text-amber-800 mb-2'>🔄 Overlap Terdeteksi:</h5>
+                              <div className='flex items-center gap-2 mb-2'>
+                                <IconAlertCircle className="h-5 w-5 text-amber-800" />
+                                <h5 className='font-medium text-amber-800 mr-auto'>Overlap Terdeteksi:</h5>
+                              </div>
                               {overlaps.map((overlap, index) => (
                                 <div key={index} className='bg-white p-3 rounded border border-amber-200 mb-2'>
                                   <div className='font-medium text-amber-900'>Jam {overlap.time}</div>
@@ -664,11 +672,12 @@ export default function FieldForm({
                               ))}
                             </div>
                           )}
-                          
+
                           {gaps.length > 0 && (
                             <div>
-                              <div className='flex items-center justify-between mb-2'>
-                                <h5 className='font-medium text-amber-800'>⏰ Jam Kosong:</h5>
+                              <div className='flex items-center gap-2 mb-2'>
+                                <IconClockX className="h-5 w-5 text-amber-800" />
+                                <h5 className='font-medium text-amber-800 mr-auto'>Jam Kosong:</h5>
                                 <Button
                                   type='button'
                                   size='sm'
@@ -713,15 +722,15 @@ export default function FieldForm({
                     <div className='space-y-4'>
                       {fields.map((field, index) => (
                         <Card key={field.id} className='p-4'>
-                          <div className='grid grid-cols-1 md:grid-cols-5 gap-4 items-end'>
+                          <div className='grid grid-cols-1 md:grid-cols-12 gap-4 items-end'>
                             <FormField
                               control={form.control}
                               name={`timeSlots.${index}.startTime`}
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="md:col-span-2">
                                   <FormLabel>Jam Mulai</FormLabel>
                                   <FormControl>
-                                    <Input 
+                                    <Input
                                       type='time'
                                       step={3600}
                                       placeholder='Jam Mulai'
@@ -741,10 +750,10 @@ export default function FieldForm({
                               control={form.control}
                               name={`timeSlots.${index}.endTime`}
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="md:col-span-2">
                                   <FormLabel>Jam Selesai</FormLabel>
                                   <FormControl>
-                                    <Input 
+                                    <Input
                                       type='time'
                                       step={3600}
                                       placeholder='Jam Selesai'
@@ -764,7 +773,7 @@ export default function FieldForm({
                               control={form.control}
                               name={`timeSlots.${index}.price`}
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="md:col-span-7">
                                   <FormLabel>Harga per Jam</FormLabel>
                                   <FormControl>
                                     <Input
@@ -778,15 +787,17 @@ export default function FieldForm({
                                 </FormItem>
                               )}
                             />
-                            <Button
-                              type='button'
-                              variant='outline'
-                              size='icon'
-                              onClick={() => remove(index)}
-                              disabled={fields.length === 1}
-                            >
-                              <Trash2 className='h-4 w-4' />
-                            </Button>
+                            <div className="md:col-span-1 flex justify-center">
+                              <Button
+                                type='button'
+                                variant='outline'
+                                size='icon'
+                                onClick={() => remove(index)}
+                                disabled={fields.length === 1}
+                              >
+                                <Trash2 className='h-4 w-4' />
+                              </Button>
+                            </div>
                           </div>
                           {form.watch(`timeSlots.${index}.price`) && (
                             <div className='mt-2'>
@@ -812,9 +823,23 @@ export default function FieldForm({
                 )}
               </CardContent>
             </Card>
-            <Button type='submit' className='w-full'>
-              Simpan Lapangan
-            </Button>
+
+            <div className="my-2 space-y-2">
+              <Button type='submit' className='w-full'>
+                Simpan Lapangan
+              </Button>
+
+              <div className="border-t border-gray-300"></div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800 w-full"
+                onClick={() => router.push('/dashboard/field')}
+              >
+                Batal
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

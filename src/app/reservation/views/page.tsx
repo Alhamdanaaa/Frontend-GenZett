@@ -5,18 +5,16 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import UserLayout from '@/app/user/layout';
-import { MapPin, Loader2, Wallet } from 'lucide-react';
-import { getLocations, getSports, getMinimumPrice } from '@/lib/api/reservation';
+import { MapPin, Loader2, Wallet, ChevronDown, FilterX } from 'lucide-react';
+import { getLocations, getSports, getPrice } from '@/lib/api/reservation';
 import { Location } from '@/constants/data';
-// import { useSession } from 'next-auth/react';
 
 export default function SportsLocationPage() {
   const router = useRouter();
-  // const { data: session, status } = useSession();
-  type LocationWithMinPrice = Location & { minPrice?: string };
+  type LocationWithPrice = Location & { minPrice?: string, maxPrice?: string };
 
   const [sports, setSports] = useState<string[]>([]);
-  const [locations, setLocations] = useState<LocationWithMinPrice[]>([]);
+  const [locations, setLocations] = useState<LocationWithPrice[]>([]);
   const [selectedSport, setSelectedSport] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -24,7 +22,6 @@ export default function SportsLocationPage() {
 
   const sportDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -59,34 +56,34 @@ export default function SportsLocationPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch sports data
         const sportsResponse = await getSports();
         const sportData = sportsResponse?.data?.filter((sport: any) => typeof sport === 'string') || [];
         setSports(sportData);
 
-        // Fetch locations with minimum prices
         const locationResponse = await getLocations({});
         if (locationResponse.data && Array.isArray(locationResponse.data)) {
           const locationsWithPrices = await Promise.all(
             locationResponse.data.map(async (location: { locationId: string | number; locationName: any; }) => {
               try {
-                const priceResponse = await getMinimumPrice(location.locationId);
-                console.log(priceResponse);
+                const priceResponse = await getPrice(location.locationId);
+                console.log('Price res: ', priceResponse);
                 return {
                   ...location,
-                  minPrice: priceResponse.success ? priceResponse.minPrice : 'Harga tidak tersedia'
+                  minPrice: priceResponse.success ? priceResponse.minPrice : 'N/A',
+                  maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A'
                 };
               } catch (error) {
                 console.error(`Failed to get price for ${location.locationName}`, error);
                 return {
                   ...location,
-                  minPrice: 'Harga tidak tersedia'
+                  minPrice: 'N/A',
+                  maxPrice: 'N/A'
                 };
               }
             })
           );
+          console.log(locationsWithPrices);
           setLocations(locationsWithPrices);
-          console.log('Locations with prices:', locationsWithPrices);
         }
       } catch (error) {
         setError('Gagal memuat data lokasi');
@@ -98,6 +95,14 @@ export default function SportsLocationPage() {
     fetchData();
   }, []);
 
+  const formatPrice = (price: string) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(Number(price));
+  };
+
   const handleFilter = async () => {
     setLoading(true);
     try {
@@ -105,10 +110,11 @@ export default function SportsLocationPage() {
       if (response.data) {
         const filteredLocations = await Promise.all(
           response.data.map(async (location: { locationId: string | number; }) => {
-            const priceResponse = await getMinimumPrice(location.locationId);
+            const priceResponse = await getPrice(location.locationId);
             return {
               ...location,
-              minPrice: priceResponse.success ? priceResponse.minPrice : 'Harga tidak tersedia'
+              minPrice: priceResponse.success ? formatPrice(priceResponse.minPrice) : 'N/A',
+              maxPrice: priceResponse.success ? formatPrice(priceResponse.maxPrice) : 'N/A'
             };
           })
         );
@@ -119,6 +125,28 @@ export default function SportsLocationPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearFilter = () => {
+    setSelectedSport('');
+    setLoading(true);
+    getLocations({}).then(response => {
+      if (response.data) {
+        Promise.all(
+          response.data.map(async (location: { locationId: string | number; }) => {
+            const priceResponse = await getPrice(location.locationId);
+            return {
+              ...location,
+              minPrice: priceResponse.success ? formatPrice(priceResponse.minPrice) : 'N/A',
+              maxPrice: priceResponse.success ? formatPrice(priceResponse.maxPrice) : 'N/A'
+            };
+          })
+        ).then(locationsWithPrices => {
+          setLocations(locationsWithPrices);
+          setLoading(false);
+        });
+      }
+    });
   };
 
   const handleCardClick = (item: Location) => {
@@ -136,33 +164,48 @@ export default function SportsLocationPage() {
       Basketball: '🏀',
       Futsal: '⚽',
       Tennis: '🎾',
-      Volleyball: '🏐'
+      Volleyball: '🏐',
+      Handball: '🤾🏻',
+      'Sepak Bola': '🥅',
     };
     return sportEmojiMap[sport] || '🎮';
   };
 
   return (
     <UserLayout>
-      <main className='text-gray-800 overflow-auto hide-scrollbar'>
+      <main className='text-gray-800 overflow-auto hide-scrollbar bg-gray-50'>
         <div className='mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-5 md:py-10'>
-          <div className='mb-6 flex justify-center'>
-            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4'>
-              <div className='relative w-full sm:w-72' ref={sportDropdownRef}>
+          <div className='w-full'>
+            <h1 className='text-3xl font-bold text-gray-900 mb-2'>Temukan Lapangan Olahraga</h1>
+            <p className='text-gray-600 mb-6'>Pilih cabang olahraga dan temukan lapangan terbaik di sekitar Anda</p>
+
+            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 w-full mb-8'>
+              <div className='relative flex-1' ref={sportDropdownRef}>
                 <label
                   htmlFor='sport-type'
-                  className='absolute -top-2 left-3 bg-white px-1 text-sm text-gray-600'
+                  className='absolute -top-2 left-3 bg-white px-2 text-sm text-gray-600 z-10 rounded-md'
                 >
                   Cabang Olahraga
                 </label>
                 <button
                   type='button'
                   onClick={() => setIsOpen(!isOpen)}
-                  className='w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none'
+                  className='w-full appearance-none rounded-lg border border-gray-300 px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white flex justify-between items-center'
                 >
-                  {selectedSport || 'Pilih Olahraga'}
+                  <span>{selectedSport || 'Semua Olahraga'}</span>
+                  <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isOpen && (
-                  <div className='absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-md'>
+                  <div className='absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg'>
+                    <div
+                      onClick={() => {
+                        setSelectedSport('');
+                        setIsOpen(false);
+                      }}
+                      className='cursor-pointer px-4 py-2 text-base text-gray-700 hover:bg-gray-100 border-b border-gray-100'
+                    >
+                      Semua Olahraga
+                    </div>
                     {sports.map((sport, idx) => (
                       <div
                         key={idx}
@@ -170,45 +213,56 @@ export default function SportsLocationPage() {
                           setSelectedSport(sport);
                           setIsOpen(false);
                         }}
-                        className='cursor-pointer px-4 py-2 text-base text-gray-700 hover:bg-gray-100'
+                        className='cursor-pointer px-4 py-2 text-base text-gray-700 hover:bg-orange-50 flex items-center gap-2'
                       >
-                        {sport}
+                        <span className='text-lg'>{getSportEmoji(sport)}</span>
+                        <span>{sport}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
               <button
-                className='rounded-lg bg-orange-500 px-6 py-2 font-semibold text-white transition hover:bg-orange-600'
+                className='rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600 sm:whitespace-nowrap flex items-center gap-2 shadow-md hover:shadow-lg'
                 onClick={handleFilter}
               >
-                Filter
+                <FilterX className='h-4 w-4' />
+                <span>Filter</span>
               </button>
+              {selectedSport && (
+                <button
+                  className='rounded-lg border border-gray-300 px-4 py-3 font-medium text-gray-700 transition hover:bg-gray-100 sm:whitespace-nowrap flex items-center gap-2'
+                  onClick={clearFilter}
+                >
+                  <span>Reset</span>
+                </button>
+              )}
             </div>
           </div>
 
           {loading && (
-            <div className='flex items-center justify-center p-10'>
+            <div className='flex flex-col items-center justify-center p-10 gap-4'>
               <Loader2 className='h-10 w-10 animate-spin text-orange-500' />
+              <p className='text-gray-600'>Memuat data lapangan...</p>
             </div>
           )}
 
           {error && !loading && (
-            <div className='rounded-lg bg-red-50 p-4 text-red-600'>
+            <div className='rounded-lg bg-red-100 p-4 text-red-600 border border-red-200 w-full max-w-md text-center'>
               {error}. Silakan coba lagi.
             </div>
           )}
 
           {!loading && !error && (
-            <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+            <div className='w-full grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
               {locations.length > 0 ? (
                 locations.map((item, idx) => (
                   <div
                     key={idx}
-                    className='cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-xl'
+                    className='cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-xl hover:border-orange-300 hover:translate-y-[-4px] group'
                     onClick={() => handleCardClick(item)}
                   >
-                    <div className='relative h-48 w-full min-w-[320px]'>
+                    <div className='relative h-48 w-full'>
                       <Image
                         src={item.imageUrl || '/images/futsal.png'}
                         alt='Lapangan'
@@ -216,67 +270,82 @@ export default function SportsLocationPage() {
                         objectFit='cover'
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/images/futsal.png'; // 
-                          // target.src = `/images/${item.imageUrl || 'futsal.png'}`;
+                          target.src = '/images/futsal.png';
                           target.onerror = null;
                         }}
                         unoptimized={process.env.NODE_ENV === 'development'}
-                        className='rounded-t-xl'
+                        className='rounded-t-xl group-hover:scale-105 transition-transform duration-300'
                       />
-                    </div>
-                    <div className='flex min-h-[220px] flex-col justify-between p-4'>
-                      <div>
-                        <p className='mb-1 text-sm font-medium text-gray-500'>
-                          Cabang
-                        </p>
-                        <h3 className='text-lg font-bold text-gray-800'>
+                      <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-t-xl' />
+                      <div className='absolute bottom-4 left-4'>
+                        <h3 className='text-xl font-bold text-white drop-shadow-md'>
                           {item.locationName || 'Unnamed Location'}
                         </h3>
-                        <div className='mt-2 flex items-start gap-2 text-sm text-gray-600'>
-                          <MapPin size={16} className='mt-0.5 flex-shrink-0' />
-                          <p className='leading-snug'>{item.address || 'No address available'}</p>
-                        </div>
-                        <div className='mt-4 flex flex-col gap-2 text-sm text-gray-700'>
+                      </div>
+                    </div>
+                    <div className='p-5'>
+                      <div className='flex items-start gap-3 text-sm text-gray-600 mb-4'>
+                        <MapPin size={18} className='mt-0.5 flex-shrink-0 text-orange-500' />
+                        <p className='leading-snug break-words'>{item.address || 'Alamat tidak tersedia'}</p>
+                      </div>
+
+                      <div className='mb-4'>
+                        <p className='text-xs font-medium text-gray-500 uppercase tracking-wider mb-2'>Cabang Olahraga</p>
+                        <div className='flex flex-wrap gap-2'>
                           {item.sports && item.sports.length > 0 ? (
                             item.sports.map((sport, sportIdx) => (
-                              <div
+                              <span
                                 key={sportIdx}
-                                className='flex items-center gap-1'
+                                className='inline-flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full text-sm'
                               >
-                                <span className='flex h-5 w-5 items-center justify-center'>
-                                  {getSportEmoji(sport)}
-                                </span>
+                                <span className='text-base'>{getSportEmoji(sport)}</span>
                                 <span>{sport}</span>
-                              </div>
+                              </span>
                             ))
                           ) : (
-                            <div className='text-gray-500'>No sports available</div>
+                            <span className='text-gray-500 text-sm'>Tidak tersedia</span>
                           )}
                         </div>
                       </div>
-                      <div className='mt-4 text-sm text-gray-600'>
-                        {item.minPrice ? (
-                          <div className='mt-2 flex items-center gap-1'>
-                            {/* <span className='text-base text-gray-600'> */}
-                              <div className='flex items-start gap-2'>
-                                <Wallet size={16} className='mt-0.5 flex-shrink-0' />
-                                <span className='text-sm text-gray-500'>Mulai</span>
-                                <p className='leading-snug font-bold'>{item.minPrice}</p>
-                                <span className='text-xs text-gray-500'>/sesi</span>
-                              </div>
-                            {/* </span> */}
+
+                      <div className='border-t border-gray-200 pt-4'>
+                        <p className='text-xs font-medium text-gray-500 uppercase tracking-wider mb-2'>Harga Sewa</p>
+                        {item.minPrice !== 'N/A' ? (
+                          <div className='flex items-center gap-2'>
+                            <Wallet size={18} className='flex-shrink-0 text-orange-500' />
+                            <div>
+                              <p className='text-sm text-gray-600'>Mulai dari</p>
+                              <p className='font-bold text-lg text-gray-800'>
+                                {item.minPrice} {item.maxPrice !== item.minPrice && `- ${item.maxPrice}`}
+                              </p>
+                            </div>
                           </div>
                         ) : (
-                          <div className='mt-2 text-sm text-gray-500'>Harga tidak tersedia</div>
+                          <p className='text-sm text-gray-500'>Harga tidak tersedia</p>
                         )}
                       </div>
-
                     </div>
                   </div>
                 ))
               ) : (
-                <div className='col-span-full p-10 text-center text-gray-500'>
-                  Tidak ada lokasi ditemukan. Silakan coba filter lain.
+                <div className='col-span-full p-10 text-center'>
+                  <div className='bg-gray-100 rounded-xl p-8 max-w-md mx-auto'>
+                    <Image
+                      src="/images/no-results.svg"
+                      alt="No results"
+                      width={200}
+                      height={200}
+                      className='mx-auto mb-4'
+                    />
+                    <h3 className='text-xl font-bold text-gray-800 mb-2'>Tidak ada lokasi ditemukan</h3>
+                    <p className='text-gray-600 mb-4'>Silakan coba filter lain atau reset filter Anda</p>
+                    <button
+                      onClick={clearFilter}
+                      className='rounded-lg bg-orange-500 px-6 py-2 font-semibold text-white transition hover:bg-orange-600'
+                    >
+                      Reset Filter
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

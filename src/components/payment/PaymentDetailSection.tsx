@@ -26,7 +26,9 @@ type Props = {
   data: {
     bookings: Booking[]
     location: string
+    total: number
     subtotal: number
+    discount: number
     paymentType: 'reguler' | 'membership'
     userId: string
     membershipId?: string | null
@@ -100,7 +102,9 @@ export default function PaymentDetailsSection({ data }: Props) {
 
   const policyAgreed = watch('policyAgreement')
   const selectedPaymentType = watch('paymentType')
-  const totalPayment = selectedPaymentType === 'dp' ? data.subtotal * 0.5 : data.subtotal
+  const totalPayment = data.paymentType === 'membership' || selectedPaymentType !== 'dp'
+    ? data.total
+    : data.total * 0.5
 
   // Perbaikan pada bagian onSubmit function
   const onSubmit = async (formData: FormData) => {
@@ -182,13 +186,34 @@ export default function PaymentDetailsSection({ data }: Props) {
             control={control}
             name="paymentType"
             render={({ field }) => (
-              <PaymentMethod selected={field.value} onSelect={field.onChange} />
+              <PaymentMethod
+                selected={field.value}
+                onSelect={field.onChange}
+                isMembership={data.paymentType === 'membership'} />
             )}
           />
 
           <PaymentPolicy control={control} errors={errors} />
-          <PaymentTotal name="Pembayaran" amount={totalPayment} />
-
+          <div className="space-y-2">
+            {data.paymentType === 'membership' && data.discount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Subtotal:</span>
+                <span>Rp{data.subtotal.toLocaleString('id-ID')}</span>
+              </div>
+            )}
+            {data.paymentType === 'membership' && data.discount > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>Diskon Membership:</span>
+                <span>-Rp{data.discount.toLocaleString('id-ID')}</span>
+              </div>
+            )}
+            <div className="border-t border-gray-200 pt-2">
+              <PaymentTotal
+                name={"Total Pembayaran"}
+                amount={totalPayment}
+              />
+            </div>
+          </div>
           <div className="mt-4 space-y-2">
             <PaymentAction disabled={!policyAgreed} />
             {!policyAgreed && (

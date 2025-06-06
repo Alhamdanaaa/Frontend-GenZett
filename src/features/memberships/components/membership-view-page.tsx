@@ -1,4 +1,3 @@
-import { Membership } from '@/constants/data';
 import { notFound } from 'next/navigation';
 import MembershipViewPageClient from './membership-view-page-client';
 import { getMembershipById } from '@/lib/api/membership';

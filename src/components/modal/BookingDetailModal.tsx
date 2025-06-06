@@ -258,7 +258,7 @@ export default function BookingDetailModal({
         <h2 className="text-lg font-semibold mb-4">Detail Pesanan</h2>
 
         {/* Seksi 1 - Basic Information */}
-        <table className="w-full table-fixed border-collapse border border-[#6CC28F]">
+        <table className="w-full table-fixed text-sm border-collapse border border-[#6CC28F]">
           <tbody>
             {[
               ["Invoice ID", `#${detailData.reservationId}`],
@@ -280,7 +280,7 @@ export default function BookingDetailModal({
           <thead>
             <tr>
               {["Lapangan", "Waktu", "Harga"].map((h) => (
-                <th key={h} className="p-2 bg-[#2C473A] text-white text-center">
+                <th key={h} className="p-2 bg-[#2C473A] font-semibold text-white text-center">
                   {h}
                 </th>
               ))}
@@ -298,7 +298,7 @@ export default function BookingDetailModal({
         </table>
 
         {/* Seksi 3 - Payment Information */}
-        <table className="w-full table-fixed border-collapse border border-[#6CC28F]">
+        <table className="w-full table-fixed text-sm border-collapse border border-[#6CC28F]">
           <tbody>
             {[
               ["Total Harga", formatCurrency(totalAmount)],
@@ -321,7 +321,7 @@ export default function BookingDetailModal({
         </table>
 
         {/* Additional Information */}
-        <table className="w-full table-fixed border-collapse border border-[#6CC28F]">
+        <table className="w-full table-fixed text-sm border-collapse border border-[#6CC28F]">
           <tbody>
             {[
               ["Jenis Olahraga", detailData.details[0]?.field?.sport?.sportName || "N/A"],
