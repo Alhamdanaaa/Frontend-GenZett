@@ -11,7 +11,9 @@ export default function MemberCard({ members = [] }: { members: any[] }) {
             Basketball: '🏀',
             Futsal: '⚽',
             Tennis: '🎾',
-            Volleyball: '🏐'
+            Volleyball: '🏐',
+            Handball: '🤾🏻',
+            'Sepak Bola': '🥅',
         };
         return sportEmojiMap[sport] || '🎮';
     };
@@ -40,15 +42,11 @@ export default function MemberCard({ members = [] }: { members: any[] }) {
 
     return (
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-6"> */}
-                {/* Jika tidak ada data, tampilkan pesan */}
-                {members.length === 0 && (
-                    <div className="col-span-3 text-center text-gray-500">
-                        Tidak ada data membership yang tersedia.
-                    </div>
-                )}
-
-            {/* Maping data members */}
+            {members.length === 0 && (
+                <div className="col-span-3 text-center text-gray-500">
+                    Tidak ada data membership yang tersedia.
+                </div>
+            )}
             {members.map((member, index) => {
                 // Calculate the discounted price
                 const discountedPrice = calculateDiscountedPrice(member.price, member.discount);
@@ -61,7 +59,6 @@ export default function MemberCard({ members = [] }: { members: any[] }) {
                         className="border-2 border-gray-200 rounded-xl bg-gradient-to-b from-white to-gray-50 px-6 py-6 flex flex-col justify-between shadow-lg hover:shadow-2xl hover:-translate-y-2 transform transition duration-300 ease-in-out"
                     >
                         <div className="mb-6">
-                            {/* Nama membership di tengah dengan styling menarik */}
                             <div className="text-center mb-6">
                                 <h2 className="font-bold text-2xl mb-2 text-gray-800 bg-gradient-to-r from-lime-400 to-lime-500 bg-clip-text">
                                     {member.name}
