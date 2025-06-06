@@ -16,6 +16,7 @@ import {
 import { getLocationById } from '@/lib/api/location';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { AlertModal } from '@/components/modal/alert-modal';
 
 type User = {
   name: string;
@@ -31,6 +32,7 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
   const [loading, setLoading] = useState(false);
   const [locationName, setLocationName] = useState('-');
   const [currentUser, setCurrentUser] = useState<User | null>(user)
+  const [openLogoutModal, setOpenLogoutModal] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
@@ -51,10 +53,7 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
   }, [currentUser?.locationId]);
 
   const handleLogout = async () => {
-    const confirmed = window.confirm('Apakah Anda yakin ingin logout?');
-    if (!confirmed) return;
     setLoading(true);
-
     try {
       const token =
         localStorage.getItem('token') ||
@@ -112,11 +111,12 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
             <Button variant="outline" onClick={() => router.push('/dashboard/profile/edit-password')}>Ubah Password</Button>
             <Button
               variant="destructive"
-              onClick={handleLogout}
+              onClick={() => setOpenLogoutModal(true)}
               disabled={loading}
             >
-              {loading ? 'Keluar...' : 'Keluar'}
+              {loading ? 'Logout...' : 'Logout'}
             </Button>
+
           </div>
         </CardHeader>
 
@@ -137,10 +137,10 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
                 value={
                   currentUser.created_at
                     ? new Date(currentUser.created_at).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })
                     : '-'
                 }
               />
@@ -148,6 +148,18 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
           </div>
         </CardContent>
       </Card>
+
+      <AlertModal
+        isOpen={openLogoutModal}
+        onClose={() => setOpenLogoutModal(false)}
+        onConfirm={async () => {
+          await handleLogout();
+        }}
+        loading={loading}
+        title="Konfirmasi Logout"
+        description="Apakah Anda yakin ingin keluar dari akun?"
+        confirmText={loading ? 'Logout...' : 'Logout'}
+      />
     </div>
   );
 }
