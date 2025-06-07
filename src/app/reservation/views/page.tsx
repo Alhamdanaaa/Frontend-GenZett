@@ -183,20 +183,20 @@ export default function SportsLocationPage() {
               <div className='relative flex-1' ref={sportDropdownRef}>
                 <label
                   htmlFor='sport-type'
-                  className='absolute -top-2 left-3 bg-white px-2 text-sm text-gray-600 z-10 rounded-md'
+                  className='absolute -top-2 left-3 bg-[#f8f8f8] px-2 text-sm text-gray-600 z-10 rounded-md'
                 >
                   Cabang Olahraga
                 </label>
                 <button
                   type='button'
                   onClick={() => setIsOpen(!isOpen)}
-                  className='w-full appearance-none rounded-lg border border-gray-300 px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white flex justify-between items-center'
+                  className='w-full appearance-none rounded-lg border border-gray-300 px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-[#f8f8f8] flex justify-between items-center'
                 >
                   <span>{selectedSport || 'Semua Olahraga'}</span>
                   <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isOpen && (
-                  <div className='absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg'>
+                  <div className='absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-[#f8f8f8] shadow-lg'>
                     <div
                       onClick={() => {
                         setSelectedSport('');
@@ -231,7 +231,7 @@ export default function SportsLocationPage() {
               </button>
               {selectedSport && (
                 <button
-                  className='rounded-lg border border-gray-300 px-4 py-3 font-medium text-gray-700 transition hover:bg-gray-100 sm:whitespace-nowrap flex items-center gap-2'
+                  className='rounded-lg border px-4 py-3 font-semibold text-gray-700 transition bg-gray-200 hover:bg-gray-300 sm:whitespace-nowrap flex items-center gap-2'
                   onClick={clearFilter}
                 >
                   <span>Reset</span>
@@ -259,7 +259,7 @@ export default function SportsLocationPage() {
                 locations.map((item, idx) => (
                   <div
                     key={idx}
-                    className='cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-xl hover:border-orange-300 hover:translate-y-[-4px] group'
+                    className='cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-xl hover:translate-y-[-4px] group'
                     onClick={() => handleCardClick(item)}
                   >
                     <div className='relative h-48 w-full'>
@@ -285,7 +285,7 @@ export default function SportsLocationPage() {
                     </div>
                     <div className='p-5'>
                       <div className='flex items-start gap-3 text-sm text-gray-600 mb-4'>
-                        <MapPin size={18} className='mt-0.5 flex-shrink-0 text-orange-500' />
+                        <MapPin size={18} className='mt-0.8 flex-shrink-0 text-orange-500' />
                         <p className='leading-snug break-words'>{item.address || 'Alamat tidak tersedia'}</p>
                       </div>
 
