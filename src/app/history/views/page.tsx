@@ -8,50 +8,47 @@ import { ChevronUp, ChevronDown, Search } from "lucide-react"
 import Image from "next/image"
 import BookingDetailModal from "@/components/modal/BookingDetailModal"
 import BookingHistoryGuestPage from "../guest/page"
-import { jwtDecode } from "jwt-decode"
 
-// Type definitions for the API response
-interface ApiDetail {
-  detailId: number;
-  reservationId: number;
-  fieldId: number;
-  timeId: number;
-  date: string;
-  created_at: string;
-  updated_at: string;
+// Type definitions sesuai dengan API response
+interface ReservationDetail {
+  locationName: string;
+  sportName: string;
+  time: string;
+  lapangan: string;
+  price: number; // Menggunakan 'price' sesuai API response
 }
 
-interface ApiReservation {
-  reservationId: number;
-  userId: number;
-  name: string;
+interface Reservation {
+  bookingName: string;
+  cabang: string;
+  lapangan: string;
   paymentStatus: string;
-  total: number;
+  paymentType: string;
+  reservationStatus: string;
+  totalAmount: number;
+  totalPaid: number;
+  remainingAmount: number;
+  date: string;
+  details: ReservationDetail[];
   created_at: string;
   updated_at: string;
-  details: ApiDetail[];
 }
 
 interface ApiResponse {
   success: boolean;
   message: string;
-  user: {
-    userId: number;
-    role: string;
-    name: string;
+  data: {
+    UserName: string;
+    whatsapp: string;
     email: string;
-    phone: string;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string | null;
+    count: number;
+    reservations: Reservation[];
   };
-  data: ApiReservation[];
 }
 
-  // Type for the transformed booking data
+// Type for the transformed booking data
 interface BookingData {
   id: string;
-  reservationId: number; // Add this to store the actual reservation ID
   branch: string;
   name: string;
   court: string;
@@ -59,6 +56,7 @@ interface BookingData {
   total: string;
   payment: string;
   status: string;
+  originalData: Reservation; // Store original data for modal
 }
 
 const TableHeader = ({
@@ -108,8 +106,15 @@ export default function HistoryPage() {
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure we're on client-side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   function getCookie(name: string): string | null {
+    if (typeof window === 'undefined') return null; // Check if running on client-side
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
     if (parts.length === 2) return parts.pop()!.split(";").shift() || null
@@ -117,38 +122,39 @@ export default function HistoryPage() {
   }
 
   // Function to transform API data to component format
-  const transformApiData = (apiData: ApiReservation[]): BookingData[] => {
-    return apiData.map((reservation) => ({
-      id: `#${reservation.reservationId}`,
-      reservationId: reservation.reservationId, // Store the actual ID
-      branch: "Kab. Malang", // Default value since not provided in API
-      name: reservation.name,
-      court: `Field ${reservation.details[0]?.fieldId || 'N/A'}`, // Using first detail's fieldId
-      date: reservation.details[0]?.date ? new Date(reservation.details[0].date).toLocaleDateString('id-ID') : 'N/A',
-      total: `Rp. ${reservation.total.toLocaleString('id-ID')}`,
-      payment: reservation.paymentStatus === 'complete' ? 'Lunas' : reservation.paymentStatus === 'pending' ? 'Pending' : 'Belum Lunas',
-      status: getBookingStatus(reservation.details[0]?.date || reservation.created_at)
-    }))
-  }
+  const transformApiData = (reservations: Reservation[]): BookingData[] => {
+    return reservations.map((reservation, index) => {
+      // Menggunakan totalAmount dari API response langsung
+      const totalAmount = reservation.totalAmount;
+      
+      // Format payment status
+      let paymentDisplay = reservation.paymentStatus;
+      if (paymentDisplay === "Lunas") {
+        paymentDisplay = "Lunas";
+      } else if (paymentDisplay.includes("DP")) {
+        paymentDisplay = paymentDisplay; // Keep as is, e.g., "DP (75000)"
+      } else {
+        paymentDisplay = "Belum Lunas";
+      }
 
-  // Function to determine booking status based on date
-  const getBookingStatus = (dateString: string): string => {
-    const bookingDate = new Date(dateString);
-    const currentDate = new Date();
-    const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-    const bookingDay = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate());
-
-    if (bookingDay > today) {
-      return "Upcoming";
-    } else if (bookingDay.getTime() === today.getTime()) {
-      return "Ongoing";
-    } else {
-      return "Completed";
-    }
+      return {
+        id: `#${index + 1}`, // Generate ID based on index since API doesn't provide unique ID
+        branch: reservation.cabang,
+        name: reservation.bookingName,
+        court: reservation.lapangan,
+        date: new Date(reservation.date).toLocaleDateString('id-ID'),
+        total: `Rp. ${totalAmount.toLocaleString('id-ID')}`,
+        payment: paymentDisplay,
+        status: reservation.reservationStatus,
+        originalData: reservation // Store original data for modal
+      }
+    })
   }
 
   // Fetch booking data from API
   useEffect(() => {
+    if (!isClient) return; // Wait until client-side
+    
     const fetchBookingData = async () => {
       try {
         const token = getCookie("token")
@@ -157,11 +163,8 @@ export default function HistoryPage() {
           return
         }
 
-        const decoded: any = jwtDecode(token)
-        const userId = decoded.user_id
-
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/reservations/user?user_id=${userId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/reservations/user`,
           {
             method: 'GET',
             headers: {
@@ -177,8 +180,8 @@ export default function HistoryPage() {
 
         const result: ApiResponse = await response.json()
         
-        if (result.success && result.data) {
-          const transformedData = transformApiData(result.data)
+        if (result.success && result.data && result.data.reservations) {
+          const transformedData = transformApiData(result.data.reservations)
           setData(transformedData)
         } else {
           throw new Error(result.message || 'Failed to fetch data')
@@ -192,9 +195,21 @@ export default function HistoryPage() {
     }
 
     fetchBookingData()
-  }, [])
+  }, [isClient])
 
-  // Check if user is authenticated
+  // Check if user is authenticated - only on client side
+  if (!isClient) {
+    return (
+      <UserLayout>
+        <div className="px-4 py-5 md:py-10 flex flex-col max-w-6xl mx-auto">
+          <div className="text-center py-8">
+            <p>Loading...</p>
+          </div>
+        </div>
+      </UserLayout>
+    )
+  }
+
   const token = getCookie("token")
   if (!token) {
     return <BookingHistoryGuestPage />
@@ -318,80 +333,68 @@ export default function HistoryPage() {
             <span className="text-sm">entries</span>
           </div>
 
-            <div className="flex-1 ml-auto md:ml-4 mt-2 md:mt-0">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="border rounded px-3 py-1 pl-8 text-sm w-full"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <Search className="w-4 h-4 absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
+          <div className="flex-1 ml-auto md:ml-4 mt-2 md:mt-0">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="border rounded px-3 py-1 pl-8 text-sm w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Search className="w-4 h-4 absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
+          </div>
         </div>
 
         {/* Tabel */}
-      <div className="overflow-auto border rounded-md">
-        <table className="min-w-full text-sm">
-          <thead className="bg-[#2C473A] text-white">
-            <tr>
-              {/* <TableHeader
-                label="Invoice ID"
-                sortable
-                onSort={() => handleSort("id")}
-                sortDirection={sortConfig?.key === "id" ? sortConfig.direction : null}
-              /> */}
-              <TableHeader
-                label="Cabang"
-                sortable
-                onSort={() => handleSort("branch")}
-                sortDirection={sortConfig?.key === "branch" ? sortConfig.direction : null}
-              />
-              {/* <TableHeader
-                label="Atas Nama"
-                sortable
-                onSort={() => handleSort("name")}
-                sortDirection={sortConfig?.key === "name" ? sortConfig.direction : null}
-              /> */}
-              <TableHeader
-                label="Lapangan"
-                sortable
-                onSort={() => handleSort("court")}
-                sortDirection={sortConfig?.key === "court" ? sortConfig.direction : null}
-              />
-              <TableHeader
-                label="Tanggal"
-                sortable
-                onSort={() => handleSort("date")}
-                sortDirection={sortConfig?.key === "date" ? sortConfig.direction : null}
-              />
-              {/* <TableHeader
-                label="Total Harga"
-                sortable
-                onSort={() => handleSort("total")}
-                sortDirection={sortConfig?.key === "total" ? sortConfig.direction : null}
-              /> */}
-              <TableHeader
-                label="Pembayaran"
-                sortable
-                onSort={() => handleSort("payment")}
-                sortDirection={sortConfig?.key === "payment" ? sortConfig.direction : null}
-              />
-              <TableHeader
-                label="Status"
-                sortable
-                onSort={() => handleSort("status")}
-                sortDirection={sortConfig?.key === "status" ? sortConfig.direction : null}
-              />
-              <TableHeader label="Aksi" />
-            </tr>
-          </thead>
+        <div className="overflow-auto border rounded-md">
+          <table className="min-w-full text-sm">
+            <thead className="bg-[#2C473A] text-white">
+              <tr>
+                <TableHeader
+                  label="Cabang"
+                  sortable
+                  onSort={() => handleSort("branch")}
+                  sortDirection={sortConfig?.key === "branch" ? sortConfig.direction : null}
+                />
+                <TableHeader
+                  label="Lapangan"
+                  sortable
+                  onSort={() => handleSort("court")}
+                  sortDirection={sortConfig?.key === "court" ? sortConfig.direction : null}
+                />
+                <TableHeader
+                  label="Tanggal"
+                  sortable
+                  onSort={() => handleSort("date")}
+                  sortDirection={sortConfig?.key === "date" ? sortConfig.direction : null}
+                />
+                <TableHeader
+                  label="Total"
+                  sortable
+                  onSort={() => handleSort("total")}
+                  sortDirection={sortConfig?.key === "total" ? sortConfig.direction : null}
+                />
+                <TableHeader
+                  label="Pembayaran"
+                  sortable
+                  onSort={() => handleSort("payment")}
+                  sortDirection={sortConfig?.key === "payment" ? sortConfig.direction : null}
+                />
+                <TableHeader
+                  label="Status"
+                  sortable
+                  onSort={() => handleSort("status")}
+                  sortDirection={sortConfig?.key === "status" ? sortConfig.direction : null}
+                />
+                <TableHeader label="Aksi" />
+              </tr>
+            </thead>
             <tbody>
               {currentEntries.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-8">
+                  <td colSpan={7} className="text-center py-8">
                     {data.length === 0 ? "Tidak ada data pemesanan" : "Data tidak ditemukan"}
                   </td>
                 </tr>
@@ -401,12 +404,10 @@ export default function HistoryPage() {
                     key={index}
                     className={cn(index % 2 === 0 ? "bg-[#E5FFA8]" : "bg-white", "border-b")}
                   >
-                    {/* <td className="py-2 px-4">{highlightText(booking.id)}</td> */}
                     <td className="py-2 px-4">{highlightText(booking.branch)}</td>
-                    {/* <td className="py-2 px-4">{highlightText(booking.name)}</td> */}
                     <td className="py-2 px-4">{highlightText(booking.court)}</td>
                     <td className="py-2 px-4">{highlightText(booking.date)}</td>
-                    {/* <td className="py-2 px-4">{highlightText(booking.total)}</td> */}
+                    <td className="py-2 px-4">{highlightText(booking.total)}</td>
                     <td className="py-2 px-4">{highlightText(booking.payment)}</td>
                     <td className="py-2 px-4">
                       <span
@@ -488,6 +489,12 @@ export default function HistoryPage() {
             onClose={handleCloseModal}
           />
         )}
+
+        <style jsx>{`
+          tbody {
+            color: black;        
+          }
+        `}</style>
       </div>
     </UserLayout>
   )
