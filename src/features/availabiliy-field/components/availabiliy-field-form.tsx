@@ -452,7 +452,7 @@ export default function AvailabilityForm({
                 className='w-full md:w-auto'
                 disabled={normalizedSelectedTimes.length === 0 || loading}
               >
-                {loading ? 'Memproses...' : mode === 'edit' ? 'Update Reservasi' : 'Simpan Reservasi'}
+                {loading ? 'Memproses...' : mode === 'edit' ? 'Update Data' : 'Simpan Data'}
               </Button>
             </div>
           </form>
