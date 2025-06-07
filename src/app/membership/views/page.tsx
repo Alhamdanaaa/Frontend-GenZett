@@ -12,10 +12,10 @@ import { Loader2 } from 'lucide-react';
 
 export default function MembershipPage() {
     const [sports, setSports] = useState<string[]>([]);
-    const [locations, setLocations] = useState<string[]>([]);
+    const [locations, setLocations] = useState<{ locationId: string, locationName: string }[]>([]);
     const [memberships, setMemberships] = useState<any[]>([]);
     const [selectedSport, setSelectedSport] = useState<string>();
-    const [selectedLocation, setSelectedLocation] = useState<string>();
+    const [selectedLocationId, setSelectedLocationId] = useState<string>();
     const [isSportOpen, setIsSportOpen] = useState(false);
     const [isLocationOpen, setIsLocationOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -34,11 +34,14 @@ export default function MembershipPage() {
                 const [sportResponse, locationResponse, membershipResponse] = await Promise.all([
                     getSports({}),
                     getLocations({}),
-                    getMemberships({}) // Tanpa all=true untuk initial load
+                    getMemberships({})
                 ]);
 
                 setSports(sportResponse.sports.map((item: any) => item.sportName));
-                setLocations(locationResponse.locations.map((item: any) => item.locationName));
+                setLocations(locationResponse.locations.map((item: any) => ({
+                    locationId: item.locationId,
+                    locationName: item.locationName
+                })));
 
                 const initialMembers = membershipResponse.data.slice(0, 9);
                 const membershipsWithPrice = await processMemberships(initialMembers);
@@ -75,11 +78,7 @@ export default function MembershipPage() {
                     return {
                         ...member,
                         price: 0,
-                        formattedPrice: new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR',
-                            minimumFractionDigits: 0
-                        }).format(0)
+                        formattedPrice: 'Rp 0'
                     };
                 }
             })
@@ -91,9 +90,11 @@ export default function MembershipPage() {
             setIsFiltering(true);
             setShowAll(false);
             const membershipResponse = await getMemberships({
-                sports: selectedSport,
-                locations: selectedLocation
+                search: selectedSport,
+                locations: selectedLocationId
             });
+
+            console.log('selected loc: ', selectedLocationId, selectedSport)
 
             const initialMembers = membershipResponse.data.slice(0, 9);
             const membershipsWithPrice = await processMemberships(initialMembers);
@@ -110,7 +111,7 @@ export default function MembershipPage() {
             setIsFiltering(true);
             setShowAll(false);
             setSelectedSport(undefined);
-            setSelectedLocation(undefined);
+            setSelectedLocationId(undefined);
             const membershipResponse = await getMemberships({});
 
             const initialMembers = membershipResponse.data.slice(0, 9);
@@ -131,11 +132,10 @@ export default function MembershipPage() {
 
         try {
             setIsLoadingAll(true);
-            // Menggunakan all=true untuk mengambil semua data
             const membershipResponse = await getMemberships({
                 all: true,
-                sports: selectedSport,
-                locations: selectedLocation
+                search: selectedSport,
+                locations: selectedLocationId
             });
 
             const allMembershipsWithPrice = await processMemberships(membershipResponse.data);
@@ -222,7 +222,9 @@ export default function MembershipPage() {
                                         onClick={() => setIsLocationOpen(!isLocationOpen)}
                                         className='w-full appearance-none rounded-lg border border-gray-300 bg-[#f8f8f8] px-4 pt-3 pb-2 text-left text-base text-gray-600 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500'
                                     >
-                                        {selectedLocation || 'Pilih Lokasi'}
+                                        {selectedLocationId
+                                            ? locations.find(loc => loc.locationId === selectedLocationId)?.locationName
+                                            : 'Pilih Lokasi'}
                                     </button>
                                     {isLocationOpen && (
                                         <div className='absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-[#f8f8f8] shadow-md'>
@@ -230,12 +232,12 @@ export default function MembershipPage() {
                                                 <div
                                                     key={idx}
                                                     onClick={() => {
-                                                        setSelectedLocation(location);
+                                                        setSelectedLocationId(location.locationId);
                                                         setIsLocationOpen(false);
                                                     }}
                                                     className='cursor-pointer px-4 py-2 hover:bg-orange-50 text-base text-gray-700 hover:bg-gray-100'
                                                 >
-                                                    {location}
+                                                    {location.locationName}
                                                 </div>
                                             ))}
                                         </div>

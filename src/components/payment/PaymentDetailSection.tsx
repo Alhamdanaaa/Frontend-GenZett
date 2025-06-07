@@ -39,14 +39,14 @@ type Payload = {
   userId: number,
   name: string,
   paymentStatus: string,
-  paymentType: string,   // Field yang hilang di kode asli
+  paymentType: string,
   total: number,
   details: {
     fieldId: number,
     timeIds: number[],
-    date: string // Format ISO string
+    date: string
   }[],
-  membershipId?: number  // Optional, untuk membership
+  membershipId?: number
 }
 
 type FormData = {
@@ -106,7 +106,6 @@ export default function PaymentDetailsSection({ data }: Props) {
     ? data.total
     : data.total * 0.5
 
-  // Perbaikan pada bagian onSubmit function
   const onSubmit = async (formData: FormData) => {
     console.log('Isi data.bookings (diformat):', JSON.stringify(data.bookings, null, 2))
 
@@ -115,34 +114,30 @@ export default function PaymentDetailsSection({ data }: Props) {
       return;
     }
 
-    // Validasi data bookings
     if (!data.bookings || data.bookings.length === 0) {
       alert('Tidak ada data booking yang dipilih');
       return;
     }
 
-    // Konversi userId ke number
     const userIdNumber = parseInt(data.userId);
     if (isNaN(userIdNumber)) {
       console.error('User ID tidak valid');
       return;
     }
 
-    // Siapkan payload sesuai format API dengan tipe number
     const payload: Payload = {
-      userId: userIdNumber, // Konversi ke number
+      userId: userIdNumber,
       name: formData.name,
       paymentStatus: "pending",
       paymentType: data.paymentType,
       total: totalPayment,
       details: data.bookings.map(booking => ({
-        fieldId: parseInt(booking.fieldId), // Konversi ke number
-        timeIds: booking.timeIds.map(id => parseInt(id)), // Konversi ke number[]
+        fieldId: parseInt(booking.fieldId),
+        timeIds: booking.timeIds.map(id => parseInt(id)),
         date: booking.date
       })),
-      // Tambahkan membershipId jika paymentType adalah 'membership'
       ...(data.paymentType === 'membership' && data.membershipId && {
-        membershipId: parseInt(data.membershipId) // Konversi ke number
+        membershipId: parseInt(data.membershipId)
       })
     };
 
@@ -172,14 +167,13 @@ export default function PaymentDetailsSection({ data }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-between space-y-6 mx-auto">
-      <div className="mx-auto flex max-w-6xl flex-col md:grid md:grid-cols-3 items-start gap-8 px-4">
-        <div className="md:col-span-2 p-4 rounded-xl shadow bg-white space-y-2 text-black w-full border-1 border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-8 lg:px-24">
+        <div className="md:col-span-2 p-4 rounded-xl shadow bg-white space-y-2 text-black border-2 border-gray-200 self-start">
           <h2 className="font-semibold text-lg text-center">Ringkasan Pemesanan</h2>
           <BookingSummary bookings={data.bookings} location={data.location} />
           <PaymentTotal name="Harga" amount={data.subtotal} />
         </div>
-
-        <div className="md:col-span-1 p-4 rounded-xl shadow bg-white space-y-2 text-black w-full border-1 border-gray-200 self-start sticky top-4">
+        <div className="md:col-span-1 p-4 rounded-xl shadow bg-white space-y-4 text-black border-2 border-gray-200 self-start">
           <PayerInfo register={register} errors={errors} />
 
           <Controller
@@ -216,11 +210,13 @@ export default function PaymentDetailsSection({ data }: Props) {
           </div>
           <div className="mt-4 space-y-2">
             <PaymentAction disabled={!policyAgreed} />
-            {!policyAgreed && (
-              <p className="text-sm text-red-500 text-center">
-                Anda harus menyetujui kebijakan lapangan terlebih dahulu
-              </p>
-            )}
+            <div className="min-h-[1.5rem] flex items-center justify-center">
+              {!policyAgreed && (
+                <p className="text-sm text-red-500 text-center transition-opacity duration-200 ease-in-out">
+                  Anda harus menyetujui kebijakan lapangan terlebih dahulu
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
