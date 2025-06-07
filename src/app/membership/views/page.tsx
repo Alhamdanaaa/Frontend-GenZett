@@ -170,7 +170,7 @@ export default function MembershipPage() {
                 <main className="text-gray-800 min-h-screen overflow-hidden">
                     <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-5 md:py-10">
                         <div className="w-full">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Pilih Paket Langganan Sesuai Kebutuhanmu</h1>
+                            <h1 className="text-2xl font-bold text-gray-900 mb-2">Pilih Paket Langganan Sesuai Kebutuhanmu</h1>
                             <p className="text-gray-600 mb-6">Dapatkan akses eksklusif dan berbagai keuntungan dengan paket langganan kami!</p>
                         </div>
 
