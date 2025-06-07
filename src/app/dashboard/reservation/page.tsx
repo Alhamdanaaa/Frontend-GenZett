@@ -42,12 +42,12 @@ export default async function Page(props: pageProps) {
             title='Reservasi Lapangan'
             description='Kelola data reservasi lapangan'
           />
-          <Link
+          {/* <Link
             href='/dashboard/reservation/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Tambah
-          </Link>
+          </Link> */}
         </div>
         <Separator />
         <Suspense
