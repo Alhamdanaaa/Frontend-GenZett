@@ -7,7 +7,7 @@ type FilterParams = {
   sport?: string;
 };
 interface ApiFieldData {
-  locationId: number;
+  locationId: string;
   sportId: number;
   name: string;
   startHour: string;

@@ -3,6 +3,7 @@ import { getFieldById } from '@/lib/api/field';
 import { getAllLocations } from '@/lib/api/location';
 import { getAllSports } from '@/lib/api/sports';
 import FieldViewPageClient from './field-view-page-client';
+import { getUserFromServer } from '@/hooks/use-user';
 
 interface FieldViewPageProps {
   fieldId: string;
@@ -32,13 +33,16 @@ export default async function FieldViewPage({ fieldId }: FieldViewPageProps) {
     label: sport.name,
     value: String(sport.id)
   }));
-
+  const data = await getUserFromServer();
+  const userLocationId = String(data?.locationId);
   return (
     <FieldViewPageClient
       field={field}
       pageTitle={pageTitle}
       locationOptions={locationOptions}
       sportOptions={sportOptions}
+      userRole={data?.role}
+      userLocationId= {userLocationId}
     />
   );
 }

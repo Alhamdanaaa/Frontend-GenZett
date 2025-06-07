@@ -20,14 +20,15 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Clock, AlertTriangle } from 'lucide-react';
+import { Trash2, Plus, Clock } from 'lucide-react';
 import { Field } from '@/constants/data';
 import { createField, updateField } from '@/lib/api/field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import * as z from 'zod';
-import { IconAlertCircle, IconClockX } from '@tabler/icons-react';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { toast } from 'sonner';
 
 // Schema untuk time slot pricing
 const timeSlotSchema = z.object({
@@ -46,17 +47,9 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: 'Nama lapangan minimal 2 karakter.'
   }),
-  locationId: z.number({
-    required_error: 'Lokasi harus dipilih.'
-  }),
+  locationId: z.string().optional(), // Made optional for admin users
   sportId: z.number({
     required_error: 'Cabang olahraga harus dipilih.'
-  }),
-  startHour: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'Format jam mulai harus HH:MM (24 jam).'
-  }),
-  endHour: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'Format jam tutup harus HH:MM (24 jam).'
   }),
   description: z.string().min(10, {
     message: 'Deskripsi minimal 10 karakter.'
@@ -65,7 +58,11 @@ const formSchema = z.object({
   pricingType: z.enum(['fixed', 'time_based'], {
     required_error: 'Tipe pricing harus dipilih.'
   }),
+  // Fixed pricing fields (only required when pricingType is 'fixed')
   fixedPrice: z.number().optional(),
+  startHour: z.string().optional(),
+  endHour: z.string().optional(),
+  // Time-based pricing fields
   timeSlots: z.array(timeSlotSchema).optional(),
   // Overlap handling
   overlapStrategy: z.enum(['highest', 'lowest', 'priority'], {
@@ -76,7 +73,7 @@ const formSchema = z.object({
   }).optional()
 }).refine((data) => {
   if (data.pricingType === 'fixed') {
-    return data.fixedPrice && data.fixedPrice >= 1000;
+    return data.fixedPrice && data.fixedPrice >= 1000 && data.startHour && data.endHour;
   }
   if (data.pricingType === 'time_based') {
     return data.timeSlots && data.timeSlots.length > 0 && data.overlapStrategy && data.defaultPrice;
@@ -91,7 +88,7 @@ type FormData = z.infer<typeof formSchema>;
 
 // API Data format interface
 interface ApiFieldData {
-  locationId: number;
+  locationId: string;
   sportId: number;
   name: string;
   startHour: string;
@@ -116,13 +113,16 @@ export default function FieldForm({
   pageTitle,
   locationOptions,
   sportOptions,
+  userRole,
+  userLocationId,
 }: {
   initialData: Field | null;
   pageTitle: string;
   locationOptions: { value: string; label: string }[];
   sportOptions: { value: string; label: string }[];
+  userRole?: string;
+  userLocationId?: string | null;
 }) {
-  // Convert initial data from API format to form format
   const convertApiToFormData = (data: any) => {
     if (!data) return null;
 
@@ -139,7 +139,7 @@ export default function FieldForm({
 
     return {
       ...data,
-      locationId: Number(data.locationId || data.location),
+      locationId: String(data.locationId || data.location),
       sportId: Number(data.sportId || data.sport),
       timeSlots,
       pricingType: timeSlots.length > 0 ? 'time_based' : 'fixed'
@@ -150,13 +150,15 @@ export default function FieldForm({
 
   const defaultValues: FormData = {
     name: convertedInitialData?.name ?? '',
-    locationId: convertedInitialData?.locationId ?? undefined,
+    locationId: convertedInitialData?.locationId ?? (userRole === 'admin' ? userLocationId : undefined),
     sportId: convertedInitialData?.sportId ?? undefined,
-    startHour: convertedInitialData?.startHour?.slice(0, 5) ?? '08:00',
-    endHour: convertedInitialData?.endHour?.slice(0, 5) ?? '23:00',
     description: convertedInitialData?.description ?? '',
     pricingType: convertedInitialData?.pricingType ?? undefined,
+    // Fixed pricing defaults
     fixedPrice: convertedInitialData?.fixedPrice ?? 50000,
+    startHour: convertedInitialData?.startHour?.slice(0, 5) ?? '08:00',
+    endHour: convertedInitialData?.endHour?.slice(0, 5) ?? '23:00',
+    // Time-based pricing defaults
     timeSlots: convertedInitialData?.timeSlots ?? [
       { startTime: '08:00', endTime: '17:00', price: 50000 },
       { startTime: '17:00', endTime: '23:00', price: 75000 }
@@ -181,24 +183,31 @@ export default function FieldForm({
   // Convert form data to API format
   const convertFormToApiData = (formData: FormData): ApiFieldData => {
     const baseData = {
-      locationId: formData.locationId,
+      locationId: formData.locationId || (userRole === 'admin' ? userLocationId! : ''),
       sportId: formData.sportId,
       name: formData.name,
-      startHour: formData.startHour,
-      endHour: formData.endHour,
+      startHour: '',
+      endHour: '',
       description: formData.description,
       start: [] as string[],
       end: [] as string[],
       price: [] as number[]
     };
 
-    if (formData.pricingType === 'fixed' && formData.fixedPrice) {
-      // For fixed pricing, create a single time slot covering the entire operating hours
+    if (formData.pricingType === 'fixed' && formData.fixedPrice && formData.startHour && formData.endHour) {
+      // For fixed pricing, use the form's startHour and endHour
+      baseData.startHour = formData.startHour;
+      baseData.endHour = formData.endHour;
       baseData.start = [formData.startHour];
       baseData.end = [formData.endHour];
       baseData.price = [formData.fixedPrice];
     } else if (formData.pricingType === 'time_based' && formData.timeSlots) {
-      // For time-based pricing, convert timeSlots array to separate arrays
+      // For time-based pricing, calculate overall operating hours from time slots
+      const sortedSlots = [...formData.timeSlots].sort((a, b) => a.startTime.localeCompare(b.startTime));
+      baseData.startHour = sortedSlots[0]?.startTime || '08:00';
+      baseData.endHour = sortedSlots[sortedSlots.length - 1]?.endTime || '23:00';
+      
+      // Convert timeSlots array to separate arrays
       formData.timeSlots.forEach(slot => {
         baseData.start.push(slot.startTime);
         baseData.end.push(slot.endTime);
@@ -209,13 +218,12 @@ export default function FieldForm({
     return baseData;
   };
 
-  // Helper function to detect overlaps and gaps
+  // Helper function to detect overlaps and gaps (only for time-based pricing)
   const analyzeTimeSlots = () => {
+    if (pricingType !== 'time_based') return { overlaps: [], gaps: [] };
+    
     const slots = form.getValues('timeSlots') || [];
-    const fieldStart = form.getValues('startHour');
-    const fieldEnd = form.getValues('endHour');
-
-    if (!slots.length || !fieldStart || !fieldEnd) return { overlaps: [], gaps: [] };
+    if (!slots.length) return { overlaps: [], gaps: [] };
 
     // Convert time to minutes for easier calculation
     const timeToMinutes = (time: string) => {
@@ -228,9 +236,6 @@ export default function FieldForm({
       const mins = minutes % 60;
       return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
     };
-
-    const fieldStartMinutes = timeToMinutes(fieldStart);
-    const fieldEndMinutes = timeToMinutes(fieldEnd);
 
     // Sort slots by start time
     const sortedSlots = [...slots].sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
@@ -258,38 +263,9 @@ export default function FieldForm({
       }
     }
 
-    // Find gaps
-    const gaps = [];
-    let currentTime = fieldStartMinutes;
-
-    for (const slot of sortedSlots) {
-      const slotStart = timeToMinutes(slot.startTime);
-      const slotEnd = timeToMinutes(slot.endTime);
-
-      // Skip slots that are outside field hours
-      if (slotEnd <= fieldStartMinutes || slotStart >= fieldEndMinutes) continue;
-
-      // Adjust slot boundaries to field hours
-      const adjustedStart = Math.max(slotStart, fieldStartMinutes);
-      const adjustedEnd = Math.min(slotEnd, fieldEndMinutes);
-
-      if (currentTime < adjustedStart) {
-        gaps.push({
-          time: `${minutesToTime(currentTime)}-${minutesToTime(adjustedStart)}`,
-          duration: adjustedStart - currentTime
-        });
-      }
-
-      currentTime = Math.max(currentTime, adjustedEnd);
-    }
-
-    // Check for gap at the end
-    if (currentTime < fieldEndMinutes) {
-      gaps.push({
-        time: `${minutesToTime(currentTime)}-${minutesToTime(fieldEndMinutes)}`,
-        duration: fieldEndMinutes - currentTime
-      });
-    }
+    // For time-based pricing, we don't need to check for gaps against fixed field hours
+    // since each time slot defines its own operating hours
+    const gaps: any[] = [];
 
     return { overlaps, gaps };
   };
@@ -374,18 +350,19 @@ export default function FieldForm({
     console.log('Form submitted:', values);
 
     try {
-      // Convert form data to API format
       const apiData = convertFormToApiData(values);
       console.log('API Data:', apiData);
 
       if (initialData) {
         await updateField(initialData.id, apiData);
+        toast.success('Lapangan berhasil diperbarui!');
       } else {
         await createField(apiData);
+        toast.success('Lapangan berhasil ditambahkan!');
       }
-
       router.push('/dashboard/field');
     } catch (error) {
+      toast.error('Terjadi kesalahan saat menyimpan lapangan.');
       console.error('Gagal menyimpan lapangan:', error);
     }
   }
@@ -416,41 +393,45 @@ export default function FieldForm({
             />
 
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              <FormField
-                control={form.control}
-                name="locationId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Lokasi Cabang</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) => field.onChange(value)}
-                        value={field.value != null ? String(field.value) : undefined}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Pilih Lokasi Cabang" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {locationOptions.map((location) => (
-                            <SelectItem
-                              key={location.value}
-                              value={location.value}
-                            >
-                              {location.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Location field - only show for superadmin */}
+              {userRole === 'superadmin' && (
+                <FormField
+                  control={form.control}
+                  name="locationId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Lokasi Cabang</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={(value) => field.onChange(value)}
+                          value={field.value != null ? String(field.value) : undefined}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pilih Lokasi Cabang" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {locationOptions.map((location) => (
+                              <SelectItem
+                                key={location.value}
+                                value={location.value}
+                              >
+                                {location.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
               <FormField
                 control={form.control}
                 name='sportId'
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className={userRole === 'admin' ? 'md:col-span-2' : ''}>
                     <FormLabel>Cabang Olahraga</FormLabel>
                     <FormControl>
                       <Select
@@ -468,54 +449,6 @@ export default function FieldForm({
                           ))}
                         </SelectContent>
                       </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='startHour'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jam Mulai</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='time'
-                        step={3600}
-                        placeholder='08:00'
-                        {...field}
-                        onChange={(e) => {
-                          const time = e.target.value;
-                          const [hour] = time.split(':');
-                          const fixedTime = `${hour}:00`;
-                          field.onChange(fixedTime);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='endHour'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jam Tutup</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='time'
-                        step={3600}
-                        placeholder='23:00'
-                        {...field}
-                        onChange={(e) => {
-                          const time = e.target.value;
-                          const [hour] = time.split(':');
-                          const fixedTime = `${hour}:00`;
-                          field.onChange(fixedTime);
-                        }}
-                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -573,27 +506,93 @@ export default function FieldForm({
                   )}
                 />
 
+                {/* Fixed Pricing Configuration */}
                 {pricingType === 'fixed' && (
-                  <FormField
-                    control={form.control}
-                    name='fixedPrice'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Harga per Jam</FormLabel>
-                        <FormControl>
-                          <Input
-                            type='number'
-                            placeholder='50000'
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <Card className='border-blue-200 bg-blue-50'>
+                    <CardHeader className='pb-3'>
+                      <CardTitle className='text-blue-800 text-lg'>🕐 Konfigurasi Harga Tetap</CardTitle>
+                    </CardHeader>
+                    <CardContent className='space-y-4'>
+                      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                        <FormField
+                          control={form.control}
+                          name='fixedPrice'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Harga per Jam</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type='number'
+                                  placeholder='50000'
+                                  {...field}
+                                  onChange={(e) => field.onChange(Number(e.target.value))}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='startHour'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Jam Mulai</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type='time'
+                                  step={3600}
+                                  placeholder='08:00'
+                                  {...field}
+                                  onChange={(e) => {
+                                    const time = e.target.value;
+                                    const [hour] = time.split(':');
+                                    const fixedTime = `${hour}:00`;
+                                    field.onChange(fixedTime);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name='endHour'
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Jam Tutup</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type='time'
+                                  step={3600}
+                                  placeholder='23:00'
+                                  {...field}
+                                  onChange={(e) => {
+                                    const time = e.target.value;
+                                    const [hour] = time.split(':');
+                                    const fixedTime = `${hour}:00`;
+                                    field.onChange(fixedTime);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {form.watch('fixedPrice') && form.watch('startHour') && form.watch('endHour') && (
+                        <div className='bg-white p-3 rounded border border-blue-200'>
+                          <Badge variant='secondary' className='text-blue-800'>
+                            Operasional: {form.watch('startHour')} - {form.watch('endHour')} | Harga: {formatCurrency(form.watch('fixedPrice')!)} per jam
+                          </Badge>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 )}
 
+                {/* Time-based Pricing Configuration */}
                 {pricingType === 'time_based' && (
                   <div className='space-y-4'>
                     {/* Overlap Strategy */}
@@ -641,63 +640,35 @@ export default function FieldForm({
                       />
                     </div>
 
-                    {/* Conflict & Gap Analysis */}
-                    {(overlaps.length > 0 || gaps.length > 0) && (
+                    {/* Conflict Analysis */}
+                    {overlaps.length > 0 && (
                       <Card className='border-amber-200 bg-amber-50'>
                         <CardHeader className='pb-3'>
                           <CardTitle className='text-amber-800 text-lg'>⚠️ Analisis Konflik Waktu</CardTitle>
                         </CardHeader>
                         <CardContent className='space-y-3'>
-                          {overlaps.length > 0 && (
-                            <div>
-                              <div className='flex items-center gap-2 mb-2'>
-                                <IconAlertCircle className="h-5 w-5 text-amber-800" />
-                                <h5 className='font-medium text-amber-800 mr-auto'>Overlap Terdeteksi:</h5>
-                              </div>
-                              {overlaps.map((overlap, index) => (
-                                <div key={index} className='bg-white p-3 rounded border border-amber-200 mb-2'>
-                                  <div className='font-medium text-amber-900'>Jam {overlap.time}</div>
-                                  <div className='text-sm text-amber-700 mt-1'>
-                                    Konflik antara:
-                                    {overlap.slots.map((slot: any, i: number) => (
-                                      <div key={i} className='ml-2'>
-                                        • {slot.startTime}-{slot.endTime}: {formatCurrency(slot.price)} {slot.label && `(${slot.label})`}
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <div className='text-xs text-amber-600 mt-2'>
-                                    Akan menggunakan strategi: <strong>{form.watch('overlapStrategy') === 'highest' ? 'Harga Tertinggi' : form.watch('overlapStrategy') === 'lowest' ? 'Harga Terendah' : 'Prioritas Urutan'}</strong>
-                                  </div>
-                                </div>
-                              ))}
+                          <div>
+                            <div className='flex items-center gap-2 mb-2'>
+                              <IconAlertCircle className="h-5 w-5 text-amber-800" />
+                              <h5 className='font-medium text-amber-800 mr-auto'>Overlap Terdeteksi:</h5>
                             </div>
-                          )}
-
-                          {gaps.length > 0 && (
-                            <div>
-                              <div className='flex items-center gap-2 mb-2'>
-                                <IconClockX className="h-5 w-5 text-amber-800" />
-                                <h5 className='font-medium text-amber-800 mr-auto'>Jam Kosong:</h5>
-                                <Button
-                                  type='button'
-                                  size='sm'
-                                  variant='outline'
-                                  onClick={fillGapsWithLowestPrice}
-                                  className='border-amber-300 text-amber-700 hover:bg-amber-100'
-                                >
-                                  Isi Otomatis
-                                </Button>
-                              </div>
-                              {gaps.map((gap: any, index: number) => (
-                                <div key={index} className='bg-white p-2 rounded border border-amber-200 mb-1'>
-                                  <span className='text-amber-900'>{gap.time}</span>
-                                  <span className='text-xs text-amber-600 ml-2'>
-                                    ({Math.floor(gap.duration / 60)}h {gap.duration % 60}m) → Akan menggunakan harga default: {formatCurrency(form.watch('defaultPrice') || 40000)}
-                                  </span>
+                            {overlaps.map((overlap, index) => (
+                              <div key={index} className='bg-white p-3 rounded border border-amber-200 mb-2'>
+                                <div className='font-medium text-amber-900'>Jam {overlap.time}</div>
+                                <div className='text-sm text-amber-700 mt-1'>
+                                  Konflik antara:
+                                  {overlap.slots.map((slot: any, i: number) => (
+                                    <div key={i} className='ml-2'>
+                                      • {slot.startTime}-{slot.endTime}: {formatCurrency(slot.price)} {slot.label && `(${slot.label})`}
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
-                          )}
+                                <div className='text-xs text-amber-600 mt-2'>
+                                  Akan menggunakan strategi: <strong>{form.watch('overlapStrategy') === 'highest' ? 'Harga Tertinggi' : form.watch('overlapStrategy') === 'lowest' ? 'Harga Terendah' : 'Prioritas Urutan'}</strong>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </CardContent>
                       </Card>
                     )}
