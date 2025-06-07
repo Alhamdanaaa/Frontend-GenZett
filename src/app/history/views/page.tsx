@@ -106,8 +106,15 @@ export default function HistoryPage() {
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure we're on client-side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   function getCookie(name: string): string | null {
+    if (typeof window === 'undefined') return null; // Check if running on client-side
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
     if (parts.length === 2) return parts.pop()!.split(";").shift() || null
@@ -146,6 +153,8 @@ export default function HistoryPage() {
 
   // Fetch booking data from API
   useEffect(() => {
+    if (!isClient) return; // Wait until client-side
+    
     const fetchBookingData = async () => {
       try {
         const token = getCookie("token")
@@ -186,9 +195,21 @@ export default function HistoryPage() {
     }
 
     fetchBookingData()
-  }, [])
+  }, [isClient])
 
-  // Check if user is authenticated
+  // Check if user is authenticated - only on client side
+  if (!isClient) {
+    return (
+      <UserLayout>
+        <div className="px-4 py-5 md:py-10 flex flex-col max-w-6xl mx-auto">
+          <div className="text-center py-8">
+            <p>Loading...</p>
+          </div>
+        </div>
+      </UserLayout>
+    )
+  }
+
   const token = getCookie("token")
   if (!token) {
     return <BookingHistoryGuestPage />
