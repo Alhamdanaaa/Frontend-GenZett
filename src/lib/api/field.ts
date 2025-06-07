@@ -77,34 +77,46 @@ export async function getAllFields(locationId?: number) {
 }
 
 interface GetAvailableTimesParams {
-    fieldId: number;
-    date: string;
-    excludeClosedId?: number; // Untuk exclude closed field saat edit
+  fieldId: number;
+  date: string;
+  excludeClosedId?: number; // Untuk exclude closed field saat edit
 }
 
 interface TimeSlot {
-    timeId: string;
-    time: string;
-    status: 'available' | 'non-available' | 'booked';
+  timeId: string;
+  time: string;
+  status: 'available' | 'non-available' | 'booked';
 }
 
 interface AvailableTimesResponse {
-    success: boolean;
-    message: string;
-    times?: TimeSlot[];
+  success: boolean;
+  message: string;
+  times?: TimeSlot[];
 }
 
 export async function getAvailableTimes(params: GetAvailableTimesParams): Promise<AvailableTimesResponse> {
-    try {
-        const res = await api.get(`/fields/availableTimes/${params.fieldId}`, {
-          params
-        });
-        return res.data;
-    } catch (error: any) {
-        console.error('Error fetching available times:', error);
-        return {
-            success: false,
-            message: error.response?.data?.message || 'Terjadi kesalahan saat mengambil waktu tersedia'
-        };
-    }
+  try {
+    const res = await api.get(`/fields/availableTimes/${params.fieldId}`, {
+      params
+    });
+    return res.data;
+  } catch (error: any) {
+    console.error('Error fetching available times:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Terjadi kesalahan saat mengambil waktu tersedia'
+    };
+  }
+}
+export async function getFieldPrice(fieldId: number) {
+  try {
+    const res = await api.get(`/fields/getPrice/${fieldId}`);
+    return res.data;
+  } catch (error: any) {
+    console.error('Error fetching available times:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Terjadi kesalahan saat mengambil waktu tersedia'
+    };
+  }
 }
