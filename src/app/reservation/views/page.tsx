@@ -176,7 +176,7 @@ export default function SportsLocationPage() {
       <main className='text-gray-800 overflow-auto hide-scrollbar bg-gray-50'>
         <div className='mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 py-5 md:py-10'>
           <div className='w-full'>
-            <h1 className='text-3xl font-bold text-gray-900 mb-2'>Temukan Lapangan Olahraga</h1>
+            <h1 className='text-2xl font-bold text-gray-900 mb-2'>Temukan Lapangan Olahraga</h1>
             <p className='text-gray-600 mb-6'>Pilih cabang olahraga dan temukan lapangan terbaik di sekitar Anda</p>
 
             <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 w-full mb-8'>
