@@ -60,7 +60,7 @@ export default function MemberCard({ members = [] }: { members: any[] }) {
                     >
                         <div className="mb-6">
                             <div className="text-center mb-6">
-                                <h2 className="font-bold text-2xl mb-2 text-gray-800 bg-gradient-to-r from-lime-300 to-lime-400 bg-clip-text">
+                                <h2 className="font-bold text-xl mb-2 text-gray-800 bg-gradient-to-r from-lime-300 to-lime-400 bg-clip-text">
                                     {member.name}
                                 </h2>
                                 <div className="h-1 w-20 bg-lime-400 mx-auto rounded-full"></div>
