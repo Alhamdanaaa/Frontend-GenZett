@@ -91,17 +91,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </Tooltip>
         </TooltipProvider>
       </div>
-
-      {/* {showDetail && (
-        <Suspense fallback={<div>Loading...</div>}>
-          <UserDetailDialog
-            data={data}
-            trigger={<div style={{display: 'none'}} />}
-            open={showDetail}
-            onOpenChange={setShowDetail}
-          />
-        </Suspense>
-      )} */}
     </>
   );
 };

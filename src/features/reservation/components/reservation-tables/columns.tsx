@@ -10,7 +10,7 @@ import { PAYMENT_STATUS_OPTIONS } from './options';
 // Lazy load the cell action component - only loaded when table is rendered
 const CellAction = dynamic(
   () => import('./cell-action').then(mod => mod.CellAction),
-  { ssr: false, loading: () => <div>Loading...</div> }
+  { ssr: false, loading: () => <div>Memuat...</div> }
 );
 
 export const columns: ColumnDef<Reservation>[] = [

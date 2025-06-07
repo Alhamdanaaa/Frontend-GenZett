@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table';
 
 const LocationTable = dynamic(() => import('./location-tables').then(mod => mod.LocationTable), {
   ssr: false,
-  loading: () => <p>Loading table...</p>
+  loading: () => <p>Memuat tabel...</p>
 });
 
 type Props = {
@@ -33,7 +33,7 @@ export default function LocationTableWrapper({
     loadColumns();
   }, [sportOptions]);
 
-  if (columns.length === 0) return <p>Loading columns...</p>;
+  if (columns.length === 0) return <p>Memuat Kolom...</p>;
 
   return (
     <LocationTable data={data} totalItems={totalItems} columns={columns} />

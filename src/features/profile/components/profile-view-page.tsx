@@ -107,7 +107,7 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => router.push('/dashboard/profile/edit-profile')}>Edit Profil</Button>
+            <Button variant="outline" onClick={() => router.push('/dashboard/profile/edit-profile')}>Ubah Profil</Button>
             <Button variant="outline" onClick={() => router.push('/dashboard/profile/edit-password')}>Ubah Password</Button>
             <Button
               variant="destructive"

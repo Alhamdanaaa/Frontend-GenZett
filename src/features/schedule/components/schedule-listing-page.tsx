@@ -109,7 +109,7 @@ export default function ScheduleListingPage({
     return (
       <div className="h-[400px] w-full flex items-center justify-center">
         <div className="text-center text-red-600">
-          <p className="mb-2">Error loading schedule data:</p>
+          <p className="mb-2">Error memuat data jadwal:</p>
           <p className="text-sm">{error}</p>
         </div>
       </div>

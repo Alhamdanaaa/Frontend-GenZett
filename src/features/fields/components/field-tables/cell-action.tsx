@@ -95,7 +95,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       </div>
 
       {showDetail && (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Memuat...</div>}>
           <FieldDetailDialog
             data={data}
             trigger={<div style={{ display: 'none' }} />}

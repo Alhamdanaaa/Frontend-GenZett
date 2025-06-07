@@ -44,7 +44,7 @@ export default function EditProfileModal({
         className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 space-y-4"
       >
         <h2 className="text-lg font-semibold mb-4 text-gray-700 text-center">
-          Edit Profil
+          Ubah Profil
         </h2>
 
         <div>

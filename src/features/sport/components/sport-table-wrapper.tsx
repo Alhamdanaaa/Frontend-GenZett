@@ -5,7 +5,7 @@ import { Sport } from '@/constants/data';
 
 const SportTable = dynamic(
   () => import('./sport-tables').then(mod => mod.SportTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
+  { ssr: false, loading: () => <p>Memuat tabel...</p> }
 );
 
 type Props = {

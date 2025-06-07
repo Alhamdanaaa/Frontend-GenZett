@@ -48,7 +48,7 @@ export default function PieGraph() {
   }, [data]);
 
   if (isLoading) {
-    return <div>Loading Pie Graph...</div>;
+    return <div>Memuat Pie Graph...</div>;
   }
 
   return (

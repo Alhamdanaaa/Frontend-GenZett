@@ -5,7 +5,6 @@ import { Reservation } from '@/constants/data';
 
 const AvailabilityTable = dynamic(
   () => import('./availabiliy-field-tables').then(mod => mod.AvailabilityTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
 );
 
 type Props = {

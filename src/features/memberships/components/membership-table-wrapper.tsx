@@ -11,7 +11,7 @@ const MembershipTable = dynamic<{
   columns: ColumnDef<MembershipWithNames>[];
 }>(() => import('./membership-tables').then(mod => mod.default), {
   ssr: false,
-  loading: () => <p>Loading table...</p>,
+  loading: () => <p>Memuat tabel...</p>,
 });
 
 
@@ -43,9 +43,9 @@ export default function MembershipTableWrapper({
   }, [locationOptions, sportOptions]);
 
   if (locationOptions.length === 0 || sportOptions.length === 0)
-    return <p>Loading options...</p>;
+    return <p>Memuat opsi...</p>;
 
-  if (columns.length === 0) return <p>Loading columns...</p>;
+  if (columns.length === 0) return <p>Memuat kolom...</p>;
 
   return (
     <MembershipTable data={data} totalItems={totalItems} columns={columns} />

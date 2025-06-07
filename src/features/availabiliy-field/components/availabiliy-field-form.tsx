@@ -27,7 +27,6 @@ import { createClosedField, updateClosedField, getClosedFieldById } from '@/lib/
 import { toast } from 'sonner';
 import { redirect } from 'next/navigation';
 import type { ClosedFieldResponse } from '@/lib/api/closed';
-import Router from 'next/router';
 
 const formSchema = z.object({
   name: z.string().min(2, {

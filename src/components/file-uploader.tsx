@@ -229,13 +229,13 @@ export function FileUploader(props: FileUploaderProps) {
                 </div>
                 <div className='space-y-px'>
                   <p className='text-muted-foreground font-medium'>
-                    Drag {`'n'`} drop files here, or click to select files
+                    Unggah gambar di sini, atau klik untuk memilih file
                   </p>
                   <p className='text-muted-foreground/70 text-sm'>
-                    You can upload
+                    Kamu dapat mengunggah
                     {maxFiles > 1
                       ? ` ${maxFiles === Infinity ? 'multiple' : maxFiles}
-                      files (up to ${formatBytes(maxSize)} each)`
+                      file (hingga ${formatBytes(maxSize)} untuk setiap file)`
                       : ` a file with ${formatBytes(maxSize)}`}
                   </p>
                 </div>
