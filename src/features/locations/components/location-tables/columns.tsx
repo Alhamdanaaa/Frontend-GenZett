@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Location } from '@/constants/data';
 import { ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
-import Image from 'next/image';import { SPORTS_OPTIONS } from './options';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
 const CellAction = dynamic(() => import('./cell-action').then(mod => mod.CellAction), { ssr: false });

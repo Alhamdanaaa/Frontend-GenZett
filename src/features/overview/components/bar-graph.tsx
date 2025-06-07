@@ -58,7 +58,7 @@ export default function BarGraph({
   }, [chartData]);
 
   if (!isClient) {
-    return <div>Loading Bar Graph...</div>;
+    return <div>Memuat Bar Graph...</div>;
   }
 
   if (!data || data.length === 0) {

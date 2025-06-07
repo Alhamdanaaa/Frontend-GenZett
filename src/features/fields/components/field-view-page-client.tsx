@@ -28,13 +28,17 @@ interface FieldViewPageClientProps {
   pageTitle: string;
   locationOptions: { label: string; value: string }[];
   sportOptions: { label: string; value: string }[];
+  userRole?: string;
+  userLocationId?: string;
 }
 
 export default function FieldViewPageClient({
   field,
   pageTitle,
   locationOptions,
-  sportOptions
+  sportOptions,
+  userRole,
+  userLocationId
 }: FieldViewPageClientProps) {
   return (
     <FieldForm
@@ -42,6 +46,8 @@ export default function FieldViewPageClient({
       pageTitle={pageTitle}
       locationOptions={locationOptions}
       sportOptions={sportOptions}
+      userRole={userRole}
+      userLocationId={userLocationId}
     />
   );
 }

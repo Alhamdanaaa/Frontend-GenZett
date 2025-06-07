@@ -61,7 +61,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                 onClick={() => setShowDetail(true)}
               >
                 <IconEye className="h-4 w-4 stroke-blue-600" />
-                {/* <IconListDetails className="h-4 w-4 stroke-blue-600" /> */}
               </Button>
             </TooltipTrigger>
             <TooltipContent>Detail</TooltipContent>
@@ -96,7 +95,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       </div>
 
       {showDetail && (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Memuat...</div>}>
           <FieldDetailDialog
             data={data}
             trigger={<div style={{ display: 'none' }} />}

@@ -63,7 +63,19 @@ export default function EditPasswordPage() {
       toast.success('Password berhasil diubah')
       router.push('/dashboard/profile')
     } catch (err: any) {
-      toast.error(err.message || 'Terjadi kesalahan')
+      if (err.response?.status === 422) {
+        const errors = err.response.data.errors;
+
+        if (errors?.oldPassword?.length > 0) {
+          toast.error(errors.oldPassword[0]);
+        } else if (errors?.newPassword?.length > 0) {
+          toast.error(errors.newPassword[0]);
+        } else {
+          toast.error('Validasi gagal. Periksa kembali input Anda.');
+        }
+      } else {
+        toast.error(err.message || 'Terjadi kesalahan');
+      }
     } finally {
       setLoading(false)
     }

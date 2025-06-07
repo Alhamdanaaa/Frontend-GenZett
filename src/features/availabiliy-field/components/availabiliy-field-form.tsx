@@ -27,7 +27,6 @@ import { createClosedField, updateClosedField, getClosedFieldById } from '@/lib/
 import { toast } from 'sonner';
 import { redirect } from 'next/navigation';
 import type { ClosedFieldResponse } from '@/lib/api/closed';
-import Router from 'next/router';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -452,7 +451,7 @@ export default function AvailabilityForm({
                 className='w-full md:w-auto'
                 disabled={normalizedSelectedTimes.length === 0 || loading}
               >
-                {loading ? 'Memproses...' : mode === 'edit' ? 'Update Reservasi' : 'Simpan Reservasi'}
+                {loading ? 'Memproses...' : mode === 'edit' ? 'Update Data' : 'Simpan Data'}
               </Button>
             </div>
           </form>

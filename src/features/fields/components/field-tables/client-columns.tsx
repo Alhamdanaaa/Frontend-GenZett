@@ -7,7 +7,7 @@ import { getColumns as getServerColumns } from './columns';
 
 const CellAction = dynamic(
   () => import('./cell-action').then(mod => mod.CellAction),
-  { ssr: false, loading: () => <div>Loading...</div> }
+  { ssr: false, loading: () => <div>Memuat...</div> }
 );
 
 export function getClientColumns(

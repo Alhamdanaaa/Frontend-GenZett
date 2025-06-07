@@ -91,7 +91,7 @@ const onConfirm = async () => {
       </div>
 
       {showDetail && (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>memuat...</div>}>
           <AvailabilityDetailDialog
             data={data}
             trigger={<div style={{ display: 'none' }} />}

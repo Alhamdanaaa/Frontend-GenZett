@@ -10,7 +10,7 @@ export default async function EditProfilePage() {
     <div className="w-full px-6 py-10">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Edit Profil</CardTitle>
+          <CardTitle className="text-xl">Ubah Profil</CardTitle>
         </CardHeader>
         <Separator />
         <CardContent className="mt-4">

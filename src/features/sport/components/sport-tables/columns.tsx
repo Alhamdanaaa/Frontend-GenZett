@@ -1,13 +1,12 @@
 'use client';
-import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Sport } from '@/constants/data';
-import { Column, ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const CellAction = dynamic(
   () => import('./cell-action').then(mod => mod.CellAction),
-  { ssr: false, loading: () => <div>Loading...</div> }
+  { ssr: false, loading: () => <div>Memuat...</div> }
 );
 
 export const columns: ColumnDef<Sport>[] = [

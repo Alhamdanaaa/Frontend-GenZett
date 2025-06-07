@@ -62,7 +62,7 @@ export default function BarGraphAdmin({
   }, [chartData]);
 
   if (!isClient) {
-    return <div>Loading Bar Graph...</div>;
+    return <div>Memuat Bar Graph...</div>;
   }
 
   if (!data || data.length === 0) {

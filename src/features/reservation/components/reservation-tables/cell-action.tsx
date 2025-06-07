@@ -92,7 +92,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <TooltipContent>Detail</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
+          {/* <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 className="shadow-md"
@@ -106,12 +106,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
               </Button>
             </TooltipTrigger>
             <TooltipContent>Ubah</TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
         </TooltipProvider>
       </div>
 
       {showDetail && (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Memuat...</div>}>
           <ReservationDetailDialog
             data={data}
             trigger={<div style={{ display: 'none' }} />}
