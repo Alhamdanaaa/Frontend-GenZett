@@ -88,7 +88,7 @@ const PaymentPolicy = ({ control, errors }: Props) => {
           </ol>
 
           {/* Checkbox Persetujuan */}
-            <div className="flex items-center space-x-2 mt-6 mb-4">
+            <div className="flex items-center space-x-2 mt-4 mb-2">
             <Controller
               control={control}
               name="policyAgreement"
@@ -114,7 +114,7 @@ const PaymentPolicy = ({ control, errors }: Props) => {
             <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="bg-orange-600 text-white mt-6 px-4 py-2 h-10 w-25 mx-auto font-semibold block rounded-md hover:bg-orange-700"
+            className="bg-orange-600 text-white mt-3 px-4 py-2 h-10 w-25 mx-auto font-semibold block rounded-md hover:bg-orange-700"
             >
             Tutup
             </button>

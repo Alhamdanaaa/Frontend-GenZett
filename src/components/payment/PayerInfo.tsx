@@ -21,8 +21,8 @@ const PayerInfo = ({ register, errors }: Props) => {
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-lg text-center">Data Penyewa</h3>
+    <div className="space-y-2">
+      <h2 className="font-semibold text-lg text-center">Data Penyewa</h2>
 
       {/* Nama Penyewa */}
       <div className="flex flex-col">
