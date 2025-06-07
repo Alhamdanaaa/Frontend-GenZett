@@ -555,21 +555,22 @@ export default function SchedulesPage() {
               <div className='relative w-full md:w-auto'>
                 <button
                   onClick={() => toggleDropdown('sport')}
-                  className='flex items-center justify-between gap-2 text-white bg-[#3A5849] hover:bg-[#4D6B5C] rounded-lg px-4 py-3 w-full transition-colors'
+                  className='flex items-center justify-between gap-2 text-white bg-[#3A5849] hover:bg-[#4D6B5C] rounded-lg px-4 py-3 w-full min-w-[160px] transition-colors'
                   disabled={!!membershipId}
                 >
                   <span className='text-sm font-medium truncate'>
                     {selectedSport || sportName || 'Pilih Cabor'}
                   </span>
                   <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform ${openDropdown.includes('sport') ? 'rotate-180' : ''
-                      }`}
+                    className={`h-5 w-5 flex-shrink-0 transition-transform ${
+                      openDropdown.includes('sport') ? 'rotate-180' : ''
+                    }`}
                     stroke="currentColor"
                   />
                 </button>
 
                 {openDropdown.includes('sport') && (
-                  <div className='absolute z-10 mt-2 w-full rounded-lg bg-[#3A5849] shadow-xl border border-[#4D6B5C] overflow-hidden'>
+                  <div className='absolute z-10 mt-2 w-full min-w-[180px] rounded-lg bg-[#3A5849] shadow-xl border border-[#4D6B5C] overflow-hidden'>
                     <div className='py-1 max-h-60 overflow-y-auto'>
                       {[...sports.map(sport => sport.sportName)].map((sportName) => (
                         <button
@@ -577,10 +578,10 @@ export default function SchedulesPage() {
                           onClick={() => {
                             setSelectedSport(sportName);
                             toggleDropdown('sport');
-
                           }}
-                          className={`w-full px-4 py-2 text-sm text-left text-white hover:bg-[#C5FC40] hover:text-gray-900 transition-colors ${selectedSport === sportName ? 'bg-[#C5FC40] text-gray-900 font-medium' : ''
-                            }`}
+                          className={`w-full px-4 py-2 text-sm text-left hover:bg-[#C5FC40] hover:text-gray-900 hover:font-semibold transition-colors ${
+                            selectedSport === sportName ? 'bg-[#C5FC40] text-black font-semibold' : 'text-white'
+                          }`}
                         >
                           {sportName}
                         </button>
@@ -915,7 +916,7 @@ export default function SchedulesPage() {
                   {openDropdown?.includes('paymentType') && !membershipId && (
                     <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20 min-w-full">
                       <button
-                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-lime-300"
                         onClick={() => {
                           setSelectedPaymentType('Reguler');
                           toggleDropdown('paymentType');
@@ -924,7 +925,7 @@ export default function SchedulesPage() {
                         Reguler
                       </button>
                       <button
-                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-lime-300"
                         onClick={() => {
                           setSelectedPaymentType('membership');
                           toggleDropdown('paymentType');
