@@ -17,6 +17,7 @@ import * as z from 'zod';
 import { Sport } from '@/constants/data';
 import { useRouter } from 'next/navigation';
 import { createSport, updateSport } from '@/lib/api/sports';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   sportName: z.string().min(2, {
@@ -51,16 +52,28 @@ export default function SportForm({
     try {
       if (isEdit) {
         await updateSport(initialData!.sportId, values);
+        toast.success('Olahraga berhasil diperbarui!');
       } else {
         const res = await createSport(values);
+        toast.success('Olahraga berhasil ditambahkan!');
         router.push(`/sports/${res.sport.sportId}`);
       }
 
-      // Redirect kembali ke halaman daftar olahraga
       router.push('/dashboard/sport');
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 422) {
+        const errors = error.response.data.errors;
+
+        if (errors?.sportName?.[0]?.includes('taken')) {
+          toast.error('Nama olahraga sudah digunakan!');
+          return;
+        }
+        toast.error('Validasi gagal. Periksa kembali input Anda.');
+        return;
+      }
+
+      toast.error('Terjadi kesalahan saat menyimpan olahraga.');
       console.error('Gagal menyimpan olahraga:', error);
-      // Tambahkan penanganan error atau toast di sini jika mau
     }
   }
 
