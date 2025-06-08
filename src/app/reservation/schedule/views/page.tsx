@@ -106,6 +106,7 @@ export default function SchedulesPage() {
           sportName: selectedSport || sportName || undefined
         })
       ]);
+
       console.log('Response Schedule: ', scheduleResponse);
       setSports(sportsResponse.data || []);
 
@@ -124,9 +125,9 @@ export default function SchedulesPage() {
             date: daily.date,
             time: schedule.time,
             timeId: schedule.timeId,
-            price: parseInt(schedule.price?.replace(/[^\d]/g, '') || '0'), // Konversi ke number
+            price: parseInt(schedule.price?.replace(/[^\d]/g, '') || '0'),
             status: schedule.status,
-            sport: field.sport || selectedSport || sportName, // Tambahkan field sport
+            sport: field.sport || selectedSport || sportName,
             locationId: locationId,
             isBooked: schedule.isBooked,
           }));
@@ -135,18 +136,19 @@ export default function SchedulesPage() {
 
       setSchedule(processedSchedules);
 
-      // Generate dates dari API response
-      const startDate = new Date(scheduleResponse.start_date);
-      const endDate = new Date(scheduleResponse.end_date);
+      // Generate dates for 7 days only
       const upcomingDates: any[] = [];
+      const today = new Date();
 
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dateStr = formatDate(new Date(d));
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const dateStr = formatDate(date);
         upcomingDates.push({
-          day: getDayName(d.getDay()),
+          day: getDayName(date.getDay()),
           date: dateStr,
-          month: getMonthName(d.getMonth()),
-          displayDate: d.getDate().toString()
+          month: getMonthName(date.getMonth()),
+          displayDate: date.getDate().toString()
         });
       }
 
@@ -522,28 +524,30 @@ export default function SchedulesPage() {
                 </div>
 
                 {/* Calendar Button */}
-                <button
-                  onClick={() => setOpenDropdown(openDropdown.includes('calendar') ? [] : ['calendar'])}
-                  className='p-3 rounded-lg bg-[#3A5849] hover:bg-[#4D6B5C] transition-colors flex-shrink-0'
-                  aria-label='Open calendar'
-                >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='20'
-                    height='20'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='white'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
+                {membershipId && (
+                  <button
+                    onClick={() => setOpenDropdown(openDropdown.includes('calendar') ? [] : ['calendar'])}
+                    className='p-2 rounded-lg bg-[#3A5849] hover:bg-[#4D6B5C] transition-colors flex-shrink-0'
+                    aria-label='Open calendar'
                   >
-                    <rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect>
-                    <line x1='16' y1='2' x2='16' y2='6'></line>
-                    <line x1='8' y1='2' x2='8' y2='6'></line>
-                    <line x1='3' y1='10' x2='21' y2='10'></line>
-                  </svg>
-                </button>
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      width='20'
+                      height='20'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='white'
+                      strokeWidth='2'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect>
+                      <line x1='16' y1='2' x2='16' y2='6'></line>
+                      <line x1='8' y1='2' x2='8' y2='6'></line>
+                      <line x1='3' y1='10' x2='21' y2='10'></line>
+                    </svg>
+                  </button>
+                )}
               </div>
 
               {/* Responsive divider - hidden on mobile/tablet */}
@@ -927,6 +931,10 @@ export default function SchedulesPage() {
                       <button
                         className="block w-full px-4 py-2 text-left text-sm hover:bg-lime-300"
                         onClick={() => {
+                          if (!membershipId) {
+                            router.push('../membership');
+                            return;
+                          }
                           setSelectedPaymentType('membership');
                           toggleDropdown('paymentType');
                         }}
