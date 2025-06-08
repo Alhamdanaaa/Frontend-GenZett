@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export default async function DashboardPage() {
   const token = (await cookies()).get('token')?.value;
@@ -11,12 +11,17 @@ export default async function DashboardPage() {
 
   try {
     const decoded = jwtDecode<{ role?: string }>(token);
-    if (decoded.role !== 'admin') {
-      redirect('/');
+
+    if (decoded.role === 'admin') {
+      redirect('/dashboard/overview-admin');
     }
 
-    redirect('/dashboard/overview');
+    if (decoded.role === 'superadmin') {
+      redirect('/dashboard/overview');
+    }
+
+    redirect('/');
   } catch {
-    redirect('/dashboard/overview');
+    redirect('/login');
   }
 }
