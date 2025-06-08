@@ -56,11 +56,11 @@ export default function MemberCard({ members = [] }: { members: any[] }) {
                 return (
                     <div
                         key={index}
-                        className="border-2 border-gray-200 rounded-xl bg-gradient-to-b from-white to-gray-50 px-6 py-6 flex flex-col justify-between shadow-lg hover:shadow-2xl hover:-translate-y-2 transform transition duration-300 ease-in-out"
+                        className="border-1 border-gray-200 rounded-xl bg-gradient-to-b from-white to-gray-50 px-6 py-6 flex flex-col justify-between shadow-lg hover:shadow-2xl hover:-translate-y-2 transform transition duration-300 ease-in-out"
                     >
                         <div className="mb-6">
                             <div className="text-center mb-6">
-                                <h2 className="font-bold text-2xl mb-2 text-gray-800 bg-gradient-to-r from-lime-400 to-lime-500 bg-clip-text">
+                                <h2 className="font-bold text-xl mb-2 text-gray-800 bg-gradient-to-r from-lime-300 to-lime-400 bg-clip-text">
                                     {member.name}
                                 </h2>
                                 <div className="h-1 w-20 bg-lime-400 mx-auto rounded-full"></div>
@@ -101,7 +101,7 @@ export default function MemberCard({ members = [] }: { members: any[] }) {
                         </div>
                         <button
                             onClick={() => handleSelectPackage(member.locationId, member.sportName, member.membershipId)}
-                            className="w-full bg-gradient-to-r from-lime-400 to-lime-500 text-black font-semibold py-3 rounded-lg hover:from-lime-500 hover:to-lime-600 transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-opacity-50"
+                            className="w-full bg-gradient-to-r from-lime-300 to-lime-400 text-black font-semibold py-3 rounded-lg hover:from-lime-500 hover:to-lime-600 transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-opacity-50"
                         >
                             Pilih Paket
                         </button>

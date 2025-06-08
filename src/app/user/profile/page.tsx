@@ -210,7 +210,7 @@ export default function ProfilePage() {
                     onClick={() => setShowModal(true)}
                   >
                     <Pencil size={16} className="mr-2" />
-                    Edit Profil
+                    Ubah Profil
                   </Button>
 
                   <Button

@@ -96,7 +96,7 @@ export default function PaymentDetailsSection({ data }: Props) {
       name: userData.name,
       phone: userData.phone,
       paymentType: 'full',
-      policyAgreement: true,
+      policyAgreement: false,
     })
   }, [userData, reset])
 
@@ -172,14 +172,14 @@ export default function PaymentDetailsSection({ data }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-between space-y-6 mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-8 lg:px-24">
-        <div className="md:col-span-2 p-4 rounded-xl shadow bg-white space-y-2 text-black h-fit border-2 border-gray-200">
+      <div className="mx-auto flex max-w-6xl flex-col md:grid md:grid-cols-3 items-start gap-8 px-4">
+        <div className="md:col-span-2 p-4 rounded-xl shadow bg-white space-y-2 text-black w-full border-1 border-gray-200">
           <h2 className="font-semibold text-lg text-center">Ringkasan Pemesanan</h2>
           <BookingSummary bookings={data.bookings} location={data.location} />
           <PaymentTotal name="Harga" amount={data.subtotal} />
         </div>
 
-        <div className="md:col-span-1 p-4 rounded-xl shadow bg-white space-y-4 text-black h-fit border-2 border-gray-200">
+        <div className="md:col-span-1 p-4 rounded-xl shadow bg-white space-y-2 text-black w-full border-1 border-gray-200 self-start sticky top-4">
           <PayerInfo register={register} errors={errors} />
 
           <Controller

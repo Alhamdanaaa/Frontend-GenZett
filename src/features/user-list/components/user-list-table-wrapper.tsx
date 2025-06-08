@@ -5,7 +5,7 @@ import { User } from '@/constants/data';
 
 const UserTable = dynamic(
   () => import('./user-list-tables').then(mod => mod.UserTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
+  { ssr: false, loading: () => <p>Memuat tabel...</p> }
 );
 
 type Props = {

@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table';
 
 const FieldTable = dynamic(() => import('./field-tables').then(mod => mod.FieldTable), {
   ssr: false,
-  loading: () => <p>Loading table...</p>
+  loading: () => <p>Memuat tabel...</p>
 });
 
 type Props = {
@@ -37,7 +37,7 @@ export default function FieldTableWrapper({
     loadColumns();
   }, [locationOptions, sportOptions, isAdmin]);
 
-  if (columns.length === 0) return <p>Loading columns...</p>;
+  if (columns.length === 0) return <p>Memuat Kolom...</p>;
 
   return <FieldTable data={data} totalItems={totalItems} columns={columns} />;
 }

@@ -5,7 +5,7 @@ import { Reservation } from '@/constants/data';
 
 const ReservationTable = dynamic(
   () => import('./reservation-tables').then(mod => mod.ReservationTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
+  { ssr: false, loading: () => <p>Memuat tabel...</p> }
 );
 
 type Props = {

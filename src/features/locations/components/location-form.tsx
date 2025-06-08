@@ -30,6 +30,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { createLocation, updateLocation } from '@/lib/api/location';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [
@@ -73,21 +74,10 @@ export default function LocationForm({
     locationName: initialData?.locationName ?? '',
     address: initialData?.address ?? '',
     description: initialData?.description ?? '',
-    img: undefined, // biarkan kosong saat edit, kecuali user upload baru
+    img: undefined,
   };
-  // const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
-  //   resolver: zodResolver(formSchema(isEdit)),
-  //   values: {
-  //     locationName: initialData?.locationName ?? '',
-  //     address: initialData?.address ?? '',
-  //     description: initialData?.description ?? '',
-  //     img: undefined, // biarkan kosong saat edit, kecuali user upload baru
-  //   },
-  //   mode: 'onBlur'
-  // });
-
   const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
-    resolver: zodResolver(formSchema(isEdit)), // 2. Gunakan nilai schema yang dikompilasi
+    resolver: zodResolver(formSchema(isEdit)),
     defaultValues
   });
   useEffect(() => {
@@ -102,26 +92,56 @@ export default function LocationForm({
   }, [initialData, form]);
   const router = useRouter();
 
-  // 2. Gunakan nilai schema yang dikompilasi
   const compiledSchema = formSchema(isEdit);
 
-  async function onSubmit(values: z.infer<typeof compiledSchema>) {
-    console.log('locationName:', values.locationName); // pastikan bukan undefined
-    console.log('address:', values.address); // pastikan bukan undefined
-    console.log('description:', values.description); // pastikan bukan undefined
 
-    try {
-      if (isEdit) {
-        await updateLocation(initialData!.locationId, values);
-      } else {
-        await createLocation(values);
-      }
-
-      router.push('/dashboard/location');
-    } catch (error) {
-      console.error('Gagal menyimpan lokasi:', error);
+async function onSubmit(values: z.infer<typeof compiledSchema>) {
+  console.log('values:', values);
+  try {
+    if (isEdit) {
+      await updateLocation(initialData!.locationId, values);
+      toast.success('Lokasi berhasil diperbarui');
+    } else {
+      await createLocation(values);
+      toast.success('Lokasi berhasil ditambahkan');
     }
+
+    router.push('/dashboard/location');
+  } catch (error: any) {
+    let responseData = error?.response?.data;
+
+    // Coba parse manual jika data dalam bentuk string (karena HTML error di awal)
+    if (typeof responseData === 'string') {
+      try {
+        // Ambil JSON murni dari string yang mengandung HTML
+        const jsonStart = responseData.indexOf('{');
+        const cleanJson = JSON.parse(responseData.slice(jsonStart));
+        responseData = cleanJson;
+      } catch (e) {
+        console.warn('Gagal parse JSON dari response:', e);
+      }
+    }
+
+    if (error?.response?.status === 422) {
+      const locationNameErrors = responseData?.errors?.locationName;
+      if (locationNameErrors && Array.isArray(locationNameErrors)) {
+        const msg = locationNameErrors[0];
+        if (msg.includes('taken')) {
+          toast.error('Nama lokasi sudah digunakan. Gunakan nama lain.');
+          return; // hindari navigasi
+        } else {
+          toast.error(msg);
+        }
+      } else {
+        toast.error('Validasi gagal. Periksa kembali input Anda.');
+      }
+    } else {
+      toast.error('Terjadi kesalahan saat menyimpan lokasi.');
+    }
+
+    console.error('Gagal menyimpan lokasi:', error);
   }
+}
 
   return (
     <Card className='mx-auto w-full'>

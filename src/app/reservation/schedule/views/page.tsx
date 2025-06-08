@@ -493,17 +493,17 @@ export default function SchedulesPage() {
           {/* Main Container */}
           <div className='rounded-2xl bg-[#2C473A] p-5 shadow-lg'>
             {/* Date and Filter Controls */}
-            <div className='flex flex-col md:flex-row justify-between items-center gap-4'>
+            <div className='flex flex-col md:flex-row justify-between items-center gap-2'>
               {/* Date Selector */}
-              <div className='flex items-center gap-4 w-full md:w-auto'>
-                <div className='flex overflow-x-auto pb-2 gap-2 scrollbar-hide flex-1 scrollbar-hidden'>
+              <div className='flex items-center gap-8 w-full md:w-auto'>
+                <div className='flex overflow-x-auto pt-1 pb-1 gap-2 md:flex-wrap md:overflow-visible scrollbar-hide flex-1'>
                   {dates.map(({ day, date, month, displayDate }) => {
                     const isSelected = selectedDate === date;
                     return (
                       <button
                         key={date}
                         onClick={() => setSelectedDate(date)}
-                        className={`min-w-[120px] flex flex-col items-center justify-center rounded-xl py-3 px-2 transition-all ${isSelected
+                        className={`min-w-[110px] flex flex-col items-center justify-center rounded-xl py-4 px-2 transition-all ${isSelected
                           ? 'bg-[#C5FC40] shadow-md transform scale-105'
                           : 'bg-[#3A5849] hover:bg-[#4D6B5C]'
                           }`}
@@ -546,25 +546,31 @@ export default function SchedulesPage() {
                 </button>
               </div>
 
+              {/* Responsive divider - hidden on mobile/tablet */}
+              <div className='hidden md:flex items-center justify-center'>
+                <div className='w-px h-[35px] bg-gray-300'></div>
+              </div>
+
               {/* Sport Filter */}
               <div className='relative w-full md:w-auto'>
                 <button
                   onClick={() => toggleDropdown('sport')}
-                  className='flex items-center justify-between gap-2 text-white bg-[#3A5849] hover:bg-[#4D6B5C] rounded-lg px-4 py-3 w-full transition-colors'
+                  className='flex items-center justify-between gap-2 text-white bg-[#3A5849] hover:bg-[#4D6B5C] rounded-lg px-4 py-3 w-full min-w-[160px] transition-colors'
                   disabled={!!membershipId}
                 >
                   <span className='text-sm font-medium truncate'>
                     {selectedSport || sportName || 'Pilih Cabor'}
                   </span>
                   <ChevronDownCircle
-                    className={`h-5 w-5 transition-transform ${openDropdown.includes('sport') ? 'rotate-180' : ''
-                      }`}
+                    className={`h-5 w-5 flex-shrink-0 transition-transform ${
+                      openDropdown.includes('sport') ? 'rotate-180' : ''
+                    }`}
                     stroke="currentColor"
                   />
                 </button>
 
                 {openDropdown.includes('sport') && (
-                  <div className='absolute z-10 mt-2 w-full rounded-lg bg-[#3A5849] shadow-xl border border-[#4D6B5C] overflow-hidden'>
+                  <div className='absolute z-10 mt-2 w-full min-w-[180px] rounded-lg bg-[#3A5849] shadow-xl border border-[#4D6B5C] overflow-hidden'>
                     <div className='py-1 max-h-60 overflow-y-auto'>
                       {[...sports.map(sport => sport.sportName)].map((sportName) => (
                         <button
@@ -572,10 +578,10 @@ export default function SchedulesPage() {
                           onClick={() => {
                             setSelectedSport(sportName);
                             toggleDropdown('sport');
-
                           }}
-                          className={`w-full px-4 py-2 text-sm text-left text-white hover:bg-[#C5FC40] hover:text-gray-900 transition-colors ${selectedSport === sportName ? 'bg-[#C5FC40] text-gray-900 font-medium' : ''
-                            }`}
+                          className={`w-full px-4 py-2 text-sm text-left hover:bg-[#C5FC40] hover:text-gray-900 hover:font-semibold transition-colors ${
+                            selectedSport === sportName ? 'bg-[#C5FC40] text-black font-semibold' : 'text-white'
+                          }`}
                         >
                           {sportName}
                         </button>
@@ -872,8 +878,8 @@ export default function SchedulesPage() {
           })}
 
           <div className='space-y-4 rounded-xl border bg-[#2C473A] p-4 shadow-sm'>
-            {/* Summary info row */}
-            <div className='flex items-center justify-between'>
+            {/* Summary info row - responsive layout */}
+            <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
               <div className='flex items-center gap-2'>
                 <p className='text-sm font-medium text-white'>
                   {selectedSlots.length} lapangan dipilih
@@ -889,11 +895,13 @@ export default function SchedulesPage() {
                   />
                 </button>
               </div>
-              <div className='flex items-center font-medium gap-4'>
+
+              {/* Buttons - only visible on desktop */}
+              <div className='hidden md:flex flex-wrap items-center font-medium gap-4'>
                 <div className="relative">
                   <button
                     onClick={() => toggleDropdown('paymentType')}
-                    className="flex items-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300"
                     disabled={!!membershipId}
                   >
                     {selectedPaymentType}
@@ -906,10 +914,9 @@ export default function SchedulesPage() {
                   </button>
 
                   {openDropdown?.includes('paymentType') && !membershipId && (
-                    <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20"
-                      style={{ width: '100%' }}>
+                    <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20 min-w-full">
                       <button
-                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-lime-300"
                         onClick={() => {
                           setSelectedPaymentType('Reguler');
                           toggleDropdown('paymentType');
@@ -918,7 +925,7 @@ export default function SchedulesPage() {
                         Reguler
                       </button>
                       <button
-                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        className="block w-full px-4 py-2 text-left text-sm hover:bg-lime-300"
                         onClick={() => {
                           setSelectedPaymentType('membership');
                           toggleDropdown('paymentType');
@@ -997,7 +1004,7 @@ export default function SchedulesPage() {
                   </div>
                   {membershipData && (
                     <div className='flex justify-between'>
-                      <p>{membershipData.name} Diskon: ({membershipData.discount}%)</p>
+                      <p className="text-sm sm:text-base">{membershipData.name} Diskon: ({membershipData.discount}%)</p>
                       <p>- Rp {calculateTotal().discount.toLocaleString('id-ID')}</p>
                     </div>
                   )}
@@ -1005,6 +1012,55 @@ export default function SchedulesPage() {
                     <p>Total</p>
                     <p>Rp {calculateTotal().total.toLocaleString('id-ID')}</p>
                   </div>
+                </div>
+
+                {/* Mobile buttons - only visible on mobile */}
+                <div className='md:hidden flex flex-col gap-3 mt-4'>
+                  <div className="relative w-full">
+                    <button
+                      onClick={() => toggleDropdown('paymentType')}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-[#C5FC40] px-4 py-2 text-sm text-black hover:bg-lime-300 w-full"
+                      disabled={!!membershipId}
+                    >
+                      {selectedPaymentType}
+                      {!membershipId && (
+                        <ChevronDownCircle
+                          className={`h-5 w-5 transition-transform ${openDropdown.includes('paymentType') ? 'rotate-180' : ''}`}
+                          stroke="currentColor"
+                        />
+                      )}
+                    </button>
+
+                    {openDropdown?.includes('paymentType') && !membershipId && (
+                      <div className="absolute right-0 top-full mt-1 rounded-md text-black bg-[#C5FC40] py-1 shadow-lg z-20 w-full">
+                        <button
+                          className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                          onClick={() => {
+                            setSelectedPaymentType('Reguler');
+                            toggleDropdown('paymentType');
+                          }}
+                        >
+                          Reguler
+                        </button>
+                        <button
+                          className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                          onClick={() => {
+                            setSelectedPaymentType('membership');
+                            toggleDropdown('paymentType');
+                          }}
+                        >
+                          Langganan
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handlePayment}
+                    className='w-full bg-orange-500 hover:bg-orange-600 px-4 py-3 font-semibold cursor-pointer'
+                    disabled={selectedSlots.length === 0}
+                  >
+                    BAYAR
+                  </Button>
                 </div>
               </div>
             )}
