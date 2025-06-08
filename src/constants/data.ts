@@ -55,6 +55,8 @@ export type Location = {
   address: string;
   created_at: string;
   updated_at: string;
+  img?: string;       // nama file, tetap digunakan jika butuh
+  file_url?: string; // URL lengkap ke Azure Blob
 };
 
 // Tipe data untuk sport

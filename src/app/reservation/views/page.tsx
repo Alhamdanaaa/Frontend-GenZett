@@ -11,7 +11,7 @@ import { Location } from '@/constants/data';
 
 export default function SportsLocationPage() {
   const router = useRouter();
-  type LocationWithPrice = Location & { minPrice?: string, maxPrice?: string };
+  type LocationWithPrice = Location & { minPrice?: string, maxPrice?: string, img?: string, imageUrl?: string };
 
   const [sports, setSports] = useState<string[]>([]);
   const [locations, setLocations] = useState<LocationWithPrice[]>([]);
@@ -62,28 +62,51 @@ export default function SportsLocationPage() {
 
         const locationResponse = await getLocations({});
         if (locationResponse.data && Array.isArray(locationResponse.data)) {
-          const locationsWithPrices = await Promise.all(
-            locationResponse.data.map(async (location: { locationId: string | number; locationName: any; }) => {
+
+          const storageBaseUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
+
+          const locationsWithDetails = await Promise.all(
+            locationResponse.data.map(async (location: any) => {
               try {
                 const priceResponse = await getPrice(location.locationId);
-                console.log('Price res: ', priceResponse);
+                const minPrice = priceResponse.success ? priceResponse.minPrice : 'N/A';
+                const maxPrice = priceResponse.success ? priceResponse.maxPrice : 'N/A';
+
+                const storageBaseUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
+                const imageUrl = location.imageUrl ? (() => {
+                  try {
+                    const url = new URL(location.imageUrl);
+                    const filename = url.pathname.split('/').pop();
+                    if (!filename) return null;
+
+                    const fullUrl = `${storageBaseUrl}/${filename}`;
+                    return fullUrl;
+                  } catch (e) {
+                    console.error("Error parsing imageUrl:", e);
+                    return null;
+                  }
+                })() : null;
+
                 return {
                   ...location,
-                  minPrice: priceResponse.success ? priceResponse.minPrice : 'N/A',
-                  maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A'
+                  minPrice: minPrice,
+                  maxPrice: maxPrice,
+                  imageUrl,
                 };
+
               } catch (error) {
                 console.error(`Failed to get price for ${location.locationName}`, error);
                 return {
                   ...location,
                   minPrice: 'N/A',
-                  maxPrice: 'N/A'
+                  maxPrice: 'N/A',
+                  imageUrl: null,
                 };
               }
             })
           );
-          console.log(locationsWithPrices);
-          setLocations(locationsWithPrices);
+
+          setLocations(locationsWithDetails);
         }
       } catch (error) {
         setError('Gagal memuat data lokasi');
@@ -265,16 +288,11 @@ export default function SportsLocationPage() {
                     <div className='relative h-48 w-full'>
                       <Image
                         src={item.imageUrl || '/images/futsal.png'}
-                        alt='Lapangan'
-                        layout='fill'
-                        objectFit='cover'
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/images/futsal.png';
-                          target.onerror = null;
-                        }}
+                        alt={item.locationName || 'Location Image'}
+                        layout="fill"
+                        objectFit="cover"
                         unoptimized={process.env.NODE_ENV === 'development'}
-                        className='rounded-t-xl group-hover:scale-105 transition-transform duration-300'
+                        className="rounded-t-xl"
                       />
                       <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-t-xl' />
                       <div className='absolute bottom-4 left-4'>
