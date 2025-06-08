@@ -71,6 +71,8 @@ export default function BookingDetailModal({
   const paymentStatusLabel = () => {
     if (detailData.paymentStatus.toLowerCase() === "lunas") return "Lunas";
     if (detailData.paymentStatus.toLowerCase().includes("dp")) return detailData.paymentStatus;
+    if (detailData.paymentStatus.toLowerCase() === "refund") return "Refund";
+    if (detailData.paymentStatus.toLowerCase() === "canceled") return "Cancel";
     return "Belum Bayar";
   };
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import UserLayout from '@/app/user/layout';
 import { cn } from '@/lib/utils';
-import { ChevronUp, ChevronDown, Search } from 'lucide-react';
+import { ChevronUp, ChevronDown, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import BookingDetailModal from '@/components/modal/BookingDetailModal';
 import BookingHistoryGuestPage from '../guest/page';
@@ -19,6 +19,7 @@ interface ReservationDetail {
 }
 
 interface Reservation {
+  historyId?: number; // Add historyId for cancel API
   bookingName: string;
   cabang: string;
   lapangan: string;
@@ -57,6 +58,14 @@ interface BookingData {
   payment: string;
   status: string;
   originalData: Reservation; // Store original data for modal
+}
+
+// Cancel form data interface
+interface CancelFormData {
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  cancelReason: string;
 }
 
 const TableHeader = ({
@@ -100,6 +109,197 @@ const TableHeader = ({
   </th>
 );
 
+// Cancel Modal Component
+const CancelBookingModal = ({
+  booking,
+  onClose,
+  onConfirm
+}: {
+  booking: BookingData;
+  onClose: () => void;
+  onConfirm: (formData: CancelFormData) => void;
+}) => {
+  const [formData, setFormData] = useState<CancelFormData>({
+    bankName: '',
+    accountName: '',
+    accountNumber: '',
+    cancelReason: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const isLunas = booking.originalData.paymentStatus === 'Lunas';
+  const isDP = booking.originalData.paymentStatus.includes('DP');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      await onConfirm(formData);
+    } catch (error) {
+      console.error('Error canceling booking:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  return (
+    <div className='fixed inset-0 z-50 flex items-center justify-center pointer-events-none'>
+      <div className='w-full max-w-md rounded-lg bg-white p-6 shadow-2xl border pointer-events-auto'>
+        <div className='flex items-center justify-between mb-4'>
+          <h2 className='text-xl font-semibold text-black'>Batalkan Pemesanan</h2>
+          <button
+            onClick={onClose}
+            className='text-gray-500 hover:text-gray-700'
+          >
+            <X className='h-6 w-6' />
+          </button>
+        </div>
+
+        <div className='mb-4 text-sm text-gray-600'>
+          <p><strong>Cabang:</strong> {booking.branch}</p>
+          <p><strong>Lapangan:</strong> {booking.court}</p>
+          <p><strong>Tanggal:</strong> {booking.date}</p>
+          <p><strong>Status Pembayaran:</strong> {booking.payment}</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          {isLunas && (
+            <>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  Nama Bank *
+                </label>
+                <select
+                  name='bankName'
+                  value={formData.bankName}
+                  onChange={handleInputChange}
+                  className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#C5FC40] focus:outline-none'
+                  required
+                >
+                  <option value=''>Pilih Bank</option>
+                  <option value='BCA'>BCA</option>
+                  <option value='Mandiri'>Bank Mandiri</option>
+                  <option value='BNI'>Bank BNI</option>
+                  <option value='BRI'>Bank BRI</option>
+                  <option value='CIMB Niaga'>CIMB Niaga</option>
+                  <option value='Danamon'>Bank Danamon</option>
+                  <option value='Permata'>Bank Permata</option>
+                  <option value='OCBC NISP'>OCBC NISP</option>
+                  <option value='Maybank'>Maybank Indonesia</option>
+                  <option value='BSI'>Bank Syariah Indonesia (BSI)</option>
+                  <option value='BTN'>Bank BTN</option>
+                  <option value='Panin'>Bank Panin</option>
+                  <option value='Lainnya'>Lainnya</option>
+                </select>
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  Nama Akun *
+                </label>
+                <input
+                  type='text'
+                  name='accountName'
+                  value={formData.accountName}
+                  onChange={handleInputChange}
+                  className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#C5FC40] focus:outline-none'
+                  placeholder='Nama pemilik rekening'
+                  required
+                />
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  Nomor Rekening *
+                </label>
+                <input
+                  type='text'
+                  name='accountNumber'
+                  value={formData.accountNumber}
+                  onChange={handleInputChange}
+                  className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#C5FC40] focus:outline-none'
+                  placeholder='Nomor rekening bank'
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          <div>
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
+              Alasan Pembatalan *
+            </label>
+            <select
+              name='cancelReason'
+              value={formData.cancelReason}
+              onChange={handleInputChange}
+              className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#C5FC40] focus:outline-none mb-2'
+              required
+            >
+              <option value=''>Pilih alasan pembatalan</option>
+              <option value='Berhalangan hadir'>Berhalangan hadir</option>
+              <option value='Kondisi cuaca buruk'>Kondisi cuaca buruk</option>
+              <option value='Sakit/kondisi kesehatan'>Sakit/kondisi kesehatan</option>
+              <option value='Konflik jadwal'>Konflik jadwal</option>
+              <option value='Keadaan darurat'>Keadaan darurat</option>
+              <option value='Perubahan rencana'>Perubahan rencana</option>
+              <option value='Masalah transportasi'>Masalah transportasi</option>
+              <option value='Alasan keluarga'>Alasan keluarga</option>
+              <option value='Lainnya'>Lainnya (tulis di bawah)</option>
+            </select>
+            {formData.cancelReason === 'Lainnya' && (
+              <textarea
+                name='cancelReasonCustom'
+                placeholder='Jelaskan alasan pembatalan Anda...'
+                rows={3}
+                className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#C5FC40] focus:outline-none resize-none'
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  cancelReason: e.target.value || 'Lainnya'
+                }))}
+              />
+            )}
+          </div>
+
+          {isLunas && (
+            <div className='text-xs text-gray-500 bg-yellow-50 p-3 rounded'>
+              <p><strong>Catatan:</strong> Refund akan diproses dalam 1-3 hari kerja setelah permintaan pembatalan disetujui.</p>
+            </div>
+          )}
+
+          <div className='flex gap-3 pt-4'>
+            <Button
+              type='button'
+              onClick={onClose}
+              variant='outline'
+              className='flex-1'
+              disabled={loading}
+            >
+              Batal
+            </Button>
+            <Button
+              type='submit'
+              className='flex-1 bg-red-600 text-white hover:bg-red-700'
+              disabled={loading}
+            >
+              {loading ? 'Memproses...' : 'Batalkan Pemesanan'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function HistoryPage() {
   const [data, setData] = useState<BookingData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,6 +312,8 @@ export default function HistoryPage() {
   const [selectedBooking, setSelectedBooking] = useState<BookingData | null>(
     null
   );
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<BookingData | null>(null);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,6 +344,12 @@ export default function HistoryPage() {
         paymentDisplay = 'Lunas';
       } else if (paymentDisplay.includes('DP')) {
         paymentDisplay = paymentDisplay; // Keep as is, e.g., "DP (75000)"
+      } else if (paymentDisplay === 'refund') {
+        paymentDisplay = 'Refund';
+      } else if (paymentDisplay === 'canceled') {
+        paymentDisplay = 'Cancel';
+      } else if (paymentDisplay === 'waiting') {
+        paymentDisplay = 'Waiting';
       } else {
         paymentDisplay = 'Belum Lunas';
       }
@@ -284,6 +492,77 @@ export default function HistoryPage() {
     setShowModal(false);
   };
 
+  const handleCancelBooking = (booking: BookingData) => {
+    setBookingToCancel(booking);
+    setShowCancelModal(true);
+  };
+
+  const handleCloseCancelModal = () => {
+    setBookingToCancel(null);
+    setShowCancelModal(false);
+  };
+
+  const handleConfirmCancel = async (formData: CancelFormData) => {
+    if (!bookingToCancel) return;
+
+    try {
+      const token = getCookie('token');
+      if (!token) {
+        throw new Error('Token tidak ditemukan');
+      }
+
+      const historyId = bookingToCancel.originalData.historyId;
+      if (!historyId) {
+        throw new Error('History ID tidak ditemukan');
+      }
+
+      const requestBody: any = {
+        cancelReason: formData.cancelReason
+      };
+
+      // Add bank details only if payment status is 'Lunas'
+      if (bookingToCancel.originalData.paymentStatus === 'Lunas') {
+        requestBody.bankName = formData.bankName;
+        requestBody.accountName = formData.accountName;
+        requestBody.accountNumber = formData.accountNumber;
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/reservations/user/${historyId}/cancel`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Show success message
+        alert(result.message || 'Permintaan pembatalan berhasil dikirim');
+        
+        // Close modal
+        handleCloseCancelModal();
+        
+        // Refresh data
+        window.location.reload();
+      } else {
+        throw new Error(result.message || 'Gagal membatalkan pemesanan');
+      }
+    } catch (error) {
+      console.error('Error canceling booking:', error);
+      alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat membatalkan pemesanan');
+    }
+  };
+
   const filteredData = data.filter((booking) => {
     const searchStr = searchTerm.toLowerCase();
     return (
@@ -314,8 +593,6 @@ export default function HistoryPage() {
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
-
-  const handleCancelBooking = () => {};
 
   // Function to highlight the search term in a text
   const highlightText = (text: string) => text;
@@ -449,13 +726,19 @@ export default function HistoryPage() {
                     <td className='px-4 py-2'>
                       <span
                         className={cn(
-                          'rounded-full px-3 py-1 text-xs font-medium',
+                          'rounded-full px-3 py-2 font-medium',
                           booking.status === 'Upcoming' &&
                             'bg-orange-100 text-orange-600',
                           booking.status === 'Completed' &&
                             'bg-green-100 text-green-600',
                           booking.status === 'Ongoing' &&
-                            'bg-blue-100 text-blue-600'
+                            'bg-blue-100 text-blue-600',
+                          booking.status === 'canceled' &&
+                            'bg-red-100 text-red-600',
+                          booking.status === 'waiting' &&
+                            'bg-yellow-100 text-yellow-600',
+                          booking.status.includes('Refund') &&
+                            'bg-yellow-100 text-yellow-600'
                         )}
                       >
                         {highlightText(booking.status)}
@@ -473,7 +756,7 @@ export default function HistoryPage() {
                         <Button
                           className='ml-2 rounded-full bg-[#ff0303] hover:bg-[#ba1004] hover:text-white'
                           size='sm'
-                          onClick={() => handleCancelBooking()}
+                          onClick={() => handleCancelBooking(booking)}
                         >
                           {highlightText('Cancel')}
                         </Button>
@@ -535,11 +818,20 @@ export default function HistoryPage() {
           </div>
         )}
 
-        {/* Modal */}
+        {/* Detail Modal */}
         {showModal && selectedBooking && (
           <BookingDetailModal
             booking={selectedBooking}
             onClose={handleCloseModal}
+          />
+        )}
+
+        {/* Cancel Modal */}
+        {showCancelModal && bookingToCancel && (
+          <CancelBookingModal
+            booking={bookingToCancel}
+            onClose={handleCloseCancelModal}
+            onConfirm={handleConfirmCancel}
           />
         )}
 
