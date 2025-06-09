@@ -62,9 +62,6 @@ export default function SportsLocationPage() {
 
         const locationResponse = await getLocations({});
         if (locationResponse.data && Array.isArray(locationResponse.data)) {
-
-          const storageBaseUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
-
           const locationsWithDetails = await Promise.all(
             locationResponse.data.map(async (location: any) => {
               try {
