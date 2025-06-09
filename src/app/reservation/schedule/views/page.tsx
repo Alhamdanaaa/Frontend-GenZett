@@ -40,6 +40,11 @@ type PaymentData = {
   membershipId?: string;
 };
 
+interface LocationData {
+  name: string;
+  imagePath: string;
+}
+
 export default function SchedulesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -65,6 +70,7 @@ export default function SchedulesPage() {
   const [membershipData, setMembershipsData] = useState<Membership | null>(null);
   // const [membershipBooking, setMembershipsBooking] = useState<Array<{TimeSlot}>>([]);
   const [recurringWeeks, setRecurringWeeks] = useState<number[]>([]);
+  const [location, setLocation] = useState<LocationData | null>(null);
 
   const getDayName = (dayIndex: number): string => {
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
@@ -109,7 +115,10 @@ export default function SchedulesPage() {
 
       console.log('Response Schedule: ', scheduleResponse);
       setSports(sportsResponse.data || []);
-
+      if (scheduleResponse.location) {
+        setLocation(scheduleResponse.location);
+      }
+      console.log('Fetched location:', scheduleResponse.location);
       const allFields = scheduleResponse.fields || [];
       const courtsList = allFields.map((field: { fieldName: any; }) => field.fieldName);
       setCourts(courtsList);
@@ -421,6 +430,13 @@ export default function SchedulesPage() {
     style: 'currency',
     currency: 'IDR',
   });
+
+  const baseAzureUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
+  const imageUrl = location?.imagePath
+    ? `${baseAzureUrl}/${location?.imagePath}`
+    : '/images/futsal.png';
+
+  console.log('Image URL:', imageUrl);
   return (
     <UserLayout>
       {/* <div className='min-h-screen bg-[#f8f8f8]' suppressHydrationWarning> */}
@@ -429,11 +445,12 @@ export default function SchedulesPage() {
         <div className='grid grid-cols-1 gap-4 md:grid-cols-12'>
           <div className='md:col-span-6'>
             <Image
-              src='/images/futsal.png'
-              alt='Lapangan'
+              src={imageUrl}
+              alt={`Gambar lokasi ${location?.name || 'Cabang'}`}
               width={700}
               height={400}
-              className='h-[350px] w-[500px] rounded-xl object-cover'
+              className="h-[350px] w-[500px] rounded-xl object-cover"
+              unoptimized
             />
           </div>
           <div className='flex flex-col gap-4 md:col-span-6'>
@@ -566,9 +583,8 @@ export default function SchedulesPage() {
                     {selectedSport || sportName || 'Pilih Cabor'}
                   </span>
                   <ChevronDownCircle
-                    className={`h-5 w-5 flex-shrink-0 transition-transform ${
-                      openDropdown.includes('sport') ? 'rotate-180' : ''
-                    }`}
+                    className={`h-5 w-5 flex-shrink-0 transition-transform ${openDropdown.includes('sport') ? 'rotate-180' : ''
+                      }`}
                     stroke="currentColor"
                   />
                 </button>
@@ -583,9 +599,8 @@ export default function SchedulesPage() {
                             setSelectedSport(sportName);
                             toggleDropdown('sport');
                           }}
-                          className={`w-full px-4 py-2 text-sm text-left hover:bg-[#C5FC40] hover:text-gray-900 hover:font-semibold transition-colors ${
-                            selectedSport === sportName ? 'bg-[#C5FC40] text-black font-semibold' : 'text-white'
-                          }`}
+                          className={`w-full px-4 py-2 text-sm text-left hover:bg-[#C5FC40] hover:text-gray-900 hover:font-semibold transition-colors ${selectedSport === sportName ? 'bg-[#C5FC40] text-black font-semibold' : 'text-white'
+                            }`}
                         >
                           {sportName}
                         </button>

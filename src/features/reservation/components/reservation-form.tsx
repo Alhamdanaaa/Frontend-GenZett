@@ -22,9 +22,8 @@ import { Reservation } from '@/constants/data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { FIELD_OPTIONS, PAYMENT_STATUS_OPTIONS, RESERVATION_STATUS_OPTIONS } from './reservation-tables/options';
+import { PAYMENT_STATUS_OPTIONS } from './reservation-tables/options'; 
 
-// Definisikan tipe yang lebih spesifik untuk status
 type PaymentStatus = 'complete' | 'dp' | 'pending' | 'fail';
 
 const formSchema = z.object({
@@ -138,13 +137,13 @@ export default function ReservationForm({
                           <SelectValue placeholder='Pilih lapangan' />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      {/* <SelectContent>
                         {FIELD_OPTIONS.map((field) => (
                           <SelectItem key={field.value} value={field.value}>
                             {field.label}
                           </SelectItem>
                         ))}
-                      </SelectContent>
+                      </SelectContent> */}
                     </Select>
                     <FormMessage />
                   </FormItem>

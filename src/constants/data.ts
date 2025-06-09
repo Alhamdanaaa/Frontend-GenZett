@@ -55,6 +55,10 @@ export type Location = {
   address: string;
   created_at: string;
   updated_at: string;
+  img?: string;
+  file_url?: string;
+  imagePath:string;
+  name:string;
 };
 
 // Tipe data untuk sport

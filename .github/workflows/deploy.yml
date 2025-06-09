@@ -40,6 +40,7 @@ jobs:
           key: ${{ secrets.FRONTEND_SSH_KEY }}
           script: |
             cd ~/deploy
-            docker compose down --remove-orphans || true
-            docker rm -f frontend-genzett || true
-            docker compose up -d --build
+            docker compose stop frontend || true
+            docker compose rm -f frontend || true
+            docker compose up -d --build frontend
+
