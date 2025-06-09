@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-// lib/api.ts
 import api from "../axios";
 import { Reservation } from '@/constants/data';
 

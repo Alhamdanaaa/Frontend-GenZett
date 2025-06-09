@@ -49,7 +49,7 @@ const formSchema = (isEdit: boolean) =>
         .refine((files) => files?.length == 1, 'Gambar lokasi diperlukan.')
         .refine(
           (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-          `Ukuran file maksimal 5MB.`
+          `Ukuran file maksimal 4MB.`
         )
         .refine(
           (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
@@ -161,7 +161,7 @@ async function onSubmit(values: z.infer<typeof compiledSchema>) {
                     <FileUploader
                       value={field.value}
                       onValueChange={field.onChange}
-                      maxFiles={4}
+                      maxFiles={1}
                       maxSize={4 * 1024 * 1024}
                     />
                   </FormControl>

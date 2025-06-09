@@ -62,9 +62,6 @@ export default function SportsLocationPage() {
 
         const locationResponse = await getLocations({});
         if (locationResponse.data && Array.isArray(locationResponse.data)) {
-
-          const storageBaseUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
-
           const locationsWithDetails = await Promise.all(
             locationResponse.data.map(async (location: any) => {
               try {
@@ -118,14 +115,6 @@ export default function SportsLocationPage() {
     fetchData();
   }, []);
 
-  const formatPrice = (price: string) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(Number(price));
-  };
-
   const handleFilter = async () => {
     setLoading(true);
     try {
@@ -136,8 +125,8 @@ export default function SportsLocationPage() {
             const priceResponse = await getPrice(location.locationId);
             return {
               ...location,
-              minPrice: priceResponse.success ? formatPrice(priceResponse.minPrice) : 'N/A',
-              maxPrice: priceResponse.success ? formatPrice(priceResponse.maxPrice) : 'N/A'
+              minPrice: priceResponse.success ? priceResponse.minPrice : 'N/A',
+              maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A'
             };
           })
         );
@@ -160,8 +149,8 @@ export default function SportsLocationPage() {
             const priceResponse = await getPrice(location.locationId);
             return {
               ...location,
-              minPrice: priceResponse.success ? formatPrice(priceResponse.minPrice) : 'N/A',
-              maxPrice: priceResponse.success ? formatPrice(priceResponse.maxPrice) : 'N/A'
+              minPrice: priceResponse.success ? priceResponse.minPrice : 'N/A',
+              maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A'
             };
           })
         ).then(locationsWithPrices => {

@@ -9,14 +9,14 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { CircleArrowRight } from "lucide-react";
 import UserLayout from "@/app/user/layout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CirclePlus } from 'lucide-react';
 
 // Animation variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
-
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
@@ -27,6 +27,11 @@ const staggerContainer = {
   }
 };
 
+export async function getSportsByLocation(locationId: string) {
+  const res = await fetch(`/api/sports?locationId=${locationId}`);
+  return res.json();
+}
+
 export default function HomePage() {
   const [heroRef, heroInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [benefitsRef, benefitsInView] = useInView({ threshold: 0.1, triggerOnce: true });
@@ -35,11 +40,25 @@ export default function HomePage() {
   const [sportsRef, sportsInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [worksRef, worksInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [activeFAQIndex, setActiveFAQIndex] = useState<number | null>(null);
-
+  const [sportsData, setSportsData] = useState<any[]>([]);
   const toggleFAQ = (index: number) => {
     setActiveFAQIndex(prev => (prev === index ? null : index));
   };
-
+  useEffect(() => {
+    async function fetchSports() {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/sports/fieldsCount');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        if (data.success) {
+          setSportsData(data.sports);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchSports();
+  }, []);
   const faqData = [
     { question: "Bagaimana cara melakukan reservasi lapangan?", answer: "Kamu bisa melakukan reservasi melalui website kami dengan login terlebih dahulu, memilih cabang, tanggal, dan slot waktu yang tersedia." },
     { question: "Bagaimana cara mengetahui lapangan yang tersedia?", answer: "Kamu dapat melihat ketersediaan lapangan setelah memilih tanggal dan cabang olahraga yang diinginkan. Jika ada slot waktu yang tersedia, kamu bisa memilihnya untuk dimasukkan ke dalam keranjang." },
@@ -50,6 +69,8 @@ export default function HomePage() {
     { question: "Apakah saya perlu membayar di muka untuk melakukan reservasi?", answer: "Kamu bisa melakukan pembayaran penuh secara online untuk reservasi, atau membayar DP terlebih dahulu secara online. Sisa pembayaran dapat dilakukan secara online atau langsung di tempat saat datang." },
     { question: "Apakah saya bisa membatalkan reservasi?", answer: "Sementara ini, pembatalan atau perubahan jadwal belum tersedia melalui aplikasi. Silakan hubungi admin untuk bantuan lebih lanjut." },
   ];
+
+
 
   return (
     <div className="overflow-hidden">
@@ -276,6 +297,7 @@ export default function HomePage() {
             </motion.div>
           </section>
 
+
           {/* Our Sports */}
           <section ref={sportsRef} className="pt-30 pb-[10px] px-4 max-w-6xl mx-auto">
             <motion.div
@@ -301,44 +323,63 @@ export default function HomePage() {
               animate={sportsInView ? "visible" : "hidden"}
               variants={staggerContainer}
             >
-              {[
-                { name: "Futsal", count: "10 lapangan", icon: "/icons/futsalball.png", iconSize: "w-24 h-24" },
-                { name: "Badminton", count: "18 lapangan", icon: "/icons/shuttlecock.png", iconSize: "w-40 h-40" },
-                { name: "Basketball", count: "7 lapangan", icon: "/icons/basketball.png", iconSize: "w-30 h-30" },
-                { name: "Volleyball", count: "5 lapangan", icon: "/icons/volleyball.png", iconSize: "w-24 h-24" },
-                { name: "Tenis", count: "4 lapangan", icon: "/icons/tennisball.png", iconSize: "w-25 h-25" },
-                { name: "Football", count: "3 lapangan", icon: "/icons/football.png", iconSize: "w-24 h-24" },
-                { name: "Handball", count: "2 lapangan", icon: "/icons/handball.png", iconSize: "w-50 h-50" },
-              ].map((sport, i) => (
-                <motion.div
-                  key={i}
-                  variants={fadeInUp}
-                  className="group relative overflow-hidden rounded-xl p-8 bg-gradient-to-b from-white to-[#C5FC40]/30 hover:to-[#C5FC40] transition-all duration-300 hover:shadow-lg active:scale-95 cursor-pointer border border-transparent hover:border-[#6CC28F] h-[250px] flex flex-col justify-center"
-                  whileHover={{ y: -5 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {/* Container icon dengan tinggi tetap */}
-                  <div className="flex justify-center items-center mb-3 h-24"> {/* h-24 = 6rem */}
-                    <motion.img
-                      src={sport.icon}
-                      alt={sport.name}
-                      className={`${sport.iconSize || 'w-12 h-12'} object-contain max-h-full`}
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    />
-                  </div>
+              {sportsData.length === 0 ? (
+                <p>Loading sports...</p>
+              ) : (
+                <>
+                  {sportsData.map((sport) => (
+                    <motion.div
+                      key={sport.sportId}
+                      variants={fadeInUp}
+                      className="group relative overflow-hidden rounded-xl p-8 bg-gradient-to-b from-white to-[#C5FC40]/30 hover:to-[#C5FC40] transition-all duration-300 hover:shadow-lg active:scale-95 cursor-pointer border border-transparent hover:border-[#6CC28F] h-[250px] flex flex-col justify-center"
+                      whileHover={{ y: -5 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {/* Icon container */}
+                      <div className="flex justify-center items-center mb-3 h-24">
+                        <motion.img
+                          src={`/icons/${sport.sportName.toLowerCase().replace(/\s/g, '')}.png`}
+                          alt={sport.sportName}
+                          className="w-24 h-24 object-contain max-h-full"
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        />
+                      </div>
 
-                  {/* Container teks di bagian bawah */}
-                  <div className="mt-auto">
-                    <h3 className="text-gray-800 font-bold text-lg mb-1 group-hover:text-[#2C473A] transition-colors">
-                      {sport.name}
+                      <div className="mt-auto">
+                        <h3 className="text-gray-800 font-bold text-lg mb-1 group-hover:text-[#2C473A] transition-colors">
+                          {sport.sportName}
+                        </h3>
+                        <p className="text-gray-600 text-sm group-hover:text-gray-700 transition-colors">
+                          {sport.totalFields} lapangan
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  {/* Card Dan Lainnya */}
+                  <motion.div
+                    key="others"
+                    variants={fadeInUp}
+                    className="group relative overflow-hidden rounded-xl p-8 bg-gradient-to-b from-white to-[#C5FC40]/30 hover:to-[#C5FC40] transition-all duration-300 hover:shadow-lg active:scale-95 cursor-pointer border border-transparent hover:border-[#6CC28F] h-[250px] flex flex-col items-center justify-center space-y-3"
+                    whileHover={{ y: -5 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <motion.div
+                      className="text-[#2C473A]"
+                      whileHover={{ scale: 1.2 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <CirclePlus size={96} /> {/* size bisa disesuaikan */}
+                    </motion.div>
+
+                    <h3 className="text-gray-800 font-medium text-lg group-hover:text-[#2C473A] transition-colors">
+                      Masih Banyak Lagi
                     </h3>
-                    <p className="text-gray-600 text-sm group-hover:text-gray-700 transition-colors">
-                      {sport.count}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+
+                </>
+              )}
             </motion.div>
           </section>
 
