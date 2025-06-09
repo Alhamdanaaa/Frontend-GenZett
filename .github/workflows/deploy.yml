@@ -40,4 +40,4 @@ jobs:
           key: ${{ secrets.FRONTEND_SSH_KEY }}
           script: |
             cd ~/deploy
-            docker compose up -d --build frontend
+            docker compose up -d --build --force-recreate frontend
