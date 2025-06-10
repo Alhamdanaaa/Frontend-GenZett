@@ -7,8 +7,8 @@ import { redirect } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import EditProfileModal from "@/components/modal/EditProfileModal"
 import ChangePasswordModal from "@/components/modal/ChangePasswordModal"
-import Swal from 'sweetalert2'
 import UserLayout from "../user/layout"
+import { toast } from "sonner"
 
 export default function ProfilePage() {
   const [showModal, setShowModal] = useState(false)
@@ -66,26 +66,7 @@ export default function ProfilePage() {
   }, [])
 
   const handleSave = async (updated: { name: string; phone: string }) => {
-    const result = await Swal?.fire({
-      title: 'Simpan Perubahan?',
-      text: 'Apakah kamu yakin ingin menyimpan perubahan profil?',
-      icon: 'question',
-      iconColor: '#f97316',
-      showCancelButton: true,
-      confirmButtonColor: '#f97316',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Ya, simpan',
-      cancelButtonText: 'Batal',
-      reverseButtons: true,
-      customClass: {
-        title: 'text-md',
-        popup: 'swal2-small-text',
-        confirmButton: 'text-sm',
-        cancelButton: 'text-sm',
-      },
-    })
-
-    if (!result?.isConfirmed) return
+    // if (!confirm("Apakah kamu yakin ingin menyimpan perubahan profil?")) return;
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userData.id}`, {
       method: "PUT",
@@ -96,59 +77,36 @@ export default function ProfilePage() {
         name: updated.name,
         phone: updated.phone,
       }),
-    })
+    });
 
-    const data = await res.json()
+    const data = await res.json();
     if (data.success) {
+      toast.success('Profil berhasil diperbarui', {
+        position: "top-right",
+      });
+
       setUserData(prev => ({
         ...prev,
         name: updated.name,
         phone: updated.phone,
-      }))
+      }));
 
-      Swal?.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: 'Profil berhasil diperbarui.',
-        confirmButtonColor: '#f97316',
-        customClass: {
-          title: 'text-md',
-          popup: 'swal2-small-text',
-        },
-      })
+      setTimeout(() => {
+        setShowModal(false);
+      }, 500);
     } else {
-      Swal?.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: data.message || 'Terjadi kesalahan saat menyimpan data.',
-        confirmButtonColor: '#f97316',
-        customClass: {
-          title: 'text-md',
-          popup: 'swal2-small-text',
-        },
-      })
+      toast.error(data.message || 'Terjadi kesalahan saat menyimpan data', {
+        position: "top-right",
+      });
     }
-
-    setShowModal(false)
-  }
+  };
 
   const handlePasswordChange = async (data: {
     current_password: string
     new_password: string
     new_password_confirmation: string
   }) => {
-    const result = await Swal?.fire({
-      title: 'Konfirmasi',
-      text: 'Yakin ingin mengganti password?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#f97316',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Ya, ganti',
-      cancelButtonText: 'Batal'
-    })
-
-    if (!result?.isConfirmed) return
+    if (!confirm("Yakin ingin mengganti password?")) return;
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userData.id}/change-password`, {
       method: "PUT",
@@ -156,27 +114,21 @@ export default function ProfilePage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    })
+    });
 
-    const resData = await res.json()
+    const resData = await res.json();
 
     if (res.ok && resData.success) {
-      Swal?.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: 'Password berhasil diganti.',
-        confirmButtonColor: '#f97316',
-      })
-      setShowPasswordModal(false)
+      toast.success('Password berhasil diganti', {
+        position: "top-right",
+      });
+      setShowPasswordModal(false);
     } else {
-      Swal?.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: resData.message || 'Gagal mengganti password.',
-        confirmButtonColor: '#f97316',
-      })
+      toast.error(resData.message || 'Gagal mengganti password', {
+        position: "top-right",
+      });
     }
-  }
+  };
 
   // if (isLoading) {
   //   return (
