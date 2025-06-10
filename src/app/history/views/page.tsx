@@ -68,6 +68,14 @@ interface CancelFormData {
   cancelReason: string;
 }
 
+// Function to check if booking can be cancelled (more than 24 hours before)
+const canCancelBooking = (bookingDate: string): boolean => {
+  const booking = new Date(bookingDate);
+  const now = new Date();
+  const diffInHours = (booking.getTime() - now.getTime()) / (1000 * 60 * 60);
+  return diffInHours > 24;
+};
+
 const TableHeader = ({
   label,
   sortable = false,
@@ -198,7 +206,6 @@ const CancelBookingModal = ({
                   <option value='BSI'>Bank Syariah Indonesia (BSI)</option>
                   <option value='BTN'>Bank BTN</option>
                   <option value='Panin'>Bank Panin</option>
-                  <option value='Lainnya'>Lainnya</option>
                 </select>
               </div>
 
@@ -254,20 +261,8 @@ const CancelBookingModal = ({
               <option value='Perubahan rencana'>Perubahan rencana</option>
               <option value='Masalah transportasi'>Masalah transportasi</option>
               <option value='Alasan keluarga'>Alasan keluarga</option>
-              <option value='Lainnya'>Lainnya (tulis di bawah)</option>
             </select>
-            {formData.cancelReason === 'Lainnya' && (
-              <textarea
-                name='cancelReasonCustom'
-                placeholder='Jelaskan alasan pembatalan Anda...'
-                rows={3}
-                className='w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#C5FC40] focus:outline-none resize-none'
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  cancelReason: e.target.value || 'Lainnya'
-                }))}
-              />
-            )}
+            
           </div>
 
           {isLunas && (
@@ -350,6 +345,8 @@ export default function HistoryPage() {
         paymentDisplay = 'Cancel';
       } else if (paymentDisplay === 'waiting') {
         paymentDisplay = 'Waiting';
+      } else if (paymentDisplay === 'rejected') {
+        paymentDisplay = 'Rejected';
       } else {
         paymentDisplay = 'Belum Lunas';
       }
@@ -738,7 +735,9 @@ export default function HistoryPage() {
                           booking.status === 'waiting' &&
                             'bg-yellow-100 text-yellow-600',
                           booking.status.includes('Refund') &&
-                            'bg-yellow-100 text-yellow-600'
+                            'bg-yellow-100 text-yellow-600',
+                          booking.status === 'rejected' &&
+                            'bg-red-100 text-red-600'
                         )}
                       >
                         {highlightText(booking.status)}
@@ -752,7 +751,7 @@ export default function HistoryPage() {
                       >
                         Detail
                       </Button>
-                      {booking.status === 'Upcoming' && (
+                      {booking.status === 'Upcoming' && canCancelBooking(booking.originalData.date) && (
                         <Button
                           className='ml-2 rounded-full bg-[#ff0303] hover:bg-[#ba1004] hover:text-white'
                           size='sm'
