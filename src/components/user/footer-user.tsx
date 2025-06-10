@@ -8,14 +8,14 @@ export default function FooterUser() {
       <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-10 md:grid-cols-4'>
         {/* Logo & Description */}
         <div className='col-span-1'>
-            <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <img src="/Logo.svg" alt="ReSports Logo" className="h-15 w-auto" />
-            </Link>
+          </Link>
         </div>
 
         {/* Links */}
         <div className='col-span-1'>
-          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Useful Links</h4>
+          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Tautan Navigasi</h4>
           <ul className='space-y-2 text-sm'>
             <li>
               <Link href='/' className='hover:underline'>
@@ -41,7 +41,7 @@ export default function FooterUser() {
         </div>
 
         <div className='col-span-1'>
-          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Follow Us</h4>
+          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Ikuti Kami</h4>
           <ul className='flex space-x-4 text-2xl'>
             <li>
               <Link href='#' passHref legacyBehavior>
@@ -75,7 +75,7 @@ export default function FooterUser() {
         </div>
 
         <div className='col-span-1'>
-          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Contact</h4>
+          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Kontak Kami</h4>
           <ul className='space-y-2 text-sm'>
             <li>
               <Link href='tel:081234567890' className='hover:underline'>
