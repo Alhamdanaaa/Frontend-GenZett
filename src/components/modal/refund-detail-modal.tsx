@@ -9,9 +9,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   IconCalendar, 
   IconMail, 
@@ -22,7 +36,8 @@ import {
   IconUser, 
   IconFileText,
   IconCopy,
-  IconCheck
+  IconCheck,
+  IconLoader2
 } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -49,6 +64,7 @@ type RefundItem = {
 interface RefundDetailModalProps {
   refundItem: RefundItem;
   children: React.ReactNode;
+  onRefundProcessed?: () => void; // Callback untuk refresh data
 }
 
 function formatCurrency(amount: number) {
@@ -109,7 +125,204 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function RefundDetailModal({ refundItem, children }: RefundDetailModalProps) {
+function ProcessRefundModal({ refundItem, onRefundProcessed }: { refundItem: RefundItem; onRefundProcessed?: () => void }) {
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [adminNote, setAdminNote] = React.useState('');
+  const [refundAmount, setRefundAmount] = React.useState(refundItem.refundAmount.toString());
+
+  const handleSubmit = async () => {
+    if (!refundAmount || parseFloat(refundAmount) <= 0) {
+      toast.error('Jumlah refund harus lebih dari 0');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/reservations/user/refunds/${refundItem.historyId}/confirm`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          adminNote: adminNote.trim(),
+          refundAmount: refundAmount,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal memproses refund');
+      }
+
+      toast.success('Refund berhasil diproses');
+      setOpen(false);
+      onRefundProcessed?.();
+    } catch (error) {
+      console.error('Error processing refund:', error);
+      toast.error(error instanceof Error ? error.message : 'Gagal memproses refund');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button className="bg-green-600 hover:bg-green-700">
+          Proses Refund
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Konfirmasi Proses Refund</AlertDialogTitle>
+          <AlertDialogDescription>
+            Masukkan detail untuk memproses refund ini.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="refundAmount">Jumlah Refund</Label>
+            <Input
+              id="refundAmount"
+              type="string"
+              value={refundAmount}
+              onChange={(e) => setRefundAmount(e.target.value)}
+              placeholder="Masukkan jumlah refund"
+              min="0"
+              step="1000"
+            />
+            <p className="text-sm text-muted-foreground">
+              Jumlah asli: {formatCurrency(refundItem.refundAmount)}
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="adminNote">Catatan Admin (Opsional)</Label>
+            <Textarea
+              id="adminNote"
+              value={adminNote}
+              onChange={(e) => setAdminNote(e.target.value)}
+              placeholder="Masukkan catatan untuk refund ini..."
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={loading}>Batal</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {loading ? (
+              <>
+                <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                Memproses...
+              </>
+            ) : (
+              'Proses Refund'
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function RejectRefundModal({ refundItem, onRefundProcessed }: { refundItem: RefundItem; onRefundProcessed?: () => void }) {
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [rejectReason, setRejectReason] = React.useState('');
+
+  const handleSubmit = async () => {
+    if (!rejectReason.trim()) {
+      toast.error('Alasan penolakan harus diisi');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reservations/user/refunds/${refundItem.historyId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rejectReason: rejectReason.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal menolak refund');
+      }
+
+      toast.success('Refund berhasil ditolak');
+      setOpen(false);
+      onRefundProcessed?.();
+    } catch (error) {
+      console.error('Error rejecting refund:', error);
+      toast.error(error instanceof Error ? error.message : 'Gagal menolak refund');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+          Tolak Refund
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Konfirmasi Tolak Refund</AlertDialogTitle>
+          <AlertDialogDescription>
+            Masukkan alasan penolakan untuk refund ini.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="rejectReason">Alasan Penolakan</Label>
+            <Textarea
+              id="rejectReason"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Masukkan alasan mengapa refund ini ditolak..."
+              rows={4}
+              required
+            />
+          </div>
+        </div>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={loading}>Batal</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {loading ? (
+              <>
+                <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                Menolak...
+              </>
+            ) : (
+              'Tolak Refund'
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+export function RefundDetailModal({ refundItem, children, onRefundProcessed }: RefundDetailModalProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -327,12 +540,8 @@ export function RefundDetailModal({ refundItem, children }: RefundDetailModalPro
           {/* Action Buttons - Only show if status is waiting */}
           {refundItem.paymentStatus?.toLowerCase() === 'waiting' && (
             <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                Tolak Refund
-              </Button>
-              <Button className="bg-green-600 hover:bg-green-700">
-                Proses Refund
-              </Button>
+              <RejectRefundModal refundItem={refundItem} onRefundProcessed={onRefundProcessed} />
+              <ProcessRefundModal refundItem={refundItem} onRefundProcessed={onRefundProcessed} />
             </div>
           )}
 
