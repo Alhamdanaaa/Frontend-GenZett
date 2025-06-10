@@ -95,6 +95,14 @@ export function getNavItemsByRole(role: string): NavItem[] {
         items: []
       },
       {
+        title: 'Pembatalan Reservasi',
+        url: '/dashboard/cancellation',
+        icon: 'cancellation',
+        shortcut: ['b', 'b'],
+        isActive: false,
+        items: []
+      },
+      {
         title: 'Jadwal Lapangan',
         url: '/dashboard/schedule',
         icon: 'timeline',
@@ -113,7 +121,7 @@ export function getNavItemsByRole(role: string): NavItem[] {
       {
         title: 'Tutup Lapangan',
         url: '/dashboard/availability',
-        icon: 'field',
+        icon: 'closed',
         shortcut: ['c', 'c'],
         isActive: true,
         items: []

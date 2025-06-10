@@ -34,17 +34,21 @@ import {
   IconMapPin,
   IconBallBasketball,
   IconSoccerField,
-  IconBrandBooking,
   IconTimelineEvent,
-  IconDiscount2
+  IconDiscount2,
+  IconCalendarX,
+  IconBan,
+  IconCalendarDollar
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
 
 export const Icons = {
   timeline: IconTimelineEvent,
-  reservation: IconBrandBooking,  
+  reservation: IconCalendarDollar,
+  cancellation: IconCalendarX,
   field: IconSoccerField,
+  closed: IconBan,
   sport: IconBallBasketball,
   location: IconMapPin,
   dashboard: IconLayoutDashboard,

@@ -19,6 +19,7 @@ const segmentLabels: Record<string, string> = {
   field: 'Lapangan',
   membership: 'Paket Langganan',
   reservation: 'Reservasi',
+  cancellation: 'Pembatalan Reservasi',
   schedule: 'Jadwal',
   admin: 'Admin',
   user: 'User',
@@ -40,7 +41,7 @@ const routeMapping: Record<string, string[]> = {
 
 function isDynamicSegment(value: string) {
   // Daftar segment yang dikenal sebagai static
-  const staticSegments = ['dashboard', 'overview', 'overview-admin', 'new', 'edit', 'sport', 'location', 'field', 'membership', 'reservation', 'schedule', 'admin', 'user', 'profile', 'availability', 'edit-profile', 'edit-password'];
+  const staticSegments = ['dashboard', 'overview', 'overview-admin', 'new', 'edit', 'sport', 'location', 'field', 'membership', 'reservation', 'cancellation', 'schedule', 'admin', 'user', 'profile', 'availability', 'edit-profile', 'edit-password'];
   return !staticSegments.includes(value);
 }
 

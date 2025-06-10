@@ -133,7 +133,16 @@ interface ReservationDetail {
   time: string;
   date: string;
 }
-
+interface Cancellation {
+  cancellationId: number,
+  reservationId: number,
+  accountName: string,
+  accountNumber: string,
+  paymentPlatform: string,
+  reason: string,
+  created_at: string,
+  updated_at: string
+}
 // Tipe data Reservation
 export interface Reservation {
   reservationId: number;
@@ -141,8 +150,10 @@ export interface Reservation {
   paymentStatus: string;
   total: number;
   created_at: string;
+  updated_at: string;
   status: string;
   details: ReservationDetail[];
+  cancellation: Cancellation | null;
   remainingPayment: number;
   // Tambahkan property fieldData
   fieldData: {
