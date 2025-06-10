@@ -18,7 +18,7 @@ const AvailabilityListingPage = lazy(() =>
 );
 
 export const metadata = {
-  title: 'Dashboard: Closed Field'
+  title: 'Dashboard: Tutup Lapangan'
 };
 
 type pageProps = {

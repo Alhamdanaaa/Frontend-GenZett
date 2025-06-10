@@ -294,7 +294,7 @@ export default function MembershipForm({
                 Batal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Membership'}
+                {isSubmitting ? 'Menyimpan...' : 'Simpan Paket Langganan'}
               </Button>
             </div>
           </form>
