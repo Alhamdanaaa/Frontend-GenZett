@@ -41,3 +41,7 @@ export async function getAllSports() {
   const res = await api.get(`/locations/allSports`);
   return res.data;
 }
+export async function getSport(){
+  const res = await api.get('/sports/fieldsCount');
+  return res.data;  
+}
