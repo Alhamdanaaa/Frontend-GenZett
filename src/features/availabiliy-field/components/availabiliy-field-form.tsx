@@ -453,7 +453,7 @@ export default function AvailabilityForm({
               >
                 {loading ? 'Memproses...' : mode === 'edit' ? 'Update Data' : 'Simpan Data'}
               </Button>
-            </div>
+            </div>
           </form>
         </Form>
       </CardContent>
