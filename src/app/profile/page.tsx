@@ -8,6 +8,7 @@ import { jwtDecode } from 'jwt-decode'
 import EditProfileModal from "@/components/modal/EditProfileModal"
 import ChangePasswordModal from "@/components/modal/ChangePasswordModal"
 import Swal from 'sweetalert2'
+import UserLayout from "../user/layout"
 
 export default function ProfilePage() {
   const [showModal, setShowModal] = useState(false)
@@ -32,7 +33,6 @@ export default function ProfilePage() {
     const token = getCookie("token")
     if (!token) {
       redirect('/login')
-      return
     }
 
     try {
@@ -70,11 +70,19 @@ export default function ProfilePage() {
       title: 'Simpan Perubahan?',
       text: 'Apakah kamu yakin ingin menyimpan perubahan profil?',
       icon: 'question',
+      iconColor: '#f97316',
       showCancelButton: true,
       confirmButtonColor: '#f97316',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Ya, simpan',
-      cancelButtonText: 'Batal'
+      cancelButtonText: 'Batal',
+      reverseButtons: true,
+      customClass: {
+        title: 'text-md',
+        popup: 'swal2-small-text',
+        confirmButton: 'text-sm',
+        cancelButton: 'text-sm',
+      },
     })
 
     if (!result?.isConfirmed) return
@@ -103,6 +111,10 @@ export default function ProfilePage() {
         title: 'Berhasil!',
         text: 'Profil berhasil diperbarui.',
         confirmButtonColor: '#f97316',
+        customClass: {
+          title: 'text-md',
+          popup: 'swal2-small-text',
+        },
       })
     } else {
       Swal?.fire({
@@ -110,6 +122,10 @@ export default function ProfilePage() {
         title: 'Gagal!',
         text: data.message || 'Terjadi kesalahan saat menyimpan data.',
         confirmButtonColor: '#f97316',
+        customClass: {
+          title: 'text-md',
+          popup: 'swal2-small-text',
+        },
       })
     }
 
@@ -162,145 +178,147 @@ export default function ProfilePage() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
-    )
-  }
+  // if (isLoading) {
+  //   return (
+  //     // <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center">
+  //     //   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+  //     // </div>
+  //   )
+  // }
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8] py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-            Profil Saya
-          </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto rounded-full"></div>
-        </div>
+    <UserLayout>
+      <div className="min-h-screen bg-[#F8F8F8] py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-8 animate-fade-in">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
+              Profil Saya
+            </h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto rounded-full"></div>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Card */}
-          <div className="lg:col-span-1">
-            <div className="bg-white shadow-2xl rounded-2xl p-8 transform hover:scale-105 transition-all duration-300 border border-orange-100">
-              <div className="text-center">
-                {/* Avatar */}
-                <div className="relative inline-block mb-6">
-                  <div className="w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                    <UserCircle className="text-white" size={64} />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Profile Card */}
+            <div className="lg:col-span-1">
+              <div className="bg-white shadow-2xl rounded-2xl p-8 transform hover:scale-105 transition-all duration-300 border border-orange-100">
+                <div className="text-center">
+                  {/* Avatar */}
+                  <div className="relative inline-block mb-6">
+                    <div className="w-32 h-32 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                      <UserCircle className="text-white" size={64} />
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                    </div>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
-                    <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+
+                  {/* User Info */}
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                    {userData.name || 'Nama Lengkap'}
+                  </h2>
+                  <p className="text-gray-500 mb-1">{userData.email}</p>
+                  <p className="text-sm text-gray-400 mb-6">{userData.phone}</p>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3">
+                    <Button
+                      className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 rounded-xl py-3"
+                      onClick={() => setShowModal(true)}
+                    >
+                      <Pencil size={16} className="mr-2" />
+                      Ubah Profil
+                    </Button>
+
+                    <Button
+                      className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 rounded-xl py-3"
+                      onClick={() => setShowPasswordModal(true)}
+                    >
+                      <Lock size={16} className="mr-2" />
+                      Ganti Password
+                    </Button>
                   </div>
-                </div>
-
-                {/* User Info */}
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  {userData.name || 'Nama Lengkap'}
-                </h2>
-                <p className="text-gray-500 mb-1">{userData.email}</p>
-                <p className="text-sm text-gray-400 mb-6">{userData.phone}</p>
-
-                {/* Action Buttons */}
-                <div className="space-y-3">
-                  <Button
-                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 rounded-xl py-3"
-                    onClick={() => setShowModal(true)}
-                  >
-                    <Pencil size={16} className="mr-2" />
-                    Ubah Profil
-                  </Button>
-
-                  <Button
-                    className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 rounded-xl py-3"
-                    onClick={() => setShowPasswordModal(true)}
-                  >
-                    <Lock size={16} className="mr-2" />
-                    Ganti Password
-                  </Button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Information Cards */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Personal Information */}
-              <InfoCard
-                title="Informasi Personal"
-                icon={<User className="text-orange-500" size={24} />}
-                items={[
-                  { label: "Nama Lengkap", value: userData.name},
-                  // { label: "Email", value: userData.email, icon: <Mail size={16} /> },
-                ]}
-              />
+            {/* Information Cards */}
+            <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Personal Information */}
+                <InfoCard
+                  title="Informasi Personal"
+                  icon={<User className="text-orange-500" size={24} />}
+                  items={[
+                    { label: "Nama Lengkap", value: userData.name },
+                    // { label: "Email", value: userData.email, icon: <Mail size={16} /> },
+                  ]}
+                />
 
-              {/* Contact Information */}
-              <InfoCard
-                title="Informasi Kontak"
-                icon={<Phone className="text-orange-500" size={24} />}
-                items={[
-                  { label: "Nomor Telepon", value: userData.phone},
-                  { label: "Email", value: userData.email},
-                ]}
-              />
+                {/* Contact Information */}
+                <InfoCard
+                  title="Informasi Kontak"
+                  icon={<Phone className="text-orange-500" size={24} />}
+                  items={[
+                    { label: "Nomor Telepon", value: userData.phone },
+                    { label: "Email", value: userData.email },
+                  ]}
+                />
 
-              {/* Account Settings */}
-              {/* <div className="sm:col-span-2">
-                <SettingsCard />
-              </div> */}
+                {/* Account Settings */}
+                {/* <div className="sm:col-span-2">
+                  <SettingsCard />
+                </div> */}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Modals */}
+        {showModal && (
+          <EditProfileModal
+            name={userData.name}
+            phone={userData.phone}
+            username={userData.username}
+            email={userData.email}
+            onClose={() => setShowModal(false)}
+            onSave={handleSave}
+          />
+        )}
+
+        {showPasswordModal && (
+          <ChangePasswordModal
+            onClose={() => setShowPasswordModal(false)}
+            onChangePassword={handlePasswordChange}
+          />
+        )}
+
+        <style jsx>{`
+          @keyframes fade-in {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 0.6s ease-out;
+          }
+        `}</style>
       </div>
-
-      {/* Modals */}
-      {showModal && (
-        <EditProfileModal
-          name={userData.name}
-          phone={userData.phone}
-          username={userData.username}
-          email={userData.email}
-          onClose={() => setShowModal(false)}
-          onSave={handleSave}
-        />
-      )}
-
-      {showPasswordModal && (
-        <ChangePasswordModal
-          onClose={() => setShowPasswordModal(false)}
-          onChangePassword={handlePasswordChange}
-        />
-      )}
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out;
-        }
-      `}</style>
-    </div>
+    </UserLayout>
   )
 }
 
-function InfoCard({ 
-  title, 
-  icon, 
-  items 
-}: { 
+function InfoCard({
+  title,
+  icon,
+  items
+}: {
   title: string
   icon: React.ReactNode
   items: Array<{ label: string; value: string; icon?: React.ReactNode }>
@@ -311,7 +329,7 @@ function InfoCard({
         {icon}
         <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
       </div>
-      
+
       <div className="space-y-4">
         {items.map((item, index) => (
           <div key={index} className="group">
@@ -341,7 +359,7 @@ function SettingsCard() {
         <Settings className="text-orange-500" size={24} />
         <h3 className="text-lg font-semibold text-gray-800">Pengaturan Akun</h3>
       </div>
-      
+
       <div className="space-y-3">
         {settingsItems.map((item, index) => (
           <div key={index} className="group cursor-pointer">
