@@ -122,7 +122,7 @@ export default function SportsLocationPage() {
       const storageBaseUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
       if (response.data) {
         const filteredLocations = await Promise.all(
-          response.data.map(async (location: any) => {
+          response.data.map(async (location: { locationId: string | number; imageUrl: string }) => {
             const priceResponse = await getPrice(location.locationId);
             let imageUrl = null;
             try {
@@ -155,15 +155,28 @@ export default function SportsLocationPage() {
   const clearFilter = () => {
     setSelectedSport('');
     setLoading(true);
+    const storageBaseUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
     getLocations({}).then(response => {
       if (response.data) {
         Promise.all(
-          response.data.map(async (location: { locationId: string | number; }) => {
+          response.data.map(async (location: { locationId: string | number; imageUrl?: string }) => {
             const priceResponse = await getPrice(location.locationId);
+            const parsedImageUrl = location.imageUrl ? (() => {
+              try {
+                const url = new URL(location.imageUrl);
+                const filename = url.pathname.split('/').pop();
+                if (!filename) return null;
+                return `${storageBaseUrl}/${filename}`;
+              } catch (e) {
+                console.error("Error parsing imageUrl:", e);
+                return null;
+              }
+            })() : null;
             return {
               ...location,
               minPrice: priceResponse.success ? priceResponse.minPrice : 'N/A',
-              maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A'
+              maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A',
+              imageUrl:parsedImageUrl
             };
           })
         ).then(locationsWithPrices => {
