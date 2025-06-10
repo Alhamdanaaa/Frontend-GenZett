@@ -119,14 +119,27 @@ export default function SportsLocationPage() {
     setLoading(true);
     try {
       const response = await getLocations({ sport: selectedSport });
+      const storageBaseUrl = process.env.NEXT_PUBLIC_AZURE_BLOB_URL;
       if (response.data) {
         const filteredLocations = await Promise.all(
-          response.data.map(async (location: { locationId: string | number; }) => {
+          response.data.map(async (location: any) => {
             const priceResponse = await getPrice(location.locationId);
+            let imageUrl = null;
+            try {
+              const url = new URL(location.imageUrl);
+              const filename = url.pathname.split('/').pop();
+              if (filename) {
+                imageUrl = `${storageBaseUrl}/${filename}`;
+              }
+            } catch (e) {
+              console.error("Error parsing imageUrl during filtering:", e);
+            }
+
             return {
               ...location,
               minPrice: priceResponse.success ? priceResponse.minPrice : 'N/A',
-              maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A'
+              maxPrice: priceResponse.success ? priceResponse.maxPrice : 'N/A',
+              imageUrl,
             };
           })
         );
