@@ -11,6 +11,7 @@ import { CircleArrowRight } from "lucide-react";
 import UserLayout from "@/app/user/layout";
 import { useEffect, useState } from "react";
 import { CirclePlus } from 'lucide-react';
+import {getSport} from '@/lib/api/sports';
 
 // Animation variants
 const fadeInUp = {
@@ -44,21 +45,27 @@ export default function HomePage() {
   const toggleFAQ = (index: number) => {
     setActiveFAQIndex(prev => (prev === index ? null : index));
   };
-  useEffect(() => {
-    async function fetchSports() {
-      try {
-        const res = await fetch('http://127.0.0.1:8000/api/sports/fieldsCount');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const data = await res.json();
-        if (data.success) {
-          setSportsData(data.sports);
-        }
-      } catch (error) {
-        console.error(error);
+useEffect(() => {
+  async function fetchSports() {
+    try {
+      const response = await getSport(); 
+      
+      console.log('API Response', response);
+
+      if (response.success) {
+        // Corrected from response.sport to response.sports
+        setSportsData(response.sports || []); // Fallback to empty array if sports is undefined
+      } else {
+        console.warn("API response indicated no sports data:", response);
+        setSportsData([]);
       }
+    } catch (error) {
+      console.error('Error fetching sports data:', error);
+      setSportsData([]);
     }
-    fetchSports();
-  }, []);
+  }
+  fetchSports();
+}, []);
   const faqData = [
     { question: "Bagaimana cara melakukan reservasi lapangan?", answer: "Kamu bisa melakukan reservasi melalui website kami dengan login terlebih dahulu, memilih cabang, tanggal, dan slot waktu yang tersedia." },
     { question: "Bagaimana cara mengetahui lapangan yang tersedia?", answer: "Kamu dapat melihat ketersediaan lapangan setelah memilih tanggal dan cabang olahraga yang diinginkan. Jika ada slot waktu yang tersedia, kamu bisa memilihnya untuk dimasukkan ke dalam keranjang." },
