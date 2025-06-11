@@ -8,6 +8,7 @@ import { ChevronUp, ChevronDown, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import BookingDetailModal from '@/components/modal/BookingDetailModal';
 import BookingHistoryGuestPage from '../guest/page';
+import { jwtDecode } from 'jwt-decode';
 
 // Type definitions sesuai dengan API response
 interface ReservationDetail {
@@ -367,18 +368,27 @@ export default function HistoryPage() {
 
   // Fetch booking data from API
   useEffect(() => {
-    if (!isClient) return; // Wait until client-side
+  if (!isClient) return; // Tunggu sampai client-side
 
-    const fetchBookingData = async () => {
-      try {
-        const token = getCookie('token');
-        if (!token) {
-          setLoading(false);
-          return;
-        }
+  const fetchBookingData = async () => {
+    try {
+      const token = getCookie('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/reservations/user`,
+      // Decode token untuk mendapatkan user_id
+      const decoded: any = jwtDecode(token);
+      const userId = decoded.user_id;
+
+      if (!userId) {
+        throw new Error('User ID tidak ditemukan dalam token');
+      }
+
+      // Gunakan userId dalam request API
+      const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/history/user`,
           {
             method: 'GET',
             headers: {
@@ -388,28 +398,28 @@ export default function HistoryPage() {
           }
         );
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result: ApiResponse = await response.json();
-
-        if (result.success && result.data && result.data.reservations) {
-          const transformedData = transformApiData(result.data.reservations);
-          setData(transformedData);
-        } else {
-          throw new Error(result.message || 'Failed to fetch data');
-        }
-      } catch (err) {
-        console.error('Error fetching booking data:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
 
-    fetchBookingData();
-  }, [isClient]);
+      const result: ApiResponse = await response.json();
+
+      if (result.success && result.data && result.data.reservations) {
+        const transformedData = transformApiData(result.data.reservations);
+        setData(transformedData);
+      } else {
+        throw new Error(result.message || 'Failed to fetch data');
+      }
+    } catch (err) {
+      console.error('Error fetching booking data:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchBookingData();
+}, [isClient]);
 
   // Check if user is authenticated - only on client side
   if (!isClient) {
