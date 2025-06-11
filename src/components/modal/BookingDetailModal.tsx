@@ -2,29 +2,47 @@
 
 import { Button } from "@/components/ui/button";
 
-// Tipe data dari halaman utama
+// Type definitions based on the current API response
 interface ReservationDetail {
-  locationName: string;
-  sportName: string;
-  time: string;
-  lapangan: string;
-  price: number; // Sesuai dengan API response
+  reservationId: number;
+  fieldName: string;
+  time: {
+    timeId: number;
+    fieldId: number;
+    time: string;
+    status: string;
+    price: number;
+    created_at: string;
+    updated_at: string;
+  };
+  date: string;
 }
 
-interface Reservation {
-  bookingName: string;
-  cabang: string;
-  lapangan: string;
-  paymentStatus: string;
-  paymentType: string;
-  reservationStatus: string;
-  totalAmount: number;
-  totalPaid: number;
-  remainingAmount: number;
-  date: string;
-  details: ReservationDetail[];
+interface Cancellation {
+  cancellationId: number;
+  reservationId: number;
+  accountName: string;
+  accountNumber: string;
+  paymentPlatform: string;
+  reason: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface Reservation {
+  reservationId: number;
+  userId: number;
+  name: string;
+  locationName: string;
+  paymentStatus: string;
+  paymentType: string;
+  total: number;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  details: ReservationDetail[];
+  cancellation: Cancellation | null;
+  remainingPayment?: number; // Made optional to handle cases where it's missing
 }
 
 type Booking = {
@@ -56,22 +74,27 @@ export default function BookingDetailModal({
     });
   };
 
-  const formatCurrency = (amount: number): string => {
-    return `Rp. ${amount.toLocaleString('id-ID')}`;
+  const formatCurrency = (amount: number | undefined): string => {
+    if (amount === undefined || isNaN(amount)) return "Rp. 0";
+    return `Rp. ${amount.toLocaleString("id-ID")}`;
   };
 
   // Extract fields from first detail (as reference)
   const firstDetail = detailData.details[0];
 
-  // Menggunakan data yang benar dari API response
-  const totalAmount = detailData.totalAmount;
-  const totalPaid = detailData.totalPaid;
-  const remainingAmount = detailData.remainingAmount;
+  // Calculate total paid and remaining with fallback
+  const totalAmount = detailData.total || 0;
+  const remainingPayment = detailData.remainingPayment || 0;
+  const totalPaid = totalAmount - remainingPayment;
+  const remainingAmount = remainingPayment;
 
   const paymentStatusLabel = () => {
-    if (detailData.paymentStatus.toLowerCase() === "lunas") return "Lunas";
-    if (detailData.paymentStatus.toLowerCase().includes("dp")) return detailData.paymentStatus;
-    return "Belum Bayar";
+    if (detailData.paymentStatus.toLowerCase() === "complete") return "Lunas";
+    if (detailData.paymentStatus.toLowerCase() === "dp") return "DP";
+    if (detailData.paymentStatus.toLowerCase() === "pending") return "Belum Bayar";
+    if (detailData.paymentStatus.toLowerCase() === "fail") return "Gagal";
+    if (detailData.paymentStatus.toLowerCase() === "canceled") return "dibatalkan";
+    return detailData.paymentStatus.charAt(0).toUpperCase() + detailData.paymentStatus.slice(1);
   };
 
   return (
@@ -89,10 +112,10 @@ export default function BookingDetailModal({
         <table className="w-full table-fixed text-sm border-collapse border border-[#6CC28F]">
           <tbody>
             {[
-              ["Atas Nama", detailData.bookingName],
-              ["Cabang", firstDetail?.locationName || "N/A"],
-              ["Lapangan", detailData.lapangan],
-              ["Tanggal Pemesanan", formatDate(detailData.date)],
+              ["Atas Nama", detailData.name],
+              ["Cabang", detailData.locationName || "N/A"],
+              ["Lapangan", firstDetail?.fieldName.split(" - ")[1] || "N/A"],
+              ["Tanggal Pemesanan", formatDate(firstDetail?.date || detailData.created_at)],
             ].map(([label, val], i) => (
               <tr key={i} className="border-b border-[#6CC28F]">
                 <td className="w-1/3 bg-[#2C473A] text-white font-semibold p-3">{label}</td>
@@ -106,7 +129,7 @@ export default function BookingDetailModal({
         <table className="w-full text-sm border-collapse border border-[#6CC28F]">
           <thead>
             <tr>
-              {["Lapangan", "Waktu", "Harga"].map((h) => (
+              {["Lapangan", "Waktu"].map((h) => (
                 <th key={h} className="p-2 bg-[#2C473A] font-semibold text-white text-center">
                   {h}
                 </th>
@@ -116,9 +139,8 @@ export default function BookingDetailModal({
           <tbody>
             {detailData.details.map((detail, i) => (
               <tr key={i} className="border-t border-[#6CC28F]">
-                <td className="p-2 text-center">{detail.lapangan}</td>
-                <td className="p-2 text-center">{detail.time}</td>
-                <td className="p-2 text-center">{formatCurrency(detail.price)}</td>
+                <td className="p-2 text-center">{detail.fieldName.split(" - ")[1] || "N/A"}</td>
+                <td className="p-2 text-center">{detail.time.time}</td>
               </tr>
             ))}
           </tbody>
@@ -132,7 +154,7 @@ export default function BookingDetailModal({
               ["Sudah Dibayar", formatCurrency(totalPaid)],
               ["Sisa Pembayaran", formatCurrency(remainingAmount)],
               ["Status Pembayaran", paymentStatusLabel()],
-              ["Status Booking", detailData.reservationStatus],
+              ["Status Booking", detailData.status.charAt(0).toUpperCase() + detailData.status.slice(1)],
             ].map(([label, val], i) => (
               <tr key={i} className={i < 4 ? "border-b border-[#6CC28F]" : ""}>
                 <td className="w-1/3 bg-[#2C473A] text-white font-semibold p-3">{label}</td>

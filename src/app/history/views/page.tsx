@@ -1,242 +1,201 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import UserLayout from "@/app/user/layout";
-import { cn } from "@/lib/utils"
-import { ChevronUp, ChevronDown, Search } from "lucide-react"
-import Image from "next/image"
-import BookingDetailModal from "@/components/modal/BookingDetailModal"
-import BookingHistoryGuestPage from "../guest/page"
+import { cn } from "@/lib/utils";
+import { ChevronUp, ChevronDown, Search, X } from "lucide-react";
+import Image from "next/image";
 
-// Type definitions sesuai dengan API response
+import BookingDetailModal from "@/components/modal/BookingDetailModal";
+import BookingHistoryGuestPage from "../guest/page";
+
+import CancelBookingModal from "@/features/history/components/cancel-booking-modal";
+import TableHeader from "@/features/history/components/table-header";
+import { getUser } from "@/lib/api/auth";
+
+// Type definitions based on API response
 interface ReservationDetail {
-  locationName: string;
-  sportName: string;
-  time: string;
-  lapangan: string;
-  price: number; // Menggunakan 'price' sesuai API response
+  reservationId: number;
+  fieldName: string;
+  time: {
+    timeId: number;
+    fieldId: number;
+    time: string;
+    status: string;
+    price: number;
+    created_at: string;
+    updated_at: string;
+  };
+  date: string;
 }
 
-interface Reservation {
-  bookingName: string;
-  cabang: string;
-  lapangan: string;
-  paymentStatus: string;
-  paymentType: string;
-  reservationStatus: string;
-  totalAmount: number;
-  totalPaid: number;
-  remainingAmount: number;
-  date: string;
-  details: ReservationDetail[];
+interface Cancellation {
+  cancellationId: number;
+  reservationId: number;
+  accountName: string;
+  accountNumber: string;
+  paymentPlatform: string;
+  reason: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface Reservation {
+  reservationId: number;
+  userId: number;
+  name: string;
+  locationName: string;
+  paymentStatus: string;
+  paymentType: string;
+  total: number;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  details: ReservationDetail[];
+  cancellation: Cancellation | null;
+  remainingPayment: number;
 }
 
 interface ApiResponse {
   success: boolean;
   message: string;
-  data: {
-    UserName: string;
-    whatsapp: string;
-    email: string;
-    count: number;
-    reservations: Reservation[];
-  };
+  data: Reservation[];
 }
 
-// Type for the transformed booking data
-interface BookingData {
-  id: string;
-  branch: string;
-  name: string;
-  court: string;
-  date: string;
-  total: string;
-  payment: string;
-  status: string;
-  originalData: Reservation; // Store original data for modal
+// Cancel form data interface
+interface CancelFormData {
+  paymentPlatform?: string;
+  accountName?: string;
+  accountNumber?: string;
+  reason: string;
 }
 
-const TableHeader = ({
-  label,
-  sortable = false,
-  onSort,
-  sortDirection,
-}: {
-  label: string
-  sortable?: boolean
-  onSort?: () => void
-  sortDirection?: "asc" | "desc" | null
-}) => (
-  <th className="py-3 px-4 font-semibold text-left whitespace-nowrap">
-    <div
-      className={cn("flex items-center gap-1", sortable && "cursor-pointer")}
-      onClick={onSort}
-    >
-      {label}
-      {sortable && (
-        <div className="flex flex-col justify-center ml-1">
-          <ChevronUp
-            className={cn(
-              "w-[10px] h-[10px]",
-              sortDirection === "asc" ? "opacity-100 text-[#C5FC40]" : "opacity-40"
-            )}
-          />
-          <ChevronDown
-            className={cn(
-              "w-[10px] h-[10px] text-white -mt-[2px]",
-              sortDirection === "desc" ? "opacity-100 text-[#C5FC40]" : "opacity-40"
-            )}
-          />
-        </div>
-      )}
-    </div>
-  </th>
-)
+// Function to check if booking can be cancelled (more than 24 hours before)
+const canCancelBooking = (bookingDate: string): boolean => {
+  const booking = new Date(bookingDate);
+  const now = new Date("2025-06-11T14:59:00Z"); // Current time: 05:59 PM WIB
+  const diffInHours = (booking.getTime() - now.getTime()) / (1000 * 60 * 60);
+  return diffInHours > 24;
+};
+
+function getCookie(name: string): string | null {
+  if (typeof window === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()!.split(";").shift() || null;
+  return null;
+}
 
 export default function HistoryPage() {
-  const [data, setData] = useState<BookingData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null)
-  const [showModal, setShowModal] = useState(false)
-  const [selectedBooking, setSelectedBooking] = useState<BookingData | null>(null)
+  const [data, setData] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Reservation;
+    direction: "asc" | "desc";
+  } | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Reservation | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<Reservation | null>(null);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isClient, setIsClient] = useState(false);
 
-  // Ensure we're on client-side
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  function getCookie(name: string): string | null {
-    if (typeof window === 'undefined') return null; // Check if running on client-side
-    const value = `; ${document.cookie}`
-    const parts = value.split(`; ${name}=`)
-    if (parts.length === 2) return parts.pop()!.split(";").shift() || null
-    return null
-  }
-
-  // Function to transform API data to component format
-  const transformApiData = (reservations: Reservation[]): BookingData[] => {
-    return reservations.map((reservation, index) => {
-      // Menggunakan totalAmount dari API response langsung
-      const totalAmount = reservation.totalAmount;
-      
-      // Format payment status
-      let paymentDisplay = reservation.paymentStatus;
-      if (paymentDisplay === "Lunas") {
-        paymentDisplay = "Lunas";
-      } else if (paymentDisplay.includes("DP")) {
-        paymentDisplay = paymentDisplay; // Keep as is, e.g., "DP (75000)"
-      } else {
-        paymentDisplay = "Belum Lunas";
-      }
-
-      return {
-        id: `#${index + 1}`, // Generate ID based on index since API doesn't provide unique ID
-        branch: reservation.cabang,
-        name: reservation.bookingName,
-        court: reservation.lapangan,
-        date: new Date(reservation.date).toLocaleDateString('id-ID'),
-        total: `Rp. ${totalAmount.toLocaleString('id-ID')}`,
-        payment: paymentDisplay,
-        status: reservation.reservationStatus,
-        originalData: reservation // Store original data for modal
-      }
-    })
-  }
-
-  // Fetch booking data from API
   useEffect(() => {
-    if (!isClient) return; // Wait until client-side
-    
+    if (!isClient) return;
+
     const fetchBookingData = async () => {
       try {
-        const token = getCookie("token")
+        const token = getCookie("token");
         if (!token) {
-          setLoading(false)
-          return
+          setLoading(false);
+          return;
         }
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/reservations/user`,
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        )
+        // const decoded: any = jwtDecode(token);
+        // const userId = decoded.user_id;
+        const userId = getUser()?.id;
+        console.log('userId:', userId);
+
+        if (!userId) {
+          throw new Error("User ID tidak ditemukan dalam token");
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/history/user/${userId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result: ApiResponse = await response.json()
-        
-        if (result.success && result.data && result.data.reservations) {
-          const transformedData = transformApiData(result.data.reservations)
-          setData(transformedData)
+        const result: ApiResponse = await response.json();
+        console.log('result:', result);
+
+        if (result.success && result.data) {
+          setData(result.data);
         } else {
-          throw new Error(result.message || 'Failed to fetch data')
+          throw new Error(result.message || "Failed to fetch data");
         }
       } catch (err) {
-        console.error('Error fetching booking data:', err)
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        console.error("Error fetching booking data:", err);
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchBookingData()
-  }, [isClient])
+    fetchBookingData();
+  }, [isClient]);
 
-  // Check if user is authenticated - only on client side
   if (!isClient) {
     return (
       <UserLayout>
-        <div className="px-4 py-5 md:py-10 flex flex-col max-w-6xl mx-auto">
-          <div className="text-center py-8">
+        <div className="mx-auto flex max-w-6xl flex-col px-4 py-5 md:py-10">
+          <div className="py-8 text-center">
             <p>Loading...</p>
           </div>
         </div>
       </UserLayout>
-    )
+    );
   }
 
-  const token = getCookie("token")
+  const token = getCookie("token");
   if (!token) {
-    return <BookingHistoryGuestPage />
+    return <BookingHistoryGuestPage />;
   }
 
-  // Show loading state
   if (loading) {
     return (
       <UserLayout>
-        <div className="px-4 py-5 md:py-10 flex flex-col max-w-6xl mx-auto">
-          <div className="text-center py-8">
+        <div className="mx-auto flex max-w-6xl flex-col px-4 py-5 md:py-10">
+          <div className="py-8 text-center">
             <p>Loading...</p>
           </div>
         </div>
       </UserLayout>
-    )
+    );
   }
 
-  // Show error state
   if (error) {
     return (
       <UserLayout>
-        <div className="px-4 py-5 md:py-10 flex flex-col max-w-6xl mx-auto">
-          <div className="text-center py-8 text-red-600">
+        <div className="mx-auto flex max-w-6xl flex-col px-4 py-5 md:py-10">
+          <div className="py-8 text-center text-red-600">
             <p>Error: {error}</p>
-            <Button 
-              onClick={() => window.location.reload()} 
+            <Button
+              onClick={() => window.location.reload()}
               className="mt-4 bg-[#C5FC40] text-black hover:bg-lime-300"
             >
               Retry
@@ -244,47 +203,119 @@ export default function HistoryPage() {
           </div>
         </div>
       </UserLayout>
-    )
+    );
   }
 
-  const handleSort = (key: keyof BookingData) => {
-    let direction: "asc" | "desc" = "asc"
+  const handleSort = (key: keyof Reservation) => {
+    let direction: "asc" | "desc" = "asc";
     if (sortConfig?.key === key && sortConfig.direction === "asc") {
-      direction = "desc"
+      direction = "desc";
     }
 
     const sortedData = [...data].sort((a, b) => {
-      const aValue = a[key].toString().toLowerCase()
-      const bValue = b[key].toString().toLowerCase()
-      if (aValue < bValue) return direction === "asc" ? -1 : 1
-      if (aValue > bValue) return direction === "asc" ? 1 : -1
-      return 0
-    })
+      let aValue = a[key] !== null && a[key] !== undefined ? a[key].toString().toLowerCase() : "";
+      let bValue = b[key] !== null && b[key] !== undefined ? b[key].toString().toLowerCase() : "";
 
-    setSortConfig({ key, direction })
-    setData(sortedData)
-  }
+      if (key === "details" && a.details && b.details) {
+        aValue = a.details[0]?.fieldName || "";
+        bValue = b.details[0]?.fieldName || "";
+      }
 
-  const handleOpenModal = (booking: BookingData) => {
-    setSelectedBooking(booking)
-    setShowModal(true)
-  }
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setSortConfig({ key, direction });
+    setData(sortedData);
+  };
+
+  const handleOpenModal = (booking: Reservation) => {
+    setSelectedBooking(booking);
+    setShowModal(true);
+  };
 
   const handleCloseModal = () => {
-    setSelectedBooking(null)
-    setShowModal(false)
-  }
+    setSelectedBooking(null);
+    setShowModal(false);
+  };
+
+  const handleCancelBooking = (booking: Reservation) => {
+    setBookingToCancel(booking);
+    setShowCancelModal(true);
+  };
+
+  const handleCloseCancelModal = () => {
+    setBookingToCancel(null);
+    setShowCancelModal(false);
+  };
+
+  const handleConfirmCancel = async (formData: CancelFormData) => {
+    if (!bookingToCancel) return;
+
+    try {
+      const token = getCookie("token");
+      if (!token) {
+        throw new Error("Token tidak ditemukan");
+      }
+
+      const reservationId = bookingToCancel.reservationId;
+
+      const requestBody: any = {
+        reservationId: reservationId,
+        reason: formData.reason,
+      };
+
+      if (bookingToCancel.paymentStatus === "complete") { // Changed from "Lunas" to "complete" to match API
+        requestBody.paymentPlatform = formData.paymentPlatform;
+        requestBody.accountName = formData.accountName;
+        requestBody.accountNumber = formData.accountNumber;
+      }
+      console.log('requestBody:', requestBody);
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/cancellations/refund`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(result.message || "Permintaan pembatalan berhasil dikirim");
+        handleCloseCancelModal();
+        window.location.reload();
+      } else {
+        throw new Error(result.message || "Gagal membatalkan pemesanan");
+      }
+    } catch (error) {
+      console.error("Error canceling booking:", error);
+      alert(
+        error instanceof Error ? error.message : "Terjadi kesalahan saat membatalkan pemesanan"
+      );
+    }
+  };
 
   const filteredData = data.filter((booking) => {
     const searchStr = searchTerm.toLowerCase();
     return (
-      booking.id.toLowerCase().includes(searchStr) ||
+      booking.reservationId.toString().includes(searchStr) ||
       booking.name.toLowerCase().includes(searchStr) ||
-      booking.branch.toLowerCase().includes(searchStr) ||
-      booking.court.toLowerCase().includes(searchStr) ||
-      booking.date.toLowerCase().includes(searchStr) ||
-      booking.total.toLowerCase().includes(searchStr) ||
-      booking.payment.toLowerCase().includes(searchStr) ||
+      (booking.details[0]?.fieldName.split(" - ")[0] || "").toLowerCase().includes(searchStr) ||
+      (booking.details[0]?.fieldName.split(" - ")[1] || "").toLowerCase().includes(searchStr) ||
+      (new Date(booking.details[0]?.date || "").toLocaleDateString("id-ID")).toLowerCase().includes(searchStr) ||
+      booking.total.toString().toLowerCase().includes(searchStr) ||
+      booking.paymentStatus.toLowerCase().includes(searchStr) ||
       booking.status.toLowerCase().includes(searchStr)
     );
   });
@@ -303,26 +334,21 @@ export default function HistoryPage() {
     setCurrentPage(pageNumber);
   };
 
-  // Function to highlight the search term in a text
-  const highlightText = (text: string) => text;
+  const highlightText = (text: string) => text; // Placeholder for highlighting
 
   return (
     <UserLayout>
-      <div className="px-4 py-5 md:py-10 flex flex-col max-w-6xl mx-auto">
-        {/* Judul dengan segitiga */}
-        <div className='mb-4 flex items-center gap-2'>
-          <Image src='/icons/arrow.svg' alt='-' width={26} height={26} />
-          <p className='text-2xl font-semibold text-black'>
-            Riwayat Pemesanan
-          </p>
+      <div className="mx-auto flex max-w-6xl flex-col px-4 py-5 md:py-10">
+        <div className="mb-4 flex items-center gap-2">
+          <Image src="/icons/arrow.svg" alt="-" width={26} height={26} />
+          <p className="text-2xl font-semibold text-black">Riwayat Pemesanan</p>
         </div>
 
-        {/* Search & Show Entries */}
-        <div className="flex flex-col md:flex-row mb-4">
+        <div className="mb-4 flex flex-col md:flex-row">
           <div className="flex items-center gap-2">
             <label className="text-sm">Show</label>
             <select
-              className="border rounded px-2 py-1 text-sm"
+              className="rounded border px-2 py-1 text-sm"
               value={entriesPerPage}
               onChange={handleChangeEntries}
             >
@@ -333,42 +359,41 @@ export default function HistoryPage() {
             <span className="text-sm">entries</span>
           </div>
 
-          <div className="flex-1 ml-auto md:ml-4 mt-2 md:mt-0">
+          <div className="mt-2 ml-auto flex-1 md:mt-0 md:ml-4">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search..."
-                className="border rounded px-3 py-1 pl-8 text-sm w-full"
+                className="w-full rounded border px-3 py-1 pl-8 text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Search className="w-4 h-4 absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             </div>
           </div>
         </div>
 
-        {/* Tabel */}
-        <div className="overflow-auto border rounded-md">
+        <div className="overflow-auto rounded-md border">
           <table className="min-w-full text-sm">
             <thead className="bg-[#2C473A] text-white">
               <tr>
                 <TableHeader
                   label="Cabang"
                   sortable
-                  onSort={() => handleSort("branch")}
-                  sortDirection={sortConfig?.key === "branch" ? sortConfig.direction : null}
+                  onSort={() => handleSort("name")}
+                  sortDirection={sortConfig?.key === "name" ? sortConfig.direction : null}
                 />
-                <TableHeader
+                {/* <TableHeader
                   label="Lapangan"
                   sortable
-                  onSort={() => handleSort("court")}
-                  sortDirection={sortConfig?.key === "court" ? sortConfig.direction : null}
-                />
+                  onSort={() => handleSort("name")}
+                  sortDirection={sortConfig?.key === "name" ? sortConfig.direction : null}
+                /> */}
                 <TableHeader
                   label="Tanggal"
                   sortable
-                  onSort={() => handleSort("date")}
-                  sortDirection={sortConfig?.key === "date" ? sortConfig.direction : null}
+                  onSort={() => handleSort("created_at")}
+                  sortDirection={sortConfig?.key === "created_at" ? sortConfig.direction : null}
                 />
                 <TableHeader
                   label="Total"
@@ -379,8 +404,8 @@ export default function HistoryPage() {
                 <TableHeader
                   label="Pembayaran"
                   sortable
-                  onSort={() => handleSort("payment")}
-                  sortDirection={sortConfig?.key === "payment" ? sortConfig.direction : null}
+                  onSort={() => handleSort("paymentStatus")}
+                  sortDirection={sortConfig?.key === "paymentStatus" ? sortConfig.direction : null}
                 />
                 <TableHeader
                   label="Status"
@@ -394,7 +419,7 @@ export default function HistoryPage() {
             <tbody>
               {currentEntries.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8">
+                  <td colSpan={7} className="py-8 text-center">
                     {data.length === 0 ? "Tidak ada data pemesanan" : "Data tidak ditemukan"}
                   </td>
                 </tr>
@@ -402,33 +427,49 @@ export default function HistoryPage() {
                 currentEntries.map((booking, index) => (
                   <tr
                     key={index}
-                    className={cn(index % 2 === 0 ? "bg-[#E5FFA8]" : "bg-white", "border-b")}
+                    className={cn(
+                      index % 2 === 0 ? "bg-[#E5FFA8]" : "bg-white",
+                      "border-b"
+                    )}
                   >
-                    <td className="py-2 px-4">{highlightText(booking.branch)}</td>
-                    <td className="py-2 px-4">{highlightText(booking.court)}</td>
-                    <td className="py-2 px-4">{highlightText(booking.date)}</td>
-                    <td className="py-2 px-4">{highlightText(booking.total)}</td>
-                    <td className="py-2 px-4">{highlightText(booking.payment)}</td>
-                    <td className="py-2 px-4">
+                    <td className="px-4 py-2">{highlightText(booking.locationName)}</td>
+                    {/* <td className="px-4 py-2">{highlightText(booking.details[0]?.fieldName.split(" - ")[1] || "N/A")}</td> */}
+                    <td className="px-4 py-2">{highlightText(new Date(booking.details[0]?.date || "").toLocaleDateString("id-ID"))}</td>
+                    <td className="px-4 py-2">{highlightText(`Rp. ${booking.total.toLocaleString("id-ID")}`)}</td>
+                    <td className="px-4 py-2">{highlightText(booking.paymentStatus)}</td>
+                    <td className="px-4 py-2">
                       <span
                         className={cn(
-                          "px-3 py-1 text-xs rounded-full font-medium",
-                          booking.status === "Upcoming" && "bg-orange-100 text-orange-600",
-                          booking.status === "Completed" && "bg-green-100 text-green-600",
-                          booking.status === "Ongoing" && "bg-blue-100 text-blue-600"
+                          "rounded-full px-3 py-2 font-medium",
+                          booking.status === "upcoming" && "bg-orange-100 text-orange-600",
+                          booking.status === "completed" && "bg-green-100 text-green-600",
+                          booking.status === "ongoing" && "bg-blue-100 text-blue-600",
+                          booking.status === "canceled" && "bg-red-100 text-red-600",
+                          booking.status === "waiting" && "bg-yellow-100 text-yellow-600",
+                          booking.status.includes("refund") && "bg-yellow-100 text-yellow-600",
+                          booking.status === "rejected" && "bg-red-100 text-red-600"
                         )}
                       >
-                        {highlightText(booking.status)}
+                        {highlightText(booking.status.charAt(0).toUpperCase() + booking.status.slice(1))}
                       </span>
                     </td>
-                    <td className="py-2 px-3">
+                    <td className="px-3 py-2">
                       <Button
-                        className="bg-[#C5FC40] text-black hover:bg-lime-300 rounded-full"
+                        className="rounded-full bg-[#C5FC40] text-black hover:bg-lime-300"
                         size="sm"
                         onClick={() => handleOpenModal(booking)}
                       >
                         Detail
                       </Button>
+                      {booking.status === "upcoming" && canCancelBooking(booking.details[0].date) && (
+                        <Button
+                          className="ml-2 rounded-full bg-[#ff0303] hover:bg-[#ba1004] hover:text-white"
+                          size="sm"
+                          onClick={() => handleCancelBooking(booking)}
+                        >
+                          {highlightText("Cancel")}
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -437,38 +478,30 @@ export default function HistoryPage() {
           </table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-4">
-            {/* Tombol Previous */}
+          <div className="mt-4 flex items-center justify-center gap-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className={cn(
                 "text-sm font-semibold text-black",
-                currentPage === 1 ? "cursor-not-allowed text-gray-400" : "hover:text-[#2C473A]" 
+                currentPage === 1 ? "cursor-not-allowed text-gray-400" : "hover:text-[#2C473A]"
               )}
             >
               Previous
             </button>
-
-            {/* Tombol Halaman */}
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i}
                 onClick={() => handlePageChange(i + 1)}
                 className={cn(
-                  "px-4 py-2 text-sm font-medium rounded-md",
-                  currentPage === i + 1
-                    ? "bg-[#C5FC40] text-black"
-                    : "bg-transparent text-black hover:bg-[#C5FC40] hover:text-black"
+                  "rounded-md px-4 py-2 text-sm font-medium",
+                  currentPage === i + 1 ? "bg-[#C5FC40] text-black" : "bg-transparent text-black hover:bg-[#C5FC40] hover:text-black"
                 )}
               >
                 {i + 1}
               </button>
             ))}
-
-            {/* Tombol Next */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -482,20 +515,36 @@ export default function HistoryPage() {
           </div>
         )}
 
-        {/* Modal */}
         {showModal && selectedBooking && (
-          <BookingDetailModal
-            booking={selectedBooking}
-            onClose={handleCloseModal}
-          />
+          <BookingDetailModal booking={{ 
+            id: `#${selectedBooking.reservationId}`, 
+            branch: selectedBooking.locationName,
+            name: selectedBooking.name, 
+            court: selectedBooking.details[0]?.fieldName.split(" - ")[1] || "N/A", 
+            date: new Date(selectedBooking.details[0]?.date || "").toLocaleDateString("id-ID"), 
+            total: `Rp. ${selectedBooking.total.toLocaleString("id-ID")}`, 
+            payment: selectedBooking.paymentStatus.charAt(0).toUpperCase() + selectedBooking.paymentStatus.slice(1), 
+            status: selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1), 
+            originalData: selectedBooking 
+          }} onClose={handleCloseModal} />
+        )}
+        {showCancelModal && bookingToCancel && (
+          <CancelBookingModal booking={{ 
+            // branch: selectedBooking.locationName ,
+            // branch: 'tes doang',
+            // court: bookingToCancel.details[0]?.fieldName.split(" - ")[1] || "N/A", 
+            // date: new Date(bookingToCancel.details[0]?.date || "").toLocaleDateString("id-ID"), 
+            // payment: bookingToCancel.paymentStatus.charAt(0).toUpperCase() + bookingToCancel.paymentStatus.slice(1), 
+            originalData: bookingToCancel 
+          }} onClose={handleCloseCancelModal} onConfirm={handleConfirmCancel} />
         )}
 
         <style jsx>{`
           tbody {
-            color: black;        
+            color: black;
           }
         `}</style>
       </div>
     </UserLayout>
-  )
+  );
 }
