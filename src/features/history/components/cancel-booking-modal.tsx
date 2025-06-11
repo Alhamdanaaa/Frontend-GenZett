@@ -83,7 +83,7 @@ const CancelBookingModal = ({ booking, onClose, onConfirm }: CancelBookingModalP
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl border pointer-events-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-black">
@@ -96,7 +96,7 @@ const CancelBookingModal = ({ booking, onClose, onConfirm }: CancelBookingModalP
 
         {isDP ? (
           <div>
-            <div className="text-xs text-gray-500 bg-yellow-50 p-3 rounded">
+            <div className="text-sm text-gray-500 bg-merah-100 p-3 rounded">
               <p>
                 <strong>Catatan:</strong> Pembatalan dengan status DP tidak akan ada pengembalian uang. Pastikan Anda yakin dengan keputusan ini.
               </p>
@@ -198,14 +198,14 @@ const CancelBookingModal = ({ booking, onClose, onConfirm }: CancelBookingModalP
             </div>
 
             <div className="space-y-2">
-              <div className="text-xs text-gray-500 bg-yellow-50 p-3 rounded">
+              <div className="text-sm text-gray-500 bg-red-100 p-3 rounded">
                 <p>
                   <strong>Catatan:</strong> Refund uang anda akan dikembalikan sebanyak 50% dari pembayaran total dan akan diproses dalam 1-3 hari kerja, pastikan anda telah yakin dengan pilihan anda.
                 </p>
               </div>
-              <div className="text-xs text-gray-500 bg-yellow-50 p-3 rounded">
+              <div className="text-xs text-gray-500 bg-yellow-100 p-3 rounded">
                 <p>
-                  <strong>Pastikan data anda telah benar agar refund dapat dilakukan.</strong>
+                  <strong>Pastikan data anda telah benar agar refund dapat dilakukan!.</strong>
                 </p>
               </div>
             </div>

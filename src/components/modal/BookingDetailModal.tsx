@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 
-// Type definitions based on the current API response
+// Tipe data dari halaman utama
 interface ReservationDetail {
   reservationId: number;
   fieldName: string;
@@ -113,9 +113,9 @@ export default function BookingDetailModal({
           <tbody>
             {[
               ["Atas Nama", detailData.name],
-              ["Cabang", detailData.locationName || "N/A"],
+              ["Lokasi Cabang", detailData.locationName || "N/A"],
               ["Lapangan", firstDetail?.fieldName.split(" - ")[1] || "N/A"],
-              ["Tanggal Pemesanan", formatDate(firstDetail?.date || detailData.created_at)],
+              ["Tanggal Pemesanan", formatDate(detailData.created_at)],
             ].map(([label, val], i) => (
               <tr key={i} className="border-b border-[#6CC28F]">
                 <td className="w-1/3 bg-[#2C473A] text-white font-semibold p-3">{label}</td>
@@ -129,7 +129,7 @@ export default function BookingDetailModal({
         <table className="w-full text-sm border-collapse border border-[#6CC28F]">
           <thead>
             <tr>
-              {["Lapangan", "Waktu"].map((h) => (
+              {["Tanggal Reservasi", "Lapangan", "Waktu", "Harga"].map((h) => (
                 <th key={h} className="p-2 bg-[#2C473A] font-semibold text-white text-center">
                   {h}
                 </th>
@@ -139,8 +139,10 @@ export default function BookingDetailModal({
           <tbody>
             {detailData.details.map((detail, i) => (
               <tr key={i} className="border-t border-[#6CC28F]">
+                <td className="p-2 text-center">{formatDate(detail.date)}</td>
                 <td className="p-2 text-center">{detail.fieldName.split(" - ")[1] || "N/A"}</td>
                 <td className="p-2 text-center">{detail.time.time}</td>
+                <td className="p-2 text-center">{formatCurrency(detail.time.price)}</td>
               </tr>
             ))}
           </tbody>
