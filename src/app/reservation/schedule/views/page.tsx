@@ -29,7 +29,7 @@ type PaymentData = {
     fieldId: string;
     times: string[];
     timeIds: string[];
-    price: number;
+    price: number[];
   }>;
   locationId: string;
   paymentType: 'reguler' | 'membership';
@@ -387,14 +387,14 @@ export default function SchedulesPage() {
             fieldId: slot.fieldId,
             times: [],
             timeIds: [],
-            price: 0
+            price: []
           };
         }
         acc[slot.date][slot.court].times.push(slot.time);
         acc[slot.date][slot.court].timeIds.push(slot.timeId);
-        acc[slot.date][slot.court].price += slot.price;
+        acc[slot.date][slot.court].price.push(slot.price);
         return acc;
-      }, {} as Record<string, Record<string, { fieldId: string; times: string[]; timeIds: string[]; price: number }>>)
+      }, {} as Record<string, Record<string, { fieldId: string; times: string[]; timeIds: string[]; price: number[] }>>)
     ).map(([date, courts]) =>
       Object.entries(courts).map(([court, data]) => ({
         date,
