@@ -74,7 +74,7 @@ useEffect(() => {
     { question: "Bagaimana cara mendapatkan promo atau diskon?", answer: "Dapatkan diskon dengan memilih paket membership. Semakin banyak pertemuan, semakin besar potongan harga yang kamu dapat!" },
     { question: "Apa yang terjadi jika saya tidak melakukan pembayaran setelah memilih slot waktu?", answer: "Jika pembayaran tidak dilakukan dalam waktu yang ditentukan, slot waktu yang dipilih akan dibatalkan dan lapangan dapat digunakan oleh orang lain." },
     { question: "Apakah saya perlu membayar di muka untuk melakukan reservasi?", answer: "Kamu bisa melakukan pembayaran penuh secara online untuk reservasi, atau membayar DP terlebih dahulu secara online. Sisa pembayaran dapat dilakukan secara online atau langsung di tempat saat datang." },
-    { question: "Apakah saya bisa membatalkan reservasi?", answer: "Sementara ini, pembatalan atau perubahan jadwal belum tersedia melalui aplikasi. Silakan hubungi admin untuk bantuan lebih lanjut." },
+    { question: "Apakah saya bisa membatalkan reservasi?", answer: "Ya, Anda dapat membatalkan reservasi maksimal H-1 sebelum jadwal dimulai. Saat ini, perubahan jadwal (reschedule) belum tersedia melalui aplikasi. Silakan hubungi admin untuk bantuan lebih lanjut."},
   ];
 
 
@@ -247,7 +247,7 @@ useEffect(() => {
                     whileHover={{ zIndex: 10 }}
                   >
                     <img
-                      src="/images/fasilitas.png"
+                      src="/images/fasilitas3.png"
                       alt="Futsal Court"
                       className="object-cover w-full h-full transition-transform duration-500 hover:scale-110"
                     />
