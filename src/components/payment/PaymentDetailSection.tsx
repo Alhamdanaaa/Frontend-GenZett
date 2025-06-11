@@ -19,7 +19,7 @@ type Booking = {
   date: string
   times: string[]
   timeIds: string[]
-  price: number
+  price: number[]
 }
 
 type Props = {
