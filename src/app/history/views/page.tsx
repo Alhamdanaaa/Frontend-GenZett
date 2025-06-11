@@ -64,20 +64,15 @@ interface ApiResponse {
 }
 
 // Cancel form data interface
-interface CancelFormData {
+// src/types.ts
+export interface CancelFormData {
   paymentPlatform?: string;
   accountName?: string;
   accountNumber?: string;
-  reason: string;
+  reason?: string;
 }
 
-// Function to check if booking can be cancelled (more than 24 hours before)
-const canCancelBooking = (bookingDate: string): boolean => {
-  const booking = new Date(bookingDate);
-  const now = new Date("2025-06-11T14:59:00Z"); // Current time: 05:59 PM WIB
-  const diffInHours = (booking.getTime() - now.getTime()) / (1000 * 60 * 60);
-  return diffInHours > 24;
-};
+
 
 function getCookie(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -86,6 +81,41 @@ function getCookie(name: string): string | null {
   if (parts.length === 2) return parts.pop()!.split(";").shift() || null;
   return null;
 }
+const getStatusFromTime = (dateStr: string, timeStr: string): "complete" | "ongoing" | "upcoming" => {
+  const now = new Date();
+
+  // Gabungkan tanggal dan waktu
+  const [hour, minute] = timeStr.split(":").map(Number);
+  const combinedDate = new Date(dateStr);
+  combinedDate.setHours(hour, minute, 0, 0);
+
+  const diff = combinedDate.getTime() - now.getTime();
+
+  if (diff < -60 * 60 * 1000) return "complete"; // lebih dari 1 jam yang lalu
+  if (diff <= 0) return "ongoing"; // sekarang
+  return "upcoming";
+};
+
+const canCancelBooking = (bookingDate: string, bookingTime: string, paymentStatus: string): boolean => {
+  // Only show cancel button if payment status is dp or complete
+  if (paymentStatus !== "dp" && paymentStatus !== "complete") {
+    return false;
+  }
+  
+  // Parse booking date and time
+  const [hour, minute] = bookingTime.split(":").map(Number);
+  const bookingDateTime = new Date(bookingDate);
+  bookingDateTime.setHours(hour, minute, 0, 0);
+  
+  // Current time
+  const now = new Date();
+  
+  // Calculate difference in milliseconds, then convert to hours
+  const diffInHours = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  
+  // Return true if more than 1 hour before booking starts
+  return diffInHours > 1;
+};
 
 export default function HistoryPage() {
   const [data, setData] = useState<Reservation[]>([]);
@@ -144,8 +174,13 @@ export default function HistoryPage() {
         console.log('result:', result);
 
         if (result.success && result.data) {
-          setData(result.data);
-        } else {
+          const updatedData = result.data.map((booking) => {
+            const firstDetail = booking.details[0];
+            const status = getStatusFromTime(firstDetail.date, firstDetail.time.time);
+            return { ...booking, status };
+          });
+          setData(updatedData);
+        }else {
           throw new Error(result.message || "Failed to fetch data");
         }
       } catch (err) {
@@ -261,50 +296,62 @@ export default function HistoryPage() {
 
       const reservationId = bookingToCancel.reservationId;
 
-      const requestBody: any = {
-        reservationId: reservationId,
-        reason: formData.reason,
-      };
+      let response;
+      let result;
 
-      if (bookingToCancel.paymentStatus === "complete") { // Changed from "Lunas" to "complete" to match API
-        requestBody.paymentPlatform = formData.paymentPlatform;
-        requestBody.accountName = formData.accountName;
-        requestBody.accountNumber = formData.accountNumber;
-      }
-      console.log('requestBody:', requestBody);
+      if (bookingToCancel.paymentStatus === "complete") {
+        const requestBody = {
+          reservationId: reservationId,
+          reason: formData.reason,
+          paymentPlatform: formData.paymentPlatform,
+          accountName: formData.accountName,
+          accountNumber: formData.accountNumber,
+        };
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/cancellations/refund`,
-        {
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cancellations/refund`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
-        }
-      );
+        });
+      } else if (bookingToCancel.paymentStatus === "dp") {
+        const requestBody = {
+          reservationId: reservationId,
+        };
+
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cancellations/${reservationId}/dp`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+      } else {
+        throw new Error("Status pembayaran tidak valid");
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
+      result = await response.json();
 
       if (result.success) {
         alert(result.message || "Permintaan pembatalan berhasil dikirim");
         handleCloseCancelModal();
         window.location.reload();
       } else {
-        throw new Error(result.message || "Gagal membatalkan pemesanan");
+        throw new Error(result.message || "Gagal membUniversal pemesanan");
       }
     } catch (error) {
       console.error("Error canceling booking:", error);
-      alert(
-        error instanceof Error ? error.message : "Terjadi kesalahan saat membatalkan pemesanan"
-      );
+      alert(error instanceof Error ? error.message : "Terjadi kesalahan saat membatalkan pemesanan");
     }
   };
+
 
   const filteredData = data.filter((booking) => {
     const searchStr = searchTerm.toLowerCase();
@@ -461,15 +508,20 @@ export default function HistoryPage() {
                       >
                         Detail
                       </Button>
-                      {booking.status === "upcoming" && canCancelBooking(booking.details[0].date) && (
-                        <Button
-                          className="ml-2 rounded-full bg-[#ff0303] hover:bg-[#ba1004] hover:text-white"
-                          size="sm"
-                          onClick={() => handleCancelBooking(booking)}
-                        >
-                          {highlightText("Cancel")}
-                        </Button>
-                      )}
+                      {booking.status === "upcoming" && 
+                        canCancelBooking(
+                          booking.details[0].date, 
+                          booking.details[0].time.time, 
+                          booking.paymentStatus
+                        ) && (
+                          <Button
+                            className="ml-2 rounded-full bg-[#ff0303] hover:bg-[#ba1004] hover:text-white"
+                            size="sm"
+                            onClick={() => handleCancelBooking(booking)}
+                          >
+                            {highlightText("Cancel")}
+                          </Button>
+                        )}
                     </td>
                   </tr>
                 ))
@@ -529,15 +581,14 @@ export default function HistoryPage() {
           }} onClose={handleCloseModal} />
         )}
         {showCancelModal && bookingToCancel && (
-          <CancelBookingModal booking={{ 
-            // branch: selectedBooking.locationName ,
-            // branch: 'tes doang',
-            // court: bookingToCancel.details[0]?.fieldName.split(" - ")[1] || "N/A", 
-            // date: new Date(bookingToCancel.details[0]?.date || "").toLocaleDateString("id-ID"), 
-            // payment: bookingToCancel.paymentStatus.charAt(0).toUpperCase() + bookingToCancel.paymentStatus.slice(1), 
-            originalData: bookingToCancel 
-          }} onClose={handleCloseCancelModal} onConfirm={handleConfirmCancel} />
-        )}
+        <CancelBookingModal
+          booking={{
+            originalData: bookingToCancel,
+          }}
+          onClose={handleCloseCancelModal}
+          onConfirm={handleConfirmCancel}
+        />
+      )}
 
         <style jsx>{`
           tbody {
