@@ -19,17 +19,13 @@ import { editProfile } from '@/lib/api/auth'
 import { useEffect } from 'react'
 
 const profileSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: 'Nama minimal 2 karakter.' })
-    .or(z.literal('')),
+  name: z.string().min(2, { message: 'Nama minimal 2 karakter.' }),
   phone: z
     .string()
     .regex(/^(\+62|08)\d{8,11}$/, {
       message:
         'Nomor telepon harus dimulai dengan +62 atau 08 dan terdiri dari 10-12 digit.',
-    })
-    .or(z.literal('')),
+    }),
 })
 
 type ProfileSchema = z.infer<typeof profileSchema>
@@ -50,15 +46,14 @@ export default function EditProfileForm({ name = '', phone = '' }: Props) {
     },
   })
 
-  // ✅ Ambil user dari localStorage dan set ke form
   useEffect(() => {
     const userString = localStorage.getItem('user')
     if (userString) {
       const user = JSON.parse(userString)
-      form.reset({
+        form.reset({
         name: user.name || '',
         phone: user.phone || '',
-      })
+        })
     }
   }, [form])
 
@@ -70,7 +65,6 @@ export default function EditProfileForm({ name = '', phone = '' }: Props) {
         throw new Error('Gagal memperbarui profil')
       }
 
-      // ✅ Update localStorage user
       const stored = localStorage.getItem('user')
       if (stored) {
         const updated = { ...JSON.parse(stored), ...data }

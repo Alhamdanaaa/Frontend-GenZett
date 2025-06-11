@@ -17,6 +17,7 @@ import { getLocationById } from '@/lib/api/location';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { AlertModal } from '@/components/modal/alert-modal';
+import Cookies from 'js-cookie';
 
 type User = {
   name: string;
@@ -84,7 +85,10 @@ export default function ProfileViewPage({ user }: { user: User | null }) {
         console.error('Unknown error during logout:', error);
       }
     } finally {
+      Cookies.remove('token');
+      Cookies.remove('userId');
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       document.cookie = 'token=; Max-Age=0; path=/;';
       document.cookie = 'role=; Max-Age=0; path=/;';
       router.push('/login');

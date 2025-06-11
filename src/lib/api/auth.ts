@@ -1,6 +1,7 @@
 import api from "../axios";
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
+import Cookies from "js-cookie";
 type LoginPayload = {
   email: string;
   password: string;
@@ -13,6 +14,9 @@ type LoginResponse = {
     email: string;
     name: string;
     role: string;
+    phone: string;
+    created_at: string;
+    locationId?: number;
   };
   token: string;
 };
@@ -47,7 +51,7 @@ export async function register(payload: RegisterPayload) {
 }
 
 export async function logout() {
-  const token = localStorage.getItem("token");
+  const token = Cookies.get('token');
   const res = await api.post(
     "/logout",
     {},
@@ -70,7 +74,10 @@ export const useLogout = () => {
       console.error("Logout error:", error);
     }
     // Clear all auth-related storage
+    Cookies.remove('token');
+    Cookies.remove('userId');
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     document.cookie = 'token=; Max-Age=-99999999;';
     document.cookie = 'role=; Max-Age=0; path=/;';
     router.push('/');
@@ -110,6 +117,7 @@ export function getUser(): LoginResponse["user"] | null {
     return null;
   }
 }
+
 export async function editProfile(name: string, phone: string) {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -121,12 +129,12 @@ export async function editProfile(name: string, phone: string) {
   if (name) data.name = name
   if (phone) data.phone = phone
 
-  const response = await api.put(`/editAdminProfile/${user.id}`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
+    const response = await api.put(`/editAdminProfile/${user.id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
 
   // ✅ Update localStorage setelah berhasil
   const updatedUser = {
@@ -136,7 +144,7 @@ export async function editProfile(name: string, phone: string) {
 
   localStorage.setItem('user', JSON.stringify(updatedUser))
 
-  return response
+    return response
 }
 
 export async function changePassword(oldPassword: string, newPassword: string) {
