@@ -38,15 +38,12 @@ export default function AvailabilityDetailDialog({
           <DetailRow label='Waktu Pembuatan' value={formatDate(data.created_at)} />
           <DetailRow label='Detail Penutupan' value={data.name} />
           <DetailRow 
-            label='Lapangan & Waktu' 
+            label='Lapangan' 
             value={
               data.fieldData && data.fieldData.length > 0 ? 
                 data.fieldData.map((field, index) => (
                   <div key={index} className="mb-1">
                     <div className="font-medium">{field.fieldName}</div>
-                    <div className="text-sm text-gray-600">
-                      {field.times.length > 0 ? field.times.join(', ') : 'Tidak ada waktu'}
-                    </div>
                   </div>
                 ))
               : 'Tidak ada data lapangan'

@@ -125,14 +125,6 @@ export function getNavItemsByRole(role: string): NavItem[] {
         shortcut: ['c', 'c'],
         isActive: true,
         items: []
-      },
-      {
-        title: 'Cancel Reservasi Lapangan',
-        url: '/dashboard/refund',
-        icon: 'field',
-        shortcut: ['c', 'c'],
-        isActive: true,
-        items: []
       }
     ];
   }
