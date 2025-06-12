@@ -1,5 +1,4 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,9 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { UserAvatarProfile } from '@/components/user-avatar-profile';
-import { useLogout } from '@/lib/api/auth';
-import { getUser } from '@/lib/api/auth';
+import { useLogout, getUser } from '@/lib/api/auth';
 import { useEffect, useState } from 'react';
 
 export function UserNav() {
@@ -27,11 +24,8 @@ export function UserNav() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {/* <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
-          <UserAvatarProfile user={user} />
-        </Button> */}
-      </DropdownMenuTrigger>
+      {/* <DropdownMenuTrigger asChild>
+      </DropdownMenuTrigger> */}
       <DropdownMenuContent
         className='w-56'
         align='end'

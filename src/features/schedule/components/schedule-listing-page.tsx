@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import { DataTableSchedule } from '@/components/ui/table/data-table-schedule';
 import { useScheduleData } from '@/features/schedule/hooks/use-schedule-data';
 import { generateColumns, generateTableData } from './columns';
-import { filterSchedules, getFieldNamesForSport } from '@/lib/api/schedule';
 
 type ScheduleListingPageProps = {
   selectedDate: Date;
@@ -16,7 +15,7 @@ type ScheduleListingPageProps = {
 export default function ScheduleListingPage({ 
     selectedDate, 
     selectedSport,
-    locationId = 1
+    locationId
   }: ScheduleListingPageProps) {
     const { schedules, fields, isLoading, error } = useScheduleData({
       date: selectedDate,
@@ -26,17 +25,10 @@ export default function ScheduleListingPage({
   
   const { columns, tableData, stats } = useMemo(() => {
     const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-    
-    // Always show fields even if no schedules exist
+
     if (!fields.length) {
       return { columns: [], tableData: [], stats: null };
     }
-    
-    // IMPORTANT: Filter schedules properly
-    // The issue was here - we need to filter schedules correctly
-    // console.log('All schedules:', schedules);
-    // console.log('Selected sport:', selectedSport);
-    // console.log('Formatted date:', formattedDate);
     
     const filteredSchedules = schedules.filter(schedule => {
       const matchesDate = schedule.date === formattedDate;

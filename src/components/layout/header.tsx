@@ -13,6 +13,7 @@ import { User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { AlertModal } from '@/components/modal/alert-modal';
+import Cookies from 'js-cookie';
 
 export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -25,7 +26,7 @@ export default function Header() {
 
   useEffect(() => {
     const token =
-      localStorage.getItem('token') ||
+      Cookies.get('token') ||
       document.cookie.split('; ').find((row) => row.startsWith('token='))?.split('=')[1]
     setIsAuthenticated(!!token)
   }, [])
@@ -34,7 +35,7 @@ export default function Header() {
     try {
       // Ambil token dari localStorage atau cookie
       const token =
-        localStorage.getItem('token') ||
+        Cookies.get('token') ||
         document.cookie.split('; ').find((row) => row.startsWith('token='))?.split('=')[1]
 
       if (!token) {
@@ -53,7 +54,10 @@ export default function Header() {
       }
     } finally {
       // Bersihkan session
-      localStorage.removeItem('token')
+      Cookies.remove('token');
+      Cookies.remove('userId');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       document.cookie = 'token=; Max-Age=-99999999; path=/;'
       document.cookie = 'role=; Max-Age=0; path=/;'
 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getScheduleData, type ScheduleApiResponse } from '@/lib/api/schedule';
 import { format } from 'date-fns';
+import { getUser } from '@/lib/api/auth';
 
 export function useScheduleData(filters: {
   date?: Date;
@@ -17,11 +18,12 @@ export function useScheduleData(filters: {
       setIsLoading(true);
       setError(null);
       const formattedDate = filters.date ? format(filters.date, 'yyyy-MM-dd') : undefined;
+      const loc = getUser()?.locationId;
       const result = await getScheduleData({
         // date: filters.date?.toISOString().split('T')[0],
         date: formattedDate,
         sport: filters.sport !== 'all' ? filters.sport : undefined,
-        locationId: filters.locationId || 1, // default ke 1
+        locationId: loc,
       });
       console.log('date:',formattedDate);
       console.log('result:', result);
