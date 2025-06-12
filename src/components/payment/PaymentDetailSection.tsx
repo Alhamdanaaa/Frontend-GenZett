@@ -125,10 +125,12 @@ export default function PaymentDetailsSection({ data }: Props) {
       return;
     }
 
+    const paymentStatus = formData.paymentType === 'dp' ? 'dp' : 'pending';
+
     const payload: Payload = {
       userId: userIdNumber,
       name: formData.name,
-      paymentStatus: "pending",
+      paymentStatus: paymentStatus,
       paymentType: data.paymentType,
       total: totalPayment,
       details: data.bookings.map(booking => ({
