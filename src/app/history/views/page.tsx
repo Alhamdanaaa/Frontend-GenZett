@@ -107,19 +107,18 @@ const canCancelBooking = (bookingDate: string, bookingTime: string, paymentStatu
     return false;
   }
 
-  // Parse booking date and time
-  const [hour, minute] = bookingTime.split(":").map(Number);
+  // Parse booking date
   const bookingDateTime = new Date(bookingDate);
-  bookingDateTime.setHours(hour, minute, 0, 0);
-
-  // Current time
-  const now = new Date();
-
-  // Calculate difference in milliseconds, then convert to hours
-  const diffInHours = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-  // Return true if more than 1 hour before booking starts
-  return diffInHours > 1;
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const bookingDateOnly = new Date(bookingDate);
+  bookingDateOnly.setHours(0, 0, 0, 0);
+  
+  const diffInDays = (bookingDateOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+  
+  return diffInDays > 1;
 };
 
 export default function HistoryPage() {
