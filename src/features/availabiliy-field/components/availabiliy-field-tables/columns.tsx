@@ -26,7 +26,7 @@ export const columns: ColumnDef<Reservation>[] = [
   },
   {
     accessorKey: 'fieldData',
-    header: 'Lapangan & Waktu',
+    header: 'Lapangan',
     cell: ({ row }) => {
       const fieldData = row.original.fieldData ?? [];
       return (
