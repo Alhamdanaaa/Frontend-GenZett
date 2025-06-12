@@ -96,7 +96,7 @@ const CancelBookingModal = ({ booking, onClose, onConfirm }: CancelBookingModalP
 
         {isDP ? (
           <div>
-            <div className="text-sm text-gray-500 bg-merah-100 p-3 rounded">
+            <div className="text-sm text-gray-500 bg-red-100 p-3 rounded">
               <p>
                 <strong>Catatan:</strong> Pembatalan dengan status DP tidak akan ada pengembalian uang. Pastikan Anda yakin dengan keputusan ini.
               </p>
