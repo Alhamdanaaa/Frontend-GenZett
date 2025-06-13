@@ -109,16 +109,49 @@ const canCancelBooking = (bookingDate: string, bookingTime: string, paymentStatu
 
   // Parse booking date
   const bookingDateTime = new Date(bookingDate);
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const bookingDateOnly = new Date(bookingDate);
   bookingDateOnly.setHours(0, 0, 0, 0);
-  
+
   const diffInDays = (bookingDateOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-  
+
   return diffInDays > 1;
+};
+
+const convertPaymentStatus = (status: any) => {
+  switch (status) {
+    case 'dp':
+      return 'DP';
+    case 'complete':
+      return 'Lunas';
+    case 'pending':
+      return 'Belum Dibayar';
+    case 'canceled':
+      return 'Dibatalkan';
+    case 'fail':
+      return 'Gagal';
+    case 'closed':
+      return 'Ditutup';
+    case 'waiting':
+      return 'Menunggu'
+    default:
+      return 'Status Tidak Diketahui';
+  }
+};
+
+const formatDate = (dateString: any) => {
+  if (!dateString) return '-';
+  
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sept', 'Okt', 'Nov', 'Des'];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+
+  return `${day} ${month} ${year}`;
 };
 
 export default function HistoryPage() {
@@ -498,13 +531,12 @@ export default function HistoryPage() {
                   >
                     <td className="px-4 py-2">{highlightText(booking.locationName)}</td>
                     <td className="px-4 py-2">
-                      {/* {highlightText(new Date(booking.details[0]?.date || "").toLocaleDateString("id-ID"))} */}
-                      {highlightText(new Date(booking.created_at || "").toLocaleDateString("id-ID"))}
+                      {highlightText(formatDate(booking.created_at))}
                     </td>
                     <td className="px-4 py-2">
                       {highlightText(`Rp. ${booking.total.toLocaleString("id-ID")}`)}
                     </td>
-                    <td className="px-4 py-2">{highlightText(booking.paymentStatus)}</td>
+                    <td className="px-4 py-2">{highlightText(convertPaymentStatus(booking.paymentStatus))}</td>
                     <td className="px-4 py-2">
                       <span
                         className={cn(

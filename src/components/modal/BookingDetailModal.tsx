@@ -66,12 +66,20 @@ export default function BookingDetailModal({
 }) {
   const detailData = booking.originalData;
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+  const formatDate = (dateString: any) => {
+    if (!dateString) return '-';
+
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sept', 'Okt', 'Nov', 'Des'];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${day} ${month} ${year}`;
+  };
+  const formatTime = (timeString: any) => {
+    if (!timeString) return '-';
+    return timeString.slice(0, 5); // Ambil hanya jam dan menit, misal "11:00"
   };
 
   const formatCurrency = (amount: number | undefined): string => {
@@ -84,8 +92,16 @@ export default function BookingDetailModal({
 
   // Calculate total paid and remaining with fallback
   const totalAmount = detailData.total || 0;
-  const remainingPayment = detailData.remainingPayment || 0;
-  const totalPaid = totalAmount - remainingPayment;
+  let totalPaid = 0;
+  let remainingPayment = 0;
+
+  if (detailData.paymentStatus === 'dp') {
+    totalPaid = totalAmount * 0.5;
+    remainingPayment = totalAmount * 0.5;
+  } else {
+    totalPaid = totalAmount;
+    remainingPayment = 0;
+  }
   const remainingAmount = remainingPayment;
 
   const paymentStatusLabel = () => {
@@ -93,7 +109,7 @@ export default function BookingDetailModal({
     if (detailData.paymentStatus.toLowerCase() === "dp") return "DP";
     if (detailData.paymentStatus.toLowerCase() === "pending") return "Belum Bayar";
     if (detailData.paymentStatus.toLowerCase() === "fail") return "Gagal";
-    if (detailData.paymentStatus.toLowerCase() === "canceled") return "dibatalkan";
+    if (detailData.paymentStatus.toLowerCase() === "canceled") return "Dibatalkan";
     return detailData.paymentStatus.charAt(0).toUpperCase() + detailData.paymentStatus.slice(1);
   };
 
@@ -141,7 +157,7 @@ export default function BookingDetailModal({
               <tr key={i} className="border-t border-[#6CC28F]">
                 <td className="p-2 text-center">{formatDate(detail.date)}</td>
                 <td className="p-2 text-center">{detail.fieldName.split(" - ")[1] || "N/A"}</td>
-                <td className="p-2 text-center">{detail.time.time}</td>
+                <td className="p-2 text-center">{formatTime(detail.time.time)}</td>
                 <td className="p-2 text-center">{formatCurrency(detail.time.price)}</td>
               </tr>
             ))}
