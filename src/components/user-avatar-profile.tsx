@@ -7,7 +7,7 @@ interface UserAvatarProfileProps {
   user: {
     imageUrl?: string;
     fullName?: string | null;
-    emailAddresses: Array<{ emailAddress: string }>;
+    email: Array<{ email: string }>;
   } | null;
 }
 
@@ -29,7 +29,7 @@ export function UserAvatarProfile({
         <div className='grid flex-1 text-left text-sm leading-tight'>
           <span className='truncate font-semibold'>{user?.fullName || ''}</span>
           <span className='truncate text-xs'>
-            {user?.emailAddresses[0].emailAddress || ''}
+            {user?.email[0].email || ''}
           </span>
         </div>
       )}

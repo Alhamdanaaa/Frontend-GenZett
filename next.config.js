@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    domains: ['localhost', 'resports.web.id', 'api.resports.web.id','storageresports.blob.core.windows.net'],
     remotePatterns: [
       {
         protocol: 'https',

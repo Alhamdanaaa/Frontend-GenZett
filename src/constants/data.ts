@@ -11,23 +11,60 @@ export type Product = {
   updated_at: string;
 };
 
+// Tipe data untuk Dashboard - Super Admin
+export type DailyReservation = {
+  DATE: string;
+  total_reservasi: number;
+}
+
+export type ReservasiPerCabang = {
+  locationName: string;
+  total_reservasi: number;
+}
+
+export type DashboardData = {
+  total_lapangan: number;
+  total_cabang: number;
+  total_admin: number;
+  total_cabor: number;
+  daily_reservations: DailyReservation[];
+  reservasi_per_cabang: ReservasiPerCabang[];
+};
+
+// Tipe data untuk Dashboard - Admin
+export interface ReservationPerHari {
+  date: string; // Format: "2025-03-01"
+  total_reservasi: number;
+}
+
+export interface AdminDashboardData {
+  total_lapangan: number;
+  total_paket_langganan: number;
+  total_pesanan_langganan_bulan_ini: number;
+  reservasi_per_hari: ReservationPerHari[];
+}
+
 // Tipe data untuk Location
 export type Location = {
-  id: number;
-  img: string;
-  name: string;
+  locationId: number;
+  imageUrl: string;
+  locationName: string;
   sports: string[];
   countLap: number;
-  desc: string;
+  description: string;
   address: string;
   created_at: string;
   updated_at: string;
+  img?: string;
+  file_url?: string;
+  imagePath:string;
+  name:string;
 };
 
 // Tipe data untuk sport
 export type Sport = {
-  id: number;
-  name: string;
+  sportId: number;
+  sportName: string;
   countLocation: number;
   description: string;
   created_at: string;
@@ -39,8 +76,8 @@ export type Field = {
   name: string;
   location: string;
   sport: string;
-  jamMulai: string;
-  jamTutup: string;
+  startHour: string;
+  endHour: string;
   description: string;
   created_at: string;
   updated_at: string;
@@ -48,170 +85,124 @@ export type Field = {
 
 // Tipe data User
 export type User = {
-  userId: number;
-  username: string;
-  password: string;
+  id: number;
   name: string;
   email: string;
-  phone: string;
-  created_at: string;
-  updated_at: string;
+  phone: string | null;
+  // password: string;
+  // created_at: string;
+  // updated_at: string;
 };
 
 // Tipe data Admin
-export type Admin = {
-  adminId: number;
-  username: string;
-  password: string;
+// Untuk tampilan/listing dari API (GET /admins)
+export type AdminOutput = {
+  id: number;
   name: string;
   email: string;
   phone: string;
-  location: string;
-  created_at: string;
-  updated_at: string;
+  location: string; // lokasi dalam bentuk nama
+  // created_at: string;
+  // updated_at: string;
 };
 
-
-// Tipe data Reservation
-export type Reservation = {
-  reservationId: number;
-  createTime: string;
+// Untuk input saat create admin (POST /admins)
+export type AdminCreateInput = {
   name: string;
-  fieldTime: string;
+  email: string;
+  phone: string;
+  password: string;
+  password_confirmation: string;
+  locationId: number;
+};
+
+// Untuk input saat edit admin (PUT /admins/:id)
+export type AdminUpdateInput = {
+  id?: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  password_confirmation?: string;
+  locationId?: number;
+};
+
+interface ReservationDetail {
+  reservationId: number;
+  fieldName: string;
+  time: string;
   date: string;
-  totalPayment: number;
-  remainingPayment: number;
-  paymentStatus: 'pending' | 'down payment' | 'complete' | 'fail';
-  status: 'upcoming' | 'ongoing' | 'completed';
+}
+interface Cancellation {
+  cancellationId: number,
+  reservationId: number,
+  accountName: string,
+  accountNumber: string,
+  paymentPlatform: string,
+  reason: string,
+  created_at: string,
+  updated_at: string
+}
+// Tipe data Reservation
+export interface Reservation {
+  reservationId: number;
+  name: string;
+  paymentStatus: string;
+  total: number;
   created_at: string;
   updated_at: string;
-};
+  status: string;
+  details: ReservationDetail[];
+  cancellation: Cancellation | null;
+  remainingPayment: number;
+  // Tambahkan property fieldData
+  fieldData: {
+    fieldId?: number;
+    fieldName: string;
+    timeIds?: number[];
+    times: string[];
+    dates: string[];
+  }[];
+}
+
 
 // Tipe data Schedule
 export type Schedule = {
-  reservationId: number;
+  locationId: number;
   name: string;
-  fieldTime: string;
-  field: string;
-  sport: string;
   date: string;
-  paymentStatus: 'pending' | 'down payment' | 'complete';
+  fieldTime: string;
+  fieldName: string;
+  sport: string;
+  paymentStatus: 'pending' | 'dp' | 'complete' | 'closed';
 };
 
-// Tipe data Member
+// Tipe data Membership
 export type Membership = {
   membershipId: number;
-  location: string;
-  sport: string;
   name: string;
   description: string;
-  discount: string;
-  weeks: string;
+  locationId: number;
+  sportId: number;
+  discount: number;
+  weeks: number;
 };
 
+export type MembershipWithNames = Membership & {
+  locationName: string;
+  sportName: string;
+};
 
-//Info: The following data is used for the sidebar navigation and Cmd K bar.
-export const navItems: NavItem[] = [
-  {
-    title: 'Dashboard',
-    url: '/dashboard/overview',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
-  },
-  {
-    title: 'Lokasi Cabang',
-    url: '/dashboard/location',
-    icon: 'location',
-    shortcut: ['l', 'l'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Lapangan',
-    url: '/dashboard/field',
-    icon: 'field',
-    shortcut: ['f', 'f'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Cabang Olahraga',
-    url: '/dashboard/sport',
-    icon: 'sport',
-    shortcut: ['s', 's'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Paket Langganan',
-    url: '/dashboard/membership',
-    icon: 'member',
-    shortcut: ['m', 'm'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Pengguna',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'userPen',
-    isActive: true,
-
-    items: [
-      {
-        title: 'Admin',
-        url: '/dashboard/admin',
-        shortcut: ['a', 'a']
-      },
-      {
-        title: 'User',
-        url: '/dashboard/user',
-        shortcut: ['u', 'u']
-      }
-    ]
-  },
-  {
-    title: 'Dashboard admin',
-    url: '/dashboard/overview',
-    icon: 'dashboard',
-    isActive: false,
-    shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
-  },
-  {
-    title: 'Reservasi Lapangan',
-    url: '/dashboard/reservation',
-    icon: 'reservation',
-    shortcut: ['r', 'r'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Jadwal Lapangan',
-    url: '/dashboard/schedule',
-    icon: 'timeline',
-    shortcut: ['l', 'l'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Lapangan-admin',
-    url: '/dashboard/field',
-    icon: 'field',
-    shortcut: ['s', 's'],
-    isActive: false,
-    items: [] // No child items
-  },
-  // {
-  //   title: 'Anggota Member',
-  //   url: '/dashboard/member',
-  //   icon: 'user',
-  //   shortcut: ['m', 'm'],
-  //   isActive: false,
-  //   items: [] // No child items
-  // },
-];
+// Tipe data Time 
+export type Time = {
+  timeId: number;
+  fieldId: number;
+  time: string;
+  status: 'available' | 'booked';
+  price: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface SaleUser {
   id: number;

@@ -10,7 +10,7 @@ import { PAYMENT_STATUS_OPTIONS } from './options';
 // Lazy load the cell action component - only loaded when table is rendered
 const CellAction = dynamic(
   () => import('./cell-action').then(mod => mod.CellAction),
-  { ssr: false, loading: () => <div>Loading...</div> }
+  { ssr: false, loading: () => <div>Memuat...</div> }
 );
 
 export const columns: ColumnDef<Reservation>[] = [
@@ -28,20 +28,39 @@ export const columns: ColumnDef<Reservation>[] = [
     enableColumnFilter: true
   },
   {
-    accessorKey: 'fieldTime',
+    accessorKey: 'fieldData',
     header: 'Lapangan & Waktu',
-    cell: ({ cell }) => {
-      const fieldTime = cell.getValue<Reservation['fieldTime']>();
-      return <div className='max-w-[250px] truncate'>{fieldTime}</div>;
+    cell: ({ row }) => {
+      const fieldData = row.original.fieldData ?? [];
+      return (
+        <div className="max-w-[250px]">
+          {fieldData.map((field, index) => (
+            <div key={index} className="mb-1">
+              <div className="font-medium">{field.fieldName}</div>
+              <div className="text-sm text-gray-600">
+                {field.times.map((time) => time).join(', ')}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
     }
   },
   {
     id: 'date',
-    accessorKey: 'date',
+    accessorKey: 'fieldData',
     header: 'Tanggal Main',
-    cell: ({ cell }) => {
-      const date = cell.getValue<Reservation['date']>();
-      return <div>{date}</div>;
+    cell: ({ row }) => {
+      const fieldData = row.original.fieldData || [];
+      return (
+        <div>
+          {fieldData.map((field, index) => (
+            <div key={index} className="mb-1">
+              {field.dates.join(', ')}
+            </div>
+          ))}
+        </div>
+      );
     },
     enableColumnFilter: true,
     meta: {
@@ -67,7 +86,7 @@ export const columns: ColumnDef<Reservation>[] = [
       const status = cell.getValue<Reservation['paymentStatus']>();
       const label = status === 'pending'
         ? 'Menunggu'
-        : status === 'down payment'
+        : status === 'dp'
         ? 'Uang Muka'
         : status === 'complete'
         ? 'Lunas'
@@ -80,7 +99,7 @@ export const columns: ColumnDef<Reservation>[] = [
           className={`
             capitalize 
             ${status === 'pending' ? 'bg-yellow-300 text-black' : ''}
-            ${status === 'down payment' ? 'bg-blue-300 text-black' : ''}
+            ${status === 'dp' ? 'bg-blue-300 text-black' : ''}
             ${status === 'complete' ? 'bg-green-300 text-black' : ''}
             ${status === 'fail' ? 'bg-red-300 text-black' : ''}
           `}
@@ -92,7 +111,7 @@ export const columns: ColumnDef<Reservation>[] = [
     enableColumnFilter: true,
     meta: {
       label: 'Status Pembayaran',
-      variant: 'multiSelect',
+      variant: 'select',
       options: PAYMENT_STATUS_OPTIONS
     }
   },

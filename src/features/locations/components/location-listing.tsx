@@ -1,11 +1,7 @@
-import { fakeLocations } from '@/constants/mock-api';
 import { searchParamsCache } from '@/lib/searchparams';
 import LocationTableWrapper from './location-table-wrapper';
-
-const getColumns = async () => {
-  const { columns } = await import('./location-tables/columns');
-  return columns;
-};
+import { getLocations } from '@/lib/api/location';
+import { getAllSports } from '@/lib/api/sports';
 
 export default async function LocationListingPage() {
   const page = searchParamsCache.get('page');
@@ -14,20 +10,25 @@ export default async function LocationListingPage() {
   const sports = searchParamsCache.get('sport');
 
   const filters = {
-    page,
-    limit: pageLimit,
+    page: page?.toString(),
+    limit: pageLimit?.toString(),
     ...(search && { search }),
     ...(sports && { sports: sports })
   };
 
-  const data = await fakeLocations.getLocations(filters);
-  const columns = await getColumns();
+  const data = await getLocations(filters);
+  const sportData = await getAllSports();
+
+  const sportOptions = sportData.map((sport: any) => ({
+    label: sport.name,
+    value: String(sport.id),
+  }));
 
   return (
     <LocationTableWrapper
       data={data.locations}
       totalItems={data.totalLocations}
-      columns={columns}
+      sportOptions={sportOptions}
     />
   );
 }

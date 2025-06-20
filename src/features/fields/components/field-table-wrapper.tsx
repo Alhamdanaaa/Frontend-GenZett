@@ -1,21 +1,43 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 import { Field } from '@/constants/data';
+import { ColumnDef } from '@tanstack/react-table';
 
-const FieldTable = dynamic(
-  () => import('./field-tables').then(mod => mod.FieldTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
-);
+const FieldTable = dynamic(() => import('./field-tables').then(mod => mod.FieldTable), {
+  ssr: false,
+  loading: () => <p>Memuat tabel...</p>
+});
 
 type Props = {
   data: Field[];
   totalItems: number;
-  columns: any;
+  locationOptions: { label: string; value: string }[];
+  sportOptions: { label: string; value: string }[];
+  isAdmin: boolean;
 };
 
-export default function FieldTableWrapper({ data, totalItems, columns }: Props) {
-  return (
-    <FieldTable data={data} totalItems={totalItems} columns={columns} />
-  );
+export default function FieldTableWrapper({
+  data,
+  totalItems,
+  locationOptions,
+  sportOptions,
+  isAdmin
+}: Props) {
+  const [columns, setColumns] = useState<ColumnDef<Field>[]>([]);
+
+  useEffect(() => {
+    const loadColumns = async () => {
+      const { getColumns } = await import('./field-tables/columns');
+      const cols = getColumns(locationOptions, sportOptions, isAdmin);
+      setColumns(cols);
+    };
+
+    loadColumns();
+  }, [locationOptions, sportOptions, isAdmin]);
+
+  if (columns.length === 0) return <p>Memuat Kolom...</p>;
+
+  return <FieldTable data={data} totalItems={totalItems} columns={columns} />;
 }

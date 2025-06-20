@@ -1,38 +1,30 @@
-import { Membership } from '@/constants/data';
 import { notFound } from 'next/navigation';
 import MembershipViewPageClient from './membership-view-page-client';
-import { fakeMemberships } from '@/constants/mock-api';
+import { getMembershipById } from '@/lib/api/membership';
+import { MembershipWithNames } from '@/constants/data';
 
 interface MembershipViewPageProps {
   membershipId: string;
 }
 
-async function fetchMembership(membershipId: string): Promise<Membership | null> {
+async function fetchMembership(membershipId: string): Promise<MembershipWithNames | null> {
   try {
-    // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/memberships/${membershipId}`, {
-    //   cache: 'no-store'
-    // });
-    // if (!res.ok) {
-    //   throw new Error('Membership not found');
-    // }
-    // const data = await res.json();
-    const data = await fakeMemberships.getMembershipById(Number(membershipId));
-    return data.membership as Membership;
+    const data = await getMembershipById(Number(membershipId));
+    // Pastikan data sudah lengkap dengan locationName dan sportName
+    return data as MembershipWithNames;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching membership:', error);
     return null;
   }
 }
 
 export default async function MembershipViewPage({ membershipId }: MembershipViewPageProps) {
-  let membership: Membership | null = null;
+  let membership: MembershipWithNames | null = null;
   let pageTitle = 'Tambah Paket Langganan Baru';
 
   if (membershipId !== 'new') {
     membership = await fetchMembership(membershipId);
-    if (!membership) {
-      notFound();
-    }
+    if (!membership) return notFound();
     pageTitle = `Edit Paket Langganan - ${membership.name}`;
   }
 

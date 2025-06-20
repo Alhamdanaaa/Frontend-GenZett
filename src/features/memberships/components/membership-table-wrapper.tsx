@@ -1,20 +1,52 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Membership } from '@/constants/data';
+import { useEffect, useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MembershipWithNames } from '@/constants/data';
 
-const MembershipTable = dynamic(
-  () => import('./membership-tables').then(mod => mod.MembershipTable),
-  { ssr: false, loading: () => <p>Loading table...</p> }
-);
+const MembershipTable = dynamic<{
+  data: MembershipWithNames[];
+  totalItems: number;
+  columns: ColumnDef<MembershipWithNames>[];
+}>(() => import('./membership-tables').then(mod => mod.default), {
+  ssr: false,
+  loading: () => <p>Memuat tabel...</p>,
+});
+
 
 type Props = {
-  data: Membership[];
+  data: MembershipWithNames[];
   totalItems: number;
-  columns: any;
+  locationOptions: { label: string; value: string }[];
+  sportOptions: { label: string; value: string }[];
 };
 
-export default function MembershipTableWrapper({ data, totalItems, columns }: Props) {
+export default function MembershipTableWrapper({
+  data,
+  totalItems,
+  locationOptions,
+  sportOptions,
+}: Props) {
+  const [columns, setColumns] = useState<ColumnDef<MembershipWithNames>[]>([]);
+
+  useEffect(() => {
+    if (locationOptions.length === 0 || sportOptions.length === 0) return;
+
+    const loadColumns = async () => {
+      const { getColumns } = await import('./membership-tables/columns');
+      const cols = getColumns(locationOptions, sportOptions);
+      setColumns(cols);
+    };
+
+    loadColumns();
+  }, [locationOptions, sportOptions]);
+
+  if (locationOptions.length === 0 || sportOptions.length === 0)
+    return <p>Memuat opsi...</p>;
+
+  if (columns.length === 0) return <p>Memuat kolom...</p>;
+
   return (
     <MembershipTable data={data} totalItems={totalItems} columns={columns} />
   );

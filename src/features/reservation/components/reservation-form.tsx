@@ -22,34 +22,30 @@ import { Reservation } from '@/constants/data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { FIELD_OPTIONS, PAYMENT_STATUS_OPTIONS, RESERVATION_STATUS_OPTIONS } from './reservation-tables/options';
+import { PAYMENT_STATUS_OPTIONS } from './reservation-tables/options'; 
+
+type PaymentStatus = 'complete' | 'dp' | 'pending' | 'fail';
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: 'Nama pemesan minimal 2 karakter.'
   }),
-  fieldTime: z.string({
-    required_error: 'Lapangan harus dipilih.'
-  }),
-  date: z.string().refine(
-    (val) => {
-      const date = new Date(val);
-      return !isNaN(date.getTime());
-    },
-    { message: 'Tanggal tidak valid.' }
-  ),
+  fieldData: z.array(
+    z.object({
+      fieldName: z.string(),
+      times: z.array(z.string()),
+      dates: z.array(z.string())
+    })
+  ).optional(),
   totalPayment: z.number().min(0, {
     message: 'Total pembayaran minimal 0.'
   }),
-  remainingPayment: z.number().min(0, {
-    message: 'Sisa pembayaran minimal 0.'
-  }),
-  paymentStatus: z.enum(['pending', 'down payment', 'complete', 'fail'], {
+  // remainingPayment: z.number().min(0, {
+  //   message: 'Sisa pembayaran minimal 0.'
+  // }),
+  paymentStatus: z.enum(['pending', 'dp', 'complete', 'fail'] as const, {
     required_error: 'Status pembayaran harus dipilih.'
   }),
-  status: z.enum(['upcoming', 'ongoing', 'completed'], {
-    required_error: 'Status reservasi harus dipilih.'
-  })
 });
 
 export default function ReservationForm({
@@ -59,14 +55,26 @@ export default function ReservationForm({
   initialData: Reservation | null;
   pageTitle: string;
 }) {
+  // Ambil data lapangan pertama (jika ada) untuk nilai default form
+  const defaultFieldName = initialData?.fieldData && initialData.fieldData.length > 0
+    ? initialData.fieldData[0].fieldName
+    : '';
+
+  // Ambil tanggal pertama (jika ada) untuk nilai default form
+  const defaultDate = initialData?.fieldData && initialData.fieldData.length > 0
+    && initialData.fieldData[0].dates.length > 0
+    ? initialData.fieldData[0].dates[0]
+    : new Date().toISOString().split('T')[0];
+
+  // Pastikan status payment menggunakan tipe yang tepat
+  const paymentStatus: PaymentStatus = initialData?.paymentStatus as PaymentStatus || 'pending';
+
   const defaultValues = {
-    name: initialData?.name || '',
-    fieldTime: initialData?.fieldTime || '',
-    date: initialData?.date || new Date().toISOString().split('T')[0],
-    totalPayment: initialData?.totalPayment || 0,
-    remainingPayment: initialData?.remainingPayment || 0,
-    paymentStatus: initialData?.paymentStatus || 'pending',
-    status: initialData?.status || 'upcoming'
+    name: initialData?.name ?? '',
+    fieldData: initialData?.fieldData || [],
+    totalPayment: initialData?.total ?? 0,
+    // remainingPayment: initialData?.remainingPayment ?? 0,
+    paymentStatus: paymentStatus,
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -88,65 +96,89 @@ export default function ReservationForm({
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Pemesan</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Masukkan nama pemesan' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+              {/* Lapangan (menggunakan nilai dari lapangan pertama) */}
               <FormField
                 control={form.control}
-                name='name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nama Pemesan</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Masukkan nama pemesan' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='fieldTime'
-                render={({ field }) => (
+                name='fieldData'
+                render={() => (
                   <FormItem>
                     <FormLabel>Lapangan</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
+                      onValueChange={(value) => {
+                        // Untuk implementasi sederhana, kita hanya update fieldName pada elemen pertama
+                        const currentFieldData = [...(form.getValues().fieldData || [])];
+                        if (currentFieldData.length === 0) {
+                          form.setValue('fieldData', [{ fieldName: value, times: [], dates: [] }]);
+                        } else {
+                          currentFieldData[0].fieldName = value;
+                          form.setValue('fieldData', currentFieldData);
+                        }
+                      }}
+                      value={defaultFieldName}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Pilih lapangan' />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      {/* <SelectContent>
                         {FIELD_OPTIONS.map((field) => (
                           <SelectItem key={field.value} value={field.value}>
                             {field.label}
                           </SelectItem>
                         ))}
-                      </SelectContent>
+                      </SelectContent> */}
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {/* Tanggal Main (menggunakan nilai dari tanggal pertama) */}
               <FormField
                 control={form.control}
-                name='date'
-                render={({ field }) => (
+                name='fieldData'
+                render={() => (
                   <FormItem>
                     <FormLabel>Tanggal Main</FormLabel>
                     <FormControl>
-                      <Input 
-                        type='date' 
-                        placeholder='Pilih tanggal' 
-                        {...field} 
+                      <Input
+                        type='date'
+                        placeholder='Pilih tanggal'
+                        value={defaultDate}
+                        onChange={(e) => {
+                          const date = e.target.value;
+                          const currentFieldData = [...(form.getValues().fieldData || [])];
+                          if (currentFieldData.length === 0) {
+                            form.setValue('fieldData', [{ fieldName: '', times: [], dates: [date] }]);
+                          } else {
+                            currentFieldData[0].dates = [date];
+                            form.setValue('fieldData', currentFieldData);
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name='totalPayment'
@@ -165,7 +197,7 @@ export default function ReservationForm({
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name='remainingPayment'
                 render={({ field }) => (
@@ -182,19 +214,19 @@ export default function ReservationForm({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               <FormField
                 control={form.control}
                 name='paymentStatus'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status Pembayaran</FormLabel>
+                    <FormLabel>Jenis Pembayaran</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={(value: PaymentStatus) => field.onChange(value)}
                       value={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Pilih status pembayaran' />
                         </SelectTrigger>
                       </FormControl>
@@ -210,35 +242,21 @@ export default function ReservationForm({
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name='status'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status Reservasi</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih status reservasi' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {RESERVATION_STATUS_OPTIONS.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
-            <Button type='submit'>Simpan Reservasi</Button>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
+                onClick={() => window.history.back()}
+              >
+                Batal
+              </Button>
+                <Button type='submit' disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Reservasi'}
+                </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

@@ -1,23 +1,20 @@
 'use client';
-import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Sport } from '@/constants/data';
-import { Column, ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import { Text } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const CellAction = dynamic(
   () => import('./cell-action').then(mod => mod.CellAction),
-  { ssr: false, loading: () => <div>Loading...</div> }
+  { ssr: false, loading: () => <div>Memuat...</div> }
 );
 
 export const columns: ColumnDef<Sport>[] = [
   {
     id: 'name',
-    accessorKey: 'name',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Nama Cabang Olahraga' />
-    ),
-    cell: ({ cell }) => <div>{cell.getValue<Sport['name']>()}</div>,
+    accessorKey: 'sportName',
+    header: 'Nama Cabang Olahraga',
+    cell: ({ cell }) => <div>{cell.getValue<Sport['sportName']>()}</div>,
     filterFn: 'includesString',
     meta: {
       label: 'Name',
@@ -38,9 +35,7 @@ export const columns: ColumnDef<Sport>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: ({ column }: { column: Column<Sport, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Deskripsi' />
-    ),
+    header:'Deskripsi' ,
     meta:{
       label: 'Deskripsi'
     }

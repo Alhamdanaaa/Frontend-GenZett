@@ -3,10 +3,12 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
+import { getServerUserRole } from '@/hooks/use-user';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { Suspense, lazy } from 'react';
 
@@ -24,6 +26,10 @@ type pageProps = {
 };
 
 export default async function Page(props: pageProps) {
+  const role = await getServerUserRole();
+  if (!role || !['admin'].includes(role)) {
+    redirect('/unauthorized');
+  }
   const searchParams = await props.searchParams;
   searchParamsCache.parse(searchParams);
   const key = serialize({ ...searchParams });
@@ -36,12 +42,12 @@ export default async function Page(props: pageProps) {
             title='Reservasi Lapangan'
             description='Kelola data reservasi lapangan'
           />
-          <Link
+          {/* <Link
             href='/dashboard/reservation/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Tambah
-          </Link>
+          </Link> */}
         </div>
         <Separator />
         <Suspense

@@ -1,12 +1,10 @@
 import PageContainer from '@/components/layout/page-container';
-import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
+import { getServerUserRole } from '@/hooks/use-user';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
-import { cn } from '@/lib/utils';
-import { IconPlus } from '@tabler/icons-react';
-import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { SearchParams } from 'nuqs/server';
 import { lazy, Suspense } from 'react';
 
@@ -23,6 +21,10 @@ type pageProps = {
 };
 
 export default async function Page(props: pageProps) {
+  const role = await getServerUserRole();
+  if (!role || !['superadmin'].includes(role)) {
+    redirect('/unauthorized');
+  }
   const searchParams = await props.searchParams;
   searchParamsCache.parse(searchParams);
   const key = serialize({ ...searchParams });
@@ -35,12 +37,6 @@ export default async function Page(props: pageProps) {
             title='Data User'
             description='Kelola data user'
           />
-          {/* <Link
-            href='/dashboard/user/new'
-            className={cn(buttonVariants(), 'text-xs md:text-sm')}
-          >
-            <IconPlus className='mr-2 h-4 w-4' /> Tambah
-          </Link> */}
         </div>
         <Separator />
         <Suspense

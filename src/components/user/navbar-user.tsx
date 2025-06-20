@@ -6,41 +6,57 @@ import { useState, useEffect, useRef } from 'react'
 import { Menu, X, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { motion, AnimatePresence } from 'framer-motion'
+import { logout } from "@/lib/api/auth"
+import { AlertModal } from '@/components/modal/alert-modal'
+import Cookies from 'js-cookie'
 
 export default function NavbarUser() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(false)
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false)
   const router = useRouter()
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const desktopDropdownRef = useRef<HTMLDivElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
   const mobileDropdownRef = useRef<HTMLDivElement>(null)
+  const [openLogoutModal, setOpenLogoutModal] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const navItems = [
     { label: 'Beranda', href: '/' },
     { label: 'Reservasi', href: '/reservation' },
-    { label: 'Riwayat', href: '/riwayat' },
+    { label: 'Riwayat', href: '/history' },
   ]
 
+  const isActive = (href: string) => {
+    return href === '/'
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`)
+  }
+
   useEffect(() => {
-    const token = localStorage.getItem('token') || document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))?.split('=')[1]
-    
-    if (token) {
-      setIsAuthenticated(true)
-    } else {
-      setIsAuthenticated(false)
+    const checkToken = () => {
+      const token = Cookies.get('token') || document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))?.split('=')[1]
+      setIsAuthenticated(!!token)
     }
+
+    checkToken()
   }, [])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false)
+      if (desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target as Node)) {
+        setDesktopDropdownOpen(false)
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
       }
       if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+        setMobileDropdownOpen(false)
       }
     }
 
@@ -50,49 +66,50 @@ export default function NavbarUser() {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    document.cookie = 'token=; Max-Age=-99999999;'
-    setIsAuthenticated(false)
-    router.push('/')
-  }
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    Cookies.remove('token');
+    Cookies.remove('userId');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    document.cookie = 'token=; Max-Age=-99999999;';
+    document.cookie = 'role=; Max-Age=0; path=/;';
+    setIsAuthenticated(false);
+    router.push('/');
+  };
 
-  const toggleDropdown = () => {
-    setDropdownOpen(prev => !prev)
+  const toggleDesktopDropdown = () => {
+    setDesktopDropdownOpen(prev => !prev)
   }
 
   const toggleMobileDropdown = () => {
-    setIsOpen(prev => !prev)
+    setMobileDropdownOpen(prev => !prev)
   }
 
   return (
-    <nav className="w-full h-20 bg-[#2C473A] text-white shadow">
-      <div className="max-w-7xl mx-auto px-4 w-full h-full flex items-center justify-between">
-        {/* LOGO */}
-        <Link href="/" className="text-white font-bold text-lg flex items-center h-full">
-          ReSports
-        </Link>
+    <>
+      <nav className="bg-[#2C473A] text-white shadow-md">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <img src="/Logo.svg" alt="ReSports Logo" className="h-11 w-auto" />
+          </Link>
 
-        {/* HAMBURGER (Mobile only) */}
-        <button
-          className="md:hidden flex items-center"
-          onClick={toggleMobileDropdown}
-          aria-label="Toggle Menu"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-
-        {/* NAVIGATION (Desktop) */}
-        <div className="hidden md:flex gap-10 items-center h-full">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <div key={item.href} className="flex flex-col items-center justify-center space-y-1 h-full">
+          {/* Desktop Menu */}
+          <div className="hidden md:flex gap-8 items-center">
+            {navItems.map((item) => (
+              <div key={item.href} className="flex flex-col items-center space-y-1">
                 <Link
                   href={item.href}
                   className={cn(
-                    'text-sm font-semibold transition-colors tracking-wide',
-                    isActive ? 'text-white' : 'text-white/70 hover:text-white'
+                    'text-sm font-semibold tracking-wide transition-colors',
+                    isActive(item.href)
+                      ? 'text-white'
+                      : 'text-white/70 hover:text-white'
                   )}
                 >
                   {item.label}
@@ -100,144 +117,187 @@ export default function NavbarUser() {
                 <div
                   className={cn(
                     'w-1.5 h-1.5 rounded-full',
-                    isActive ? 'bg-[#C5FC40]' : 'bg-transparent'
+                    isActive(item.href) ? 'bg-[#C5FC40]' : 'bg-transparent'
                   )}
                 />
               </div>
-            )
-          })}
-        </div>
+            ))}
+          </div>
 
-        {/* CONDITIONAL ACCOUNT/LOGIN BUTTON */}
-        {isAuthenticated ? (
-          <div className="relative" ref={dropdownRef}>
-            <button 
-              className="flex items-center text-white border border-transparent hover:border-white px-3 py-2 rounded-full transition-all duration-300"
-              onClick={toggleDropdown}
-              aria-expanded={dropdownOpen}
-              aria-label="User menu"
-            >
-              <User className="w-6 h-6" />
-            </button>
+          {/* Desktop Auth Button */}
+          {isAuthenticated ? (
+            <div className="relative hidden md:block" ref={desktopDropdownRef}>
+              <button
+                onClick={toggleDesktopDropdown}
+                aria-expanded={desktopDropdownOpen}
+                aria-label="User menu"
+                className="flex items-center p-2 rounded-full border hover:border-white transition-all"
+              >
+                <User className="w-6 h-6" />
+              </button>
 
-            <div
-              className={`absolute right-0 mt-2 w-20 bg-[#2C473A] border-2 border-[#C5FC40] text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out ${
-                dropdownOpen 
-                  ? 'opacity-100 translate-y-0 visible' 
-                  : 'opacity-0 -translate-y-2 invisible'
-              }`}
-            >
-              <div className="py-1">
+              <div
+                className={cn(
+                  'absolute right-0 mt-3 w-40 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
+                  desktopDropdownOpen
+                    ? 'opacity-100 translate-y-0 visible'
+                    : 'opacity-0 -translate-y-2 invisible'
+                )}
+              >
                 <Link
                   href="/profile"
-                  className="block px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                  onClick={() => setDropdownOpen(false)}
+                  onClick={() => setDesktopDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
                 >
                   Profil
                 </Link>
+                <Link
+                  href="/membership"
+                  onClick={() => setDesktopDropdownOpen(false)}
+                  className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                >
+                  Paket Langganan
+                </Link>
                 <button
                   onClick={() => {
-                    handleLogout()
-                    setDropdownOpen(false)
+                    setOpenLogoutModal(true)
+                    setDesktopDropdownOpen(false)
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
+                  className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
                 >
-                  Logout
+                  {isLoading ? 'Logout...' : 'Logout'}
                 </button>
               </div>
             </div>
-          </div>
-        ) : (
-          <Link
-            href="/login"
-            className="hidden md:flex items-center justify-center h-10 px-5 bg-[#C5FC40] text-black font-semibold rounded-full text-sm hover:bg-lime-300 transition"
-          >
-            Login
-          </Link>
-        )}
-      </div>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden md:inline-block bg-[#C5FC40] text-black font-semibold text-sm px-5 py-2 rounded-full hover:bg-lime-300 transition"
+            >
+              Login
+            </Link>
+          )}
 
-      {/* MOBILE MENU */}
-      {isOpen && (
-        <div className="md:hidden bg-[#2C473A] px-4 pb-4 border-t border-[#3a5a4a]" ref={mobileDropdownRef}>
-          <div className="flex flex-col gap-6 pt-6">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <div key={item.href} className="flex flex-col items-start space-y-1">
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      'text-sm font-semibold transition-colors tracking-wide',
-                      isActive ? 'text-white' : 'text-white/70 hover:text-white'
-                    )}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                  <div
-                    className={cn(
-                      'w-1.5 h-1.5 rounded-full',
-                      isActive ? 'bg-[#C5FC40]' : 'bg-transparent'
-                    )}
-                  />
-                </div>
-              )
-            })}
+          {/* Mobile Buttons - Hamburger on far right */}
+          <div className="md:hidden flex items-center gap-4">
+            {/* Hamburger Button - Now on far right */}
+            <button
+              className="p-2 rounded hover:bg-[#3a5a4a] transition"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
 
-            {/* CONDITIONAL ACCOUNT/LOGIN (Mobile)*/}
-            {isAuthenticated ? (
-              <div className="relative mt-2">
-                <button 
-                  className="flex items-center text-white border border-transparent hover:border-white px-3 py-2 rounded-full transition-all duration-300"
-                  onClick={toggleDropdown}
-                  aria-expanded={dropdownOpen}
+            {/* Mobile User Button */}
+            {isAuthenticated && (
+              <div className="relative" ref={mobileDropdownRef}>
+                <button
+                  onClick={toggleMobileDropdown}
+                  aria-expanded={mobileDropdownOpen}
                   aria-label="User menu"
+                  className="flex items-center p-2 rounded-full border hover:border-white transition-all"
                 >
                   <User className="w-6 h-6" />
                 </button>
 
-                {dropdownOpen && (
-                  <div
-                    className="absolute left-0 mt-2 w-40 bg-[#2C473A] border-2 border-[#C5FC40] text-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
+                {/* Mobile User Dropdown */}
+                <div
+                  className={cn(
+                    'absolute right-0 mt-2 w-28 bg-[#2C473A] border-2 border-[#C5FC40] text-sm rounded-lg shadow-lg overflow-hidden transition-all duration-300 z-10',
+                    mobileDropdownOpen
+                      ? 'opacity-100 translate-y-0 visible'
+                      : 'opacity-0 -translate-y-2 invisible'
+                  )}
+                >
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileDropdownOpen(false)}
+                    className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
                   >
-                    <div className="py-1">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                        onClick={() => {
-                          setDropdownOpen(false)
-                          setIsOpen(false)
-                        }}
-                      >
-                        Profil
-                      </Link>
-                      <button
-                        onClick={() => {
-                          handleLogout()
-                          setDropdownOpen(false)
-                          setIsOpen(false)
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-[#3a5a4a] transition-colors"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                )}
+                    Profil
+                  </Link>
+                  <Link
+                    href="/membership"
+                    onClick={() => setMobileDropdownOpen(false)}
+                    className="block px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                  >
+                    Paket Langganan
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setOpenLogoutModal(true);
+                      setMobileDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-[#3a5a4a] transition-colors"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Logout...' : 'Logout'}
+                  </button>
+                </div>
               </div>
-            ) : (
-              <Link
-                href="/login"
-                className="bg-[#C5FC40] text-black font-semibold text-sm rounded-full p-2 hover:bg-lime-300 transition text-center"
-                onClick={() => setIsOpen(false)}
-              >
-                Login
-              </Link>
             )}
           </div>
         </div>
-      )}
-    </nav>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden md:hidden bg-[#2C473A] px-4 pt-4 pb-6 space-y-4"
+              ref={mobileMenuRef}
+            >
+              {navItems.map((item, idx) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'block text-sm font-semibold transition-colors text-center',
+                    isActive(item.href) ? 'text-white' : 'text-white/70 hover:text-white'
+                  )}
+                  onClick={() => setIsOpen(false)}
+                  style={{ borderBottom: idx !== navItems.length - 1 ? '1px solid rgba(255,255,255,0.2)' : 'none', paddingBottom: '0.5rem' }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {!isAuthenticated && (
+                <div className="flex justify-center mt-4">
+                  <Link
+                    href="/login"
+                    className="bg-[#C5FC40] text-black font-semibold text-sm px-5 py-2 rounded-full hover:bg-lime-300 transition w-full max-w-[200px] text-center"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Login
+                  </Link>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      <AlertModal
+        isOpen={openLogoutModal}
+        onClose={() => setOpenLogoutModal(false)}
+        onConfirm={async () => {
+          setIsLoading(true)
+          try {
+            await handleLogout()
+          } finally {
+            setIsLoading(false)
+            setOpenLogoutModal(false)
+          }
+        }}
+        loading={isLoading}
+        title="Konfirmasi Logout"
+        description="Apakah Anda yakin ingin keluar dari akun?"
+        confirmText={isLoading ? 'Logout...' : 'Logout'}
+      />
+    </>
   )
 }

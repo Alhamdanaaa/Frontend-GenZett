@@ -15,28 +15,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Sport } from '@/constants/data';
-
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp'
-];
+import { useRouter } from 'next/navigation';
+import { createSport, updateSport } from '@/lib/api/sports';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
-  img: z
-    .any()
-    .refine((files) => files?.length == 1, 'Gambar lokasi diperlukan.')
-    .refine(
-      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Ukuran file maksimal 5MB.`
-    )
-    .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      'Hanya menerima file .jpg, .jpeg, .png dan .webp.'
-    ),
-  name: z.string().min(2, {
+  sportName: z.string().min(2, {
     message: 'Nama olahraga minimal 2 karakter.'
   }),
   description: z.string().min(10, {
@@ -52,9 +36,8 @@ export default function SportForm({
   pageTitle: string;
 }) {
   const defaultValues = {
-    name: initialData?.name || '',
-    description: initialData?.description || '',
-    img: []
+    sportName: initialData?.sportName || '',
+    description: initialData?.description || ''
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -62,8 +45,36 @@ export default function SportForm({
     defaultValues
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('Form submitted:', values);
+  const router = useRouter();
+  const isEdit = !!initialData;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      if (isEdit) {
+        await updateSport(initialData!.sportId, values);
+        toast.success('Olahraga berhasil diperbarui!');
+      } else {
+        const res = await createSport(values);
+        toast.success('Olahraga berhasil ditambahkan!');
+        router.push(`/sports/${res.sport.sportId}`);
+      }
+
+      router.push('/dashboard/sport');
+    } catch (error: any) {
+      if (error.response?.status === 422) {
+        const errors = error.response.data.errors;
+
+        if (errors?.sportName?.[0]?.includes('taken')) {
+          toast.error('Nama olahraga sudah digunakan!');
+          return;
+        }
+        toast.error('Validasi gagal. Periksa kembali input Anda.');
+        return;
+      }
+
+      toast.error('Terjadi kesalahan saat menyimpan olahraga.');
+      console.error('Gagal menyimpan olahraga:', error);
+    }
   }
 
   return (
@@ -78,7 +89,7 @@ export default function SportForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <FormField
               control={form.control}
-              name='name'
+              name='sportName'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nama Olahraga</FormLabel>
@@ -108,7 +119,19 @@ export default function SportForm({
               )}
             />
 
-            <Button type='submit'>Simpan Olahraga</Button>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-800 text-red-800 hover:bg-red-100 hover:text-red-800"
+                onClick={() => router.push('/dashboard/sport')}
+              >
+                Batal
+              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Menyimpan...' : 'Simpan Olahraga'}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

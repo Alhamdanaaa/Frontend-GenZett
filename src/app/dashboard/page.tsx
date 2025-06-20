@@ -1,12 +1,27 @@
-import { auth } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
-export default async function Dashboard() {
-  const { userId } = await auth();
+export default async function DashboardPage() {
+  const token = (await cookies()).get('token')?.value;
 
-  if (!userId) {
-    return redirect('/auth/sign-in');
-  } else {
-    redirect('/dashboard/overview');
+  if (!token) {
+    redirect('/login');
+  }
+
+  try {
+    const decoded = jwtDecode<{ role?: string }>(token);
+
+    if (decoded.role === 'admin') {
+      redirect('/dashboard/overview-admin');
+    }
+
+    if (decoded.role === 'superadmin') {
+      redirect('/dashboard/overview');
+    }
+
+    redirect('/');
+  } catch {
+    redirect('/login');
   }
 }

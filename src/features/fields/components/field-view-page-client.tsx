@@ -26,8 +26,29 @@ const FieldForm = dynamic(
 interface FieldViewPageClientProps {
   field: Field | null;
   pageTitle: string;
+  locationOptions: { label: string; value: string }[];
+  sportOptions: { label: string; value: string }[];
+  userRole?: string;
+  userLocationId?: string;
 }
 
-export default function FieldViewPageClient({ field, pageTitle }: FieldViewPageClientProps) {
-  return <FieldForm initialData={field} pageTitle={pageTitle} />;
+export default function FieldViewPageClient({
+  field,
+  pageTitle,
+  locationOptions,
+  sportOptions,
+  userRole,
+  userLocationId
+}: FieldViewPageClientProps) {
+  return (
+    <FieldForm
+      initialData={field}
+      pageTitle={pageTitle}
+      locationOptions={locationOptions}
+      sportOptions={sportOptions}
+      userRole={userRole}
+      userLocationId={userLocationId}
+    />
+  );
 }
+

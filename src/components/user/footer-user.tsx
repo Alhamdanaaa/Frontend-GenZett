@@ -1,96 +1,91 @@
 import { Separator } from '@/components/ui/separator';
 import { FaTiktok, FaInstagram, FaWhatsapp, FaFacebook } from 'react-icons/fa';
+import Link from "next/link";
 
 export default function FooterUser() {
   return (
-    <footer className='mt-10 bg-[#2C473A] text-neutral-100'>
+    <footer className='bg-[#2C473A] text-neutral-100'>
       <div className='mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-10 md:grid-cols-4'>
         {/* Logo & Description */}
         <div className='col-span-1'>
-          <h2 className='mb-4 text-2xl font-bold text-white'>
-            ReSports
-          </h2>
+          <Link href="/" className="flex items-center">
+            <img src="/Logo.svg" alt="ReSports Logo" className="h-15 w-auto" />
+          </Link>
         </div>
 
         {/* Links */}
         <div className='col-span-1'>
-          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Useful Links</h4>
+          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Tautan Navigasi</h4>
           <ul className='space-y-2 text-sm'>
             <li>
-              <a href='#' className='hover:underline'>
-                Home
-              </a>
+              <Link href='/' className='hover:underline'>
+                Beranda
+              </Link>
             </li>
             <li>
-              <a href='#' className='hover:underline'>
-                About Us
-              </a>
+              <Link href='/reservation' className='hover:underline'>
+                Reservasi
+              </Link>
             </li>
             <li>
-              <a href='#' className='hover:underline'>
-                Booking
-              </a>
+              <Link href='/history' className='hover:underline'>
+                Riwayat
+              </Link>
             </li>
-            <li>
-              <a href='#' className='hover:underline'>
-                FAQ
-              </a>
-            </li>
+            {/* <li>
+              <Link href='#' className='hover:underline'>
+                Paket Langganan
+              </Link>
+            </li> */}
           </ul>
         </div>
 
         <div className='col-span-1'>
-          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Follow Us</h4>
+          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Ikuti Kami</h4>
           <ul className='flex space-x-4 text-2xl'>
             <li>
-              <a 
-                href='#' 
-                // className='hover:text-pink-600' 
-                aria-label='TikTok'>
-                <FaTiktok className='h-6 w-6' />
-              </a>
+              <Link href='#' passHref legacyBehavior>
+                <a aria-label='TikTok'>
+                  <FaTiktok className='h-6 w-6' />
+                </a>
+              </Link>
             </li>
             <li>
-              <a
-                href='#'
-                // className='hover:text-purple-600'
-                aria-label='Instagram'
-              >
-                <FaInstagram className='h-6 w-6' />
-              </a>
+              <Link href='#' passHref legacyBehavior>
+                <a aria-label='Instagram'>
+                  <FaInstagram className='h-6 w-6' />
+                </a>
+              </Link>
             </li>
             <li>
-              <a
-                href='#'
-                // className='hover:text-green-500'
-                aria-label='WhatsApp'
-              >
-                <FaWhatsapp className='h-6 w-6' />
-              </a>
+              <Link href='#' passHref legacyBehavior>
+                <a aria-label='WhatsApp'>
+                  <FaWhatsapp className='h-6 w-6' />
+                </a>
+              </Link>
             </li>
             <li>
-              <a 
-                href='#' 
-                // className='hover:text-blue-600' 
-                aria-label='Facebook'>
-                <FaFacebook className='h-6 w-6' />
-              </a>
+              <Link href='#' passHref legacyBehavior>
+                <a aria-label='Facebook'>
+                  <FaFacebook className='h-6 w-6' />
+                </a>
+              </Link>
             </li>
           </ul>
         </div>
 
         <div className='col-span-1'>
-          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Contact</h4>
+          <h4 className='mb-3 text-lg font-semibold text-[#C5FC40]'>Kontak Kami</h4>
           <ul className='space-y-2 text-sm'>
             <li>
-              <a href='#' className='hover:underline'>
+              <Link href='tel:081234567890' className='hover:underline'>
                 0812-3456-7890
-              </a>
+              </Link>
             </li>
             <li>
-              <a href='#' className='hover:underline'>
+              <Link href='mailto:support@resports.agency' className='hover:underline'>
                 support@resports.agency
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -98,9 +93,9 @@ export default function FooterUser() {
 
       <Separator className='my-4' />
 
-    <div className='mx-auto max-w-7xl px-4 pb-6 text-right text-xs'>
-      &copy; 2025 ReSports. All rights reserved.
-    </div>
+      <div className='mx-auto max-w-7xl px-4 pb-6 text-right text-xs'>
+        &copy; 2025 ReSports. All rights reserved.
+      </div>
     </footer>
   );
 }

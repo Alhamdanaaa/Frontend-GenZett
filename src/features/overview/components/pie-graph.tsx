@@ -19,54 +19,47 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 
-const chartData = [
-  { browser: 'chrome', visitors: 275, fill: 'var(--primary)' },
-  { browser: 'safari', visitors: 200, fill: 'var(--primary-light)' },
-  { browser: 'firefox', visitors: 287, fill: 'var(--primary-lighter)' },
-  { browser: 'edge', visitors: 173, fill: 'var(--primary-dark)' },
-  { browser: 'other', visitors: 190, fill: 'var(--primary-darker)' }
-];
+import { ReservasiPerCabang } from '@/constants/data';
+import { fetchDashboardData } from '@/lib/api/dashboardsuadmin';
 
-const chartConfig = {
-  visitors: {
-    label: 'Visitors'
-  },
-  chrome: {
-    label: 'Chrome',
-    color: 'var(--primary)'
-  },
-  safari: {
-    label: 'Safari',
-    color: 'var(--primary)'
-  },
-  firefox: {
-    label: 'Firefox',
-    color: 'var(--primary)'
-  },
-  edge: {
-    label: 'Edge',
-    color: 'var(--primary)'
-  },
-  other: {
-    label: 'Other',
-    color: 'var(--primary)'
-  }
-} satisfies ChartConfig;
+const chartConfig: ChartConfig = {};
 
 export default function PieGraph() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
+  const [data, setData] = React.useState<ReservasiPerCabang[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      try {
+        const dashboard = await fetchDashboardData();
+        setData(dashboard.reservasi_per_cabang);
+      } catch (error) {
+        console.error('Failed to load statistics:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
   }, []);
+
+  const totalReservasi = React.useMemo(() => {
+    return data?.reduce((acc, curr) => acc + curr.total_reservasi, 0) || 0;
+  }, [data]);
+
+  if (isLoading) {
+    return <div>Memuat Pie Graph...</div>;
+  }
 
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
+        <CardTitle>Total Reservasi Seluruh Cabang</CardTitle>
         <CardDescription>
-          <span className='hidden @[540px]/card:block'>
-            Total visitors by browser for the last 6 months
-          </span>
-          <span className='@[540px]/card:hidden'>Browser distribution</span>
+          {/* <span className='hidden @[540px]/card:block'>
+            Total Reservasi Tiap Cabang pada 6 Bulan Terakhir
+          </span> */}
+          <span className='@[540px]/card:hidden'>Data reservasi per Lokasi Cabang</span>
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -76,41 +69,39 @@ export default function PieGraph() {
         >
           <PieChart>
             <defs>
-              {['chrome', 'safari', 'firefox', 'edge', 'other'].map(
-                (browser, index) => (
-                  <linearGradient
-                    key={browser}
-                    id={`fill${browser}`}
-                    x1='0'
-                    y1='0'
-                    x2='0'
-                    y2='1'
-                  >
-                    <stop
-                      offset='0%'
-                      stopColor='var(--primary)'
-                      stopOpacity={1 - index * 0.15}
-                    />
-                    <stop
-                      offset='100%'
-                      stopColor='var(--primary)'
-                      stopOpacity={0.8 - index * 0.15}
-                    />
-                  </linearGradient>
-                )
-              )}
+              {data.map((item, index) => (
+                <linearGradient
+                  key={item.locationName}
+                  id={`fill${item.locationName}`}
+                  x1='0'
+                  y1='0'
+                  x2='0'
+                  y2='1'
+                >
+                  <stop
+                    offset='0%'
+                    stopColor='var(--primary)'
+                    stopOpacity={1 - index * 0.15}
+                  />
+                  <stop
+                    offset='100%'
+                    stopColor='var(--primary)'
+                    stopOpacity={0.8 - index * 0.15}
+                  />
+                </linearGradient>
+              ))}
             </defs>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={chartData.map((item) => ({
+              data={data.map((item) => ({
                 ...item,
-                fill: `url(#fill${item.browser})`
+                fill: `url(#fill${item.locationName})`
               }))}
-              dataKey='visitors'
-              nameKey='browser'
+              dataKey='total_reservasi'
+              nameKey='locationName'
               innerRadius={60}
               strokeWidth={2}
               stroke='var(--background)'
@@ -130,14 +121,14 @@ export default function PieGraph() {
                           y={viewBox.cy}
                           className='fill-foreground text-3xl font-bold'
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalReservasi.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className='fill-muted-foreground text-sm'
                         >
-                          Total Visitors
+                          Total Reservasi
                         </tspan>
                       </text>
                     );
@@ -149,13 +140,15 @@ export default function PieGraph() {
         </ChartContainer>
       </CardContent>
       <CardFooter className='flex-col gap-2 text-sm'>
-        <div className='flex items-center gap-2 leading-none font-medium'>
-          Chrome leads with{' '}
-          {((chartData[0].visitors / totalVisitors) * 100).toFixed(1)}%{' '}
-          <IconTrendingUp className='h-4 w-4' />
-        </div>
+        {data.length > 0 && (
+          <div className="flex items-center gap-2 leading-none font-medium">
+            <span className="text-primary font-semibold">Lokasi Cabang {data[0].locationName}</span>
+            <IconTrendingUp className="h-4 w-4 text-primary" />
+          </div>
+        )}
         <div className='text-muted-foreground leading-none'>
-          Based on data from January - June 2024
+          Memiliki reservasi terbanyak dengan {data[0].total_reservasi.toLocaleString()} pesanan
+            ({((data[0].total_reservasi / totalReservasi) * 100).toFixed(1)}%)
         </div>
       </CardFooter>
     </Card>

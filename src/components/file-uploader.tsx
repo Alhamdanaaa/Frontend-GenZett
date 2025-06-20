@@ -99,7 +99,7 @@ export function FileUploader(props: FileUploaderProps) {
     onUpload,
     progresses,
     accept = { 'image/*': [] },
-    maxSize = 1024 * 1024 * 2,
+    maxSize = 1024 * 1024 * 4,
     maxFiles = 1,
     multiple = false,
     disabled = false,
@@ -115,12 +115,12 @@ export function FileUploader(props: FileUploaderProps) {
   const onDrop = React.useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (!multiple && maxFiles === 1 && acceptedFiles.length > 1) {
-        toast.error('Cannot upload more than 1 file at a time');
+        toast.error('Tidak dapat mengunggah lebih dari 1 file secara bersamaan');
         return;
       }
 
       if ((files?.length ?? 0) + acceptedFiles.length > maxFiles) {
-        toast.error(`Cannot upload more than ${maxFiles} files`);
+        toast.error(`Tidak dapat mengunggah lebih dari ${maxFiles} file`);
         return;
       }
 
@@ -136,7 +136,7 @@ export function FileUploader(props: FileUploaderProps) {
 
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file }) => {
-          toast.error(`File ${file.name} was rejected`);
+          toast.error(`File ${file.name} ditolak`);
         });
       }
 
@@ -149,12 +149,12 @@ export function FileUploader(props: FileUploaderProps) {
           updatedFiles.length > 0 ? `${updatedFiles.length} files` : `file`;
 
         toast.promise(onUpload(updatedFiles), {
-          loading: `Uploading ${target}...`,
+          loading: `Mengunggah ${target}...`,
           success: () => {
             setFiles([]);
-            return `${target} uploaded`;
+            return `${target} berhasil diunggah`;
           },
-          error: `Failed to upload ${target}`
+          error: `Gagal mengunggah ${target}`
         });
       }
     },
@@ -216,7 +216,7 @@ export function FileUploader(props: FileUploaderProps) {
                   />
                 </div>
                 <p className='text-muted-foreground font-medium'>
-                  Drop the files here
+                  Drop file di sini
                 </p>
               </div>
             ) : (
@@ -229,14 +229,10 @@ export function FileUploader(props: FileUploaderProps) {
                 </div>
                 <div className='space-y-px'>
                   <p className='text-muted-foreground font-medium'>
-                    Drag {`'n'`} drop files here, or click to select files
+                    Unggah gambar di sini, atau klik untuk memilih file
                   </p>
                   <p className='text-muted-foreground/70 text-sm'>
-                    You can upload
-                    {maxFiles > 1
-                      ? ` ${maxFiles === Infinity ? 'multiple' : maxFiles}
-                      files (up to ${formatBytes(maxSize)} each)`
-                      : ` a file with ${formatBytes(maxSize)}`}
+                    Kamu dapat mengunggah {maxFiles} file dengan ukuran hingga {formatBytes(maxSize)}
                   </p>
                 </div>
               </div>
@@ -304,7 +300,7 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
           className='size-8 rounded-full'
         >
           <IconX className='text-muted-foreground' />
-          <span className='sr-only'>Remove file</span>
+          <span className='sr-only'>Hapus file</span>
         </Button>
       </div>
     </div>

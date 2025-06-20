@@ -1,6 +1,15 @@
 # **Frontend-GenZett**  
 # **Sport Center Reservation - Frontend**  
 
+## 🔹 Identitas Kelompok 4 | GenZett
+| Nama | NIM / No. Absen |
+|-----------------------------|----------------|
+| Alhamdana Fariz Al Furqaan | 2241720115 / 03 |
+| Diva Aji Kurniawan | 2241720183 / 06 |
+| Febrianti Mayori | 2241720248 / 07 |
+| Filla Ramadhani Utomo | 2241720209 / 09 |
+| Mochammad Nizar Mahi | 2241720185 / 13 |
+
 ## **Deskripsi Proyek**  
 Ini adalah bagian frontend untuk sistem reservasi lapangan olahraga menggunakan **Next.js** dan **ShadCN UI**. Proyek ini terhubung dengan backend di repository terpisah.  
 

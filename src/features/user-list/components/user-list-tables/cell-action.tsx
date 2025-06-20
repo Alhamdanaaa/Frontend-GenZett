@@ -1,33 +1,42 @@
 'use client';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { User } from '@/constants/data';
-import { IconEdit, IconDotsVertical, IconTrash, IconListDetails } from '@tabler/icons-react';
+import { deleteUser } from '@/lib/api/user';
+import { IconEdit, IconTrash, IconEye } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { lazy, Suspense, useState } from 'react';
+import { toast } from 'sonner';
 
-const UserDetailDialog = lazy(() => 
-  import('../user-detail-dialog')
-);
+// const UserDetailDialog = lazy(() => 
+//   import('../user-detail-dialog')
+// );
 
 interface CellActionProps {
   data: User;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    setLoading(true);
+    try {
+      await deleteUser(Number(data.id)); // cukup panggil dan biarkan throw jika error
+      setOpen(false);
+      router.refresh(); // Refresh data
+      toast.success("Data berhasil dihapus");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? 'Terjadi kesalahan saat menghapus data';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -37,44 +46,51 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         onConfirm={onConfirm}
         loading={loading}
       />
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
-            <IconDotsVertical className='h-4 w-4' />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setShowDetail(true);
-            }}
-          >
-            <IconListDetails className='mr-2 h-4 w-4' /> Detail
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/user/${data.userId}`)}
-          >
-            <IconEdit className='mr-2 h-4 w-4' /> Ubah
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <IconTrash className='mr-2 h-4 w-4' /> Hapus
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex flex-row gap-2">
+        <TooltipProvider>
+          {/* <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className='shadow-md'
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDetail(true)}
+              >
+                <IconEye className="h-4 w-4 stroke-blue-600" /> */}
+                {/* <IconListDetails className="h-4 w-4 stroke-blue-600" /> */}
+              {/* </Button>
+            </TooltipTrigger>
+            <TooltipContent>Detail</TooltipContent>
+          </Tooltip> */}
 
-      {showDetail && (
-        <Suspense fallback={<div>Loading...</div>}>
-          <UserDetailDialog
-            data={data}
-            trigger={<div style={{display: 'none'}} />}
-            open={showDetail}
-            onOpenChange={setShowDetail}
-          />
-        </Suspense>
-      )}
+          {/* <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className='shadow-md'
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  router.push(`/dashboard/user/${data.id}`);
+                }}
+              >
+                <IconEdit className="h-4 w-4 stroke-amber-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Ubah</TooltipContent>
+          </Tooltip> */}
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className='shadow-md'
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(true)}
+              >
+                <IconTrash className="h-4 w-4 stroke-red-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Hapus</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </>
   );
 };
