@@ -144,7 +144,7 @@ const convertPaymentStatus = (status: any) => {
 
 const formatDate = (dateString: any) => {
   if (!dateString) return '-';
-  
+
   const date = new Date(dateString);
   const day = date.getDate();
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sept', 'Okt', 'Nov', 'Des'];
@@ -224,9 +224,17 @@ export default function HistoryPage() {
       if (result.success && result.data) {
         const updatedData = result.data.map((booking) => {
           const firstDetail = booking.details[0];
-          const status = getStatusFromTime(firstDetail.date, firstDetail.time.time);
+          let status: Reservation["status"];
+
+          if (booking.paymentStatus === "canceled") {
+            status = "canceled";
+          } else {
+            status = getStatusFromTime(firstDetail.date, firstDetail.time.time);
+          }
+
           return { ...booking, status };
         });
+
 
         if (page === 1) {
           setAllData(updatedData);
